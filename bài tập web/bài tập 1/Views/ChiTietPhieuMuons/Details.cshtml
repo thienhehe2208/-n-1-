@@ -1,0 +1,48 @@
+﻿@model bài_tập_1.Models.ChiTietPhieuMuon
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>ChiTietPhieuMuon</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PhieuMuon)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PhieuMuon.MaPhieuMuon)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BanSao)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BanSao.MaVach)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NgayTra)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NgayTra)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TinhTrangKhiTra)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TinhTrangKhiTra)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.GhiChu)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.GhiChu)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.MaChiTiet">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

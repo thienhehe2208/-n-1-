@@ -1,0 +1,49 @@
+﻿@model bài_tập_1.Models.TacGia
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>TacGia</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MaTacGia" />
+            <div class="form-group">
+                <label asp-for="HoTen" class="control-label"></label>
+                <input asp-for="HoTen" class="form-control" />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NgaySinh" class="control-label"></label>
+                <input asp-for="NgaySinh" class="form-control" />
+                <span asp-validation-for="NgaySinh" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="QuocTich" class="control-label"></label>
+                <input asp-for="QuocTich" class="form-control" />
+                <span asp-validation-for="QuocTich" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TieuSu" class="control-label"></label>
+                <input asp-for="TieuSu" class="form-control" />
+                <span asp-validation-for="TieuSu" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
