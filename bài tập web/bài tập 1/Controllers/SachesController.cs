@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +20,14 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: Saches
+        // Danh sách sách - ai cũng xem được, không cần đăng nhập
         public async Task<IActionResult> Index()
         {
             var bài_tập_1Context = _context.Sach.Include(s => s.NhaXuatBan).Include(s => s.TheLoai);
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // GET: Saches/Details/5
+        // Xem chi tiết 1 sách - ai cũng xem được
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Sach == null)
@@ -46,7 +47,8 @@ namespace bài_tập_1.Controllers
             return View(sach);
         }
 
-        // GET: Saches/Create
+        // Hiển thị form thêm sách - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public IActionResult Create()
         {
             ViewData["MaNXB"] = new SelectList(_context.Set<NhaXuatBan>(), "MaNXB", "TenNXB");
@@ -54,9 +56,8 @@ namespace bài_tập_1.Controllers
             return View();
         }
 
-        // POST: Saches/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu sách mới - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaSach,TenSach,ISBN,GiaSach,MaTheLoai,MaNXB,NamXuatBan,SoTrang,NgonNgu,MoTa,AnhBia")] Sach sach)
@@ -72,7 +73,8 @@ namespace bài_tập_1.Controllers
             return View(sach);
         }
 
-        // GET: Saches/Edit/5
+        // Hiển thị form sửa sách - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Sach == null)
@@ -90,9 +92,8 @@ namespace bài_tập_1.Controllers
             return View(sach);
         }
 
-        // POST: Saches/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật sách - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaSach,TenSach,ISBN,GiaSach,MaTheLoai,MaNXB,NamXuatBan,SoTrang,NgonNgu,MoTa,AnhBia")] Sach sach)
@@ -127,7 +128,8 @@ namespace bài_tập_1.Controllers
             return View(sach);
         }
 
-        // GET: Saches/Delete/5
+        // Hiển thị xác nhận xóa sách - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Sach == null)
@@ -147,7 +149,8 @@ namespace bài_tập_1.Controllers
             return View(sach);
         }
 
-        // POST: Saches/Delete/5
+        // Xử lý xóa sách - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -161,14 +164,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.Sach.Remove(sach);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool SachExists(int id)
         {
-          return (_context.Sach?.Any(e => e.MaSach == id)).GetValueOrDefault();
+            return (_context.Sach?.Any(e => e.MaSach == id)).GetValueOrDefault();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
+    // Quản lý tài khoản nhân viên/admin - quyền cao nhất, chỉ Admin được vào
+    [Authorize(Roles = "Admin")]
     public class NhanViensController : Controller
     {
         private readonly bài_tập_1Context _context;
@@ -19,14 +22,14 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: NhanViens
+        // Danh sách nhân viên
         public async Task<IActionResult> Index()
         {
             var bài_tập_1Context = _context.NhanVien.Include(n => n.User);
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // GET: NhanViens/Details/5
+        // Xem chi tiết 1 nhân viên
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.NhanVien == null)
@@ -45,16 +48,14 @@ namespace bài_tập_1.Controllers
             return View(nhanVien);
         }
 
-        // GET: NhanViens/Create
+        // Hiển thị form thêm nhân viên
         public IActionResult Create()
         {
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
-        // POST: NhanViens/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu nhân viên mới
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaNhanVien,UserId,HoTen,NgaySinh,GioiTinh,DiaChi,SoDienThoai,Email,ChucVu,NgayVaoLam")] NhanVien nhanVien)
@@ -69,7 +70,7 @@ namespace bài_tập_1.Controllers
             return View(nhanVien);
         }
 
-        // GET: NhanViens/Edit/5
+        // Hiển thị form sửa nhân viên
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.NhanVien == null)
@@ -86,9 +87,7 @@ namespace bài_tập_1.Controllers
             return View(nhanVien);
         }
 
-        // POST: NhanViens/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật nhân viên
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaNhanVien,UserId,HoTen,NgaySinh,GioiTinh,DiaChi,SoDienThoai,Email,ChucVu,NgayVaoLam")] NhanVien nhanVien)
@@ -122,7 +121,7 @@ namespace bài_tập_1.Controllers
             return View(nhanVien);
         }
 
-        // GET: NhanViens/Delete/5
+        // Hiển thị xác nhận xóa nhân viên
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.NhanVien == null)
@@ -141,7 +140,7 @@ namespace bài_tập_1.Controllers
             return View(nhanVien);
         }
 
-        // POST: NhanViens/Delete/5
+        // Xử lý xóa nhân viên
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,14 +154,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.NhanVien.Remove(nhanVien);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool NhanVienExists(int id)
         {
-          return (_context.NhanVien?.Any(e => e.MaNhanVien == id)).GetValueOrDefault();
+            return (_context.NhanVien?.Any(e => e.MaNhanVien == id)).GetValueOrDefault();
         }
     }
 }

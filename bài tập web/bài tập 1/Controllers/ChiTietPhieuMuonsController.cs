@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
+    // Chi tiết phiếu mượn là dữ liệu con của PhieuMuon, chỉ nhân viên thao tác
+    [Authorize(Roles = "Admin,NhanVien")]
     public class ChiTietPhieuMuonsController : Controller
     {
         private readonly bài_tập_1Context _context;
@@ -19,14 +22,14 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: ChiTietPhieuMuons
+        // Danh sách chi tiết phiếu mượn
         public async Task<IActionResult> Index()
         {
             var bài_tập_1Context = _context.ChiTietPhieuMuon.Include(c => c.BanSao).Include(c => c.PhieuMuon);
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // GET: ChiTietPhieuMuons/Details/5
+        // Xem chi tiết 1 dòng
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.ChiTietPhieuMuon == null)
@@ -46,7 +49,7 @@ namespace bài_tập_1.Controllers
             return View(chiTietPhieuMuon);
         }
 
-        // GET: ChiTietPhieuMuons/Create
+        // Hiển thị form thêm chi tiết
         public IActionResult Create()
         {
             ViewData["MaBanSao"] = new SelectList(_context.BanSao, "MaBanSao", "MaVach");
@@ -54,9 +57,7 @@ namespace bài_tập_1.Controllers
             return View();
         }
 
-        // POST: ChiTietPhieuMuons/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu chi tiết mới
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaChiTiet,MaPhieuMuon,MaBanSao,NgayTra,TinhTrangKhiTra,GhiChu")] ChiTietPhieuMuon chiTietPhieuMuon)
@@ -72,7 +73,7 @@ namespace bài_tập_1.Controllers
             return View(chiTietPhieuMuon);
         }
 
-        // GET: ChiTietPhieuMuons/Edit/5
+        // Hiển thị form sửa chi tiết (dùng cho chức năng "trả sách")
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.ChiTietPhieuMuon == null)
@@ -90,9 +91,7 @@ namespace bài_tập_1.Controllers
             return View(chiTietPhieuMuon);
         }
 
-        // POST: ChiTietPhieuMuons/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật chi tiết
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaChiTiet,MaPhieuMuon,MaBanSao,NgayTra,TinhTrangKhiTra,GhiChu")] ChiTietPhieuMuon chiTietPhieuMuon)
@@ -127,7 +126,7 @@ namespace bài_tập_1.Controllers
             return View(chiTietPhieuMuon);
         }
 
-        // GET: ChiTietPhieuMuons/Delete/5
+        // Hiển thị xác nhận xóa chi tiết
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.ChiTietPhieuMuon == null)
@@ -147,7 +146,7 @@ namespace bài_tập_1.Controllers
             return View(chiTietPhieuMuon);
         }
 
-        // POST: ChiTietPhieuMuons/Delete/5
+        // Xử lý xóa chi tiết
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -161,14 +160,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.ChiTietPhieuMuon.Remove(chiTietPhieuMuon);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ChiTietPhieuMuonExists(int id)
         {
-          return (_context.ChiTietPhieuMuon?.Any(e => e.MaChiTiet == id)).GetValueOrDefault();
+            return (_context.ChiTietPhieuMuon?.Any(e => e.MaChiTiet == id)).GetValueOrDefault();
         }
     }
 }

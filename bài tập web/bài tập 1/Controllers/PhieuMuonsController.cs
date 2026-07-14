@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
+    // Nghiệp vụ lập/quản lý phiếu mượn do nhân viên xử lý, không công khai cho độc giả
+    [Authorize(Roles = "Admin,NhanVien")]
     public class PhieuMuonsController : Controller
     {
         private readonly bài_tập_1Context _context;
@@ -19,14 +22,14 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: PhieuMuons
+        // Danh sách phiếu mượn
         public async Task<IActionResult> Index()
         {
             var bài_tập_1Context = _context.PhieuMuon.Include(p => p.DocGia).Include(p => p.NhanVien);
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // GET: PhieuMuons/Details/5
+        // Xem chi tiết 1 phiếu mượn
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.PhieuMuon == null)
@@ -46,7 +49,7 @@ namespace bài_tập_1.Controllers
             return View(phieuMuon);
         }
 
-        // GET: PhieuMuons/Create
+        // Hiển thị form lập phiếu mượn
         public IActionResult Create()
         {
             ViewData["MaDocGia"] = new SelectList(_context.DocGia, "MaDocGia", "HoTen");
@@ -54,9 +57,7 @@ namespace bài_tập_1.Controllers
             return View();
         }
 
-        // POST: PhieuMuons/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu phiếu mượn mới
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaPhieuMuon,MaDocGia,MaNhanVien,NgayMuon,NgayHenTra,TrangThai")] PhieuMuon phieuMuon)
@@ -72,7 +73,7 @@ namespace bài_tập_1.Controllers
             return View(phieuMuon);
         }
 
-        // GET: PhieuMuons/Edit/5
+        // Hiển thị form sửa phiếu mượn
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.PhieuMuon == null)
@@ -90,9 +91,7 @@ namespace bài_tập_1.Controllers
             return View(phieuMuon);
         }
 
-        // POST: PhieuMuons/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật phiếu mượn
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaPhieuMuon,MaDocGia,MaNhanVien,NgayMuon,NgayHenTra,TrangThai")] PhieuMuon phieuMuon)
@@ -127,7 +126,7 @@ namespace bài_tập_1.Controllers
             return View(phieuMuon);
         }
 
-        // GET: PhieuMuons/Delete/5
+        // Hiển thị xác nhận xóa phiếu mượn
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.PhieuMuon == null)
@@ -147,7 +146,7 @@ namespace bài_tập_1.Controllers
             return View(phieuMuon);
         }
 
-        // POST: PhieuMuons/Delete/5
+        // Xử lý xóa phiếu mượn
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -161,14 +160,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.PhieuMuon.Remove(phieuMuon);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PhieuMuonExists(int id)
         {
-          return (_context.PhieuMuon?.Any(e => e.MaPhieuMuon == id)).GetValueOrDefault();
+            return (_context.PhieuMuon?.Any(e => e.MaPhieuMuon == id)).GetValueOrDefault();
         }
     }
 }

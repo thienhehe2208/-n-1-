@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
+    // Lập/quản lý phiếu phạt do nhân viên xử lý khi độc giả trả trễ/mất/hỏng sách
+    [Authorize(Roles = "Admin,NhanVien")]
     public class PhieuPhatsController : Controller
     {
         private readonly bài_tập_1Context _context;
@@ -19,14 +22,14 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: PhieuPhats
+        // Danh sách phiếu phạt
         public async Task<IActionResult> Index()
         {
             var bài_tập_1Context = _context.PhieuPhat.Include(p => p.ChiTietPhieuMuon);
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // GET: PhieuPhats/Details/5
+        // Xem chi tiết 1 phiếu phạt
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.PhieuPhat == null)
@@ -45,16 +48,14 @@ namespace bài_tập_1.Controllers
             return View(phieuPhat);
         }
 
-        // GET: PhieuPhats/Create
+        // Hiển thị form lập phiếu phạt
         public IActionResult Create()
         {
             ViewData["MaChiTiet"] = new SelectList(_context.ChiTietPhieuMuon, "MaChiTiet", "MaChiTiet");
             return View();
         }
 
-        // POST: PhieuPhats/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu phiếu phạt mới
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaPhieuPhat,MaChiTiet,SoTien,LyDo,NgayLap,TrangThai")] PhieuPhat phieuPhat)
@@ -69,7 +70,7 @@ namespace bài_tập_1.Controllers
             return View(phieuPhat);
         }
 
-        // GET: PhieuPhats/Edit/5
+        // Hiển thị form sửa phiếu phạt
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.PhieuPhat == null)
@@ -86,9 +87,7 @@ namespace bài_tập_1.Controllers
             return View(phieuPhat);
         }
 
-        // POST: PhieuPhats/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật phiếu phạt
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaPhieuPhat,MaChiTiet,SoTien,LyDo,NgayLap,TrangThai")] PhieuPhat phieuPhat)
@@ -122,7 +121,7 @@ namespace bài_tập_1.Controllers
             return View(phieuPhat);
         }
 
-        // GET: PhieuPhats/Delete/5
+        // Hiển thị xác nhận xóa phiếu phạt
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.PhieuPhat == null)
@@ -141,7 +140,7 @@ namespace bài_tập_1.Controllers
             return View(phieuPhat);
         }
 
-        // POST: PhieuPhats/Delete/5
+        // Xử lý xóa phiếu phạt
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,14 +154,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.PhieuPhat.Remove(phieuPhat);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PhieuPhatExists(int id)
         {
-          return (_context.PhieuPhat?.Any(e => e.MaPhieuPhat == id)).GetValueOrDefault();
+            return (_context.PhieuPhat?.Any(e => e.MaPhieuPhat == id)).GetValueOrDefault();
         }
     }
 }

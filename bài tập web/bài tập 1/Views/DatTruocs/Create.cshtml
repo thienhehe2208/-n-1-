@@ -1,51 +1,46 @@
 ﻿@model bài_tập_1.Models.DatTruoc
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Đặt trước sách";
 }
 
-<h1>Create</h1>
+<h1>Đặt trước sách</h1>
 
-<h4>DatTruoc</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaDocGia" class="control-label"></label>
-                <select asp-for="MaDocGia" class ="form-control" asp-items="ViewBag.MaDocGia"></select>
-            </div>
+
+            @* Chỉ Admin/NhanVien mới thấy dropdown chọn độc giả - độc giả tự đặt thì controller tự gán */ *@
+            @if (ViewBag.IsStaff == true)
+            {
+                <div class="form-group">
+                    <label asp-for="MaDocGia" class="control-label">Đặt hộ cho độc giả</label>
+                    <select asp-for="MaDocGia" class="form-control" asp-items="ViewBag.MaDocGia"></select>
+                </div>
+            }
+
             <div class="form-group">
                 <label asp-for="MaSach" class="control-label"></label>
-                <select asp-for="MaSach" class ="form-control" asp-items="ViewBag.MaSach"></select>
+                <select asp-for="MaSach" class="form-control" asp-items="ViewBag.MaSach"></select>
             </div>
+
+            @* NgayDat và TrangThai không cho người dùng tự nhập - controller tự set khi lưu *@
+
             <div class="form-group">
-                <label asp-for="NgayDat" class="control-label"></label>
-                <input asp-for="NgayDat" class="form-control" />
-                <span asp-validation-for="NgayDat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayHetHanDat" class="control-label"></label>
-                <input asp-for="NgayHetHanDat" class="form-control" />
-                <span asp-validation-for="NgayHetHanDat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <select asp-for="TrangThai" class="form-control"></select>
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Đặt trước" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Quay lại danh sách</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

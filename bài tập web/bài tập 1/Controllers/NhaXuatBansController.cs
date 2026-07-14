@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,15 +20,15 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: NhaXuatBans
+        // Danh sách NXB - ai cũng xem được
         public async Task<IActionResult> Index()
         {
-              return _context.NhaXuatBan != null ? 
-                          View(await _context.NhaXuatBan.ToListAsync()) :
-                          Problem("Entity set 'bài_tập_1Context.NhaXuatBan'  is null.");
+            return _context.NhaXuatBan != null ?
+                        View(await _context.NhaXuatBan.ToListAsync()) :
+                        Problem("Entity set 'bài_tập_1Context.NhaXuatBan'  is null.");
         }
 
-        // GET: NhaXuatBans/Details/5
+        // Xem chi tiết 1 NXB - ai cũng xem được
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.NhaXuatBan == null)
@@ -45,15 +46,15 @@ namespace bài_tập_1.Controllers
             return View(nhaXuatBan);
         }
 
-        // GET: NhaXuatBans/Create
+        // Hiển thị form thêm NXB - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: NhaXuatBans/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu NXB mới - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaNXB,TenNXB,DiaChi,SoDienThoai,Email")] NhaXuatBan nhaXuatBan)
@@ -67,7 +68,8 @@ namespace bài_tập_1.Controllers
             return View(nhaXuatBan);
         }
 
-        // GET: NhaXuatBans/Edit/5
+        // Hiển thị form sửa NXB - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.NhaXuatBan == null)
@@ -83,9 +85,8 @@ namespace bài_tập_1.Controllers
             return View(nhaXuatBan);
         }
 
-        // POST: NhaXuatBans/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật NXB - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaNXB,TenNXB,DiaChi,SoDienThoai,Email")] NhaXuatBan nhaXuatBan)
@@ -118,7 +119,8 @@ namespace bài_tập_1.Controllers
             return View(nhaXuatBan);
         }
 
-        // GET: NhaXuatBans/Delete/5
+        // Hiển thị xác nhận xóa NXB - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.NhaXuatBan == null)
@@ -136,7 +138,8 @@ namespace bài_tập_1.Controllers
             return View(nhaXuatBan);
         }
 
-        // POST: NhaXuatBans/Delete/5
+        // Xử lý xóa NXB - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -150,14 +153,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.NhaXuatBan.Remove(nhaXuatBan);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool NhaXuatBanExists(int id)
         {
-          return (_context.NhaXuatBan?.Any(e => e.MaNXB == id)).GetValueOrDefault();
+            return (_context.NhaXuatBan?.Any(e => e.MaNXB == id)).GetValueOrDefault();
         }
     }
 }

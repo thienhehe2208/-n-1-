@@ -1,0 +1,48 @@
+@model IEnumerable<bài_tập_1.Models.PhieuMuon>
+
+@{
+    ViewData["Title"] = "Lịch sử mượn sách";
+}
+
+<h2>Lịch sử mượn sách</h2>
+
+@if (!Model.Any())
+{
+    <p>Bạn chưa có lượt mượn sách nào.</p>
+}
+else
+{
+    foreach (var phieu in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <span>Phiếu mượn #@phieu.MaPhieuMuon - Ngày mượn: @phieu.NgayMuon.ToString("dd/MM/yyyy")</span>
+                <span class="badge bg-secondary">@phieu.TrangThai</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Hẹn trả:</strong> @phieu.NgayHenTra.ToString("dd/MM/yyyy")</p>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Tên sách</th>
+                            <th>Ngày trả</th>
+                            <th>Tình trạng khi trả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ct in phieu.ChiTietPhieuMuons)
+                        {
+                            <tr>
+                                <td>@ct.BanSao?.Sach?.TenSach</td>
+                                <td>@(ct.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")</td>
+                                <td>@(ct.TinhTrangKhiTra?.ToString() ?? "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+<a asp-action="Index" class="btn btn-link">Quay lại thông tin cá nhân</a>

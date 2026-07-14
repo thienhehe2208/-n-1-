@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,9 @@ using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
+    // Quản lý bản sao (mã vạch, vị trí kệ, tình trạng) là dữ liệu vận hành nội bộ,
+    // không phải thông tin cho độc giả tra cứu -> khóa toàn bộ Controller
+    [Authorize(Roles = "Admin,NhanVien")]
     public class BanSaosController : Controller
     {
         private readonly bài_tập_1Context _context;
@@ -19,14 +23,14 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: BanSaos
+        // Danh sách bản sao
         public async Task<IActionResult> Index()
         {
             var bài_tập_1Context = _context.BanSao.Include(b => b.Sach);
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // GET: BanSaos/Details/5
+        // Xem chi tiết 1 bản sao
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.BanSao == null)
@@ -45,16 +49,14 @@ namespace bài_tập_1.Controllers
             return View(banSao);
         }
 
-        // GET: BanSaos/Create
+        // Hiển thị form thêm bản sao
         public IActionResult Create()
         {
             ViewData["MaSach"] = new SelectList(_context.Sach, "MaSach", "TenSach");
             return View();
         }
 
-        // POST: BanSaos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu bản sao mới
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaBanSao,MaSach,MaVach,TinhTrang,ViTriKe")] BanSao banSao)
@@ -69,7 +71,7 @@ namespace bài_tập_1.Controllers
             return View(banSao);
         }
 
-        // GET: BanSaos/Edit/5
+        // Hiển thị form sửa bản sao
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.BanSao == null)
@@ -86,9 +88,7 @@ namespace bài_tập_1.Controllers
             return View(banSao);
         }
 
-        // POST: BanSaos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật bản sao
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaBanSao,MaSach,MaVach,TinhTrang,ViTriKe")] BanSao banSao)
@@ -122,7 +122,7 @@ namespace bài_tập_1.Controllers
             return View(banSao);
         }
 
-        // GET: BanSaos/Delete/5
+        // Hiển thị xác nhận xóa bản sao
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.BanSao == null)
@@ -141,7 +141,7 @@ namespace bài_tập_1.Controllers
             return View(banSao);
         }
 
-        // POST: BanSaos/Delete/5
+        // Xử lý xóa bản sao
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,14 +155,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.BanSao.Remove(banSao);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BanSaoExists(int id)
         {
-          return (_context.BanSao?.Any(e => e.MaBanSao == id)).GetValueOrDefault();
+            return (_context.BanSao?.Any(e => e.MaBanSao == id)).GetValueOrDefault();
         }
     }
 }

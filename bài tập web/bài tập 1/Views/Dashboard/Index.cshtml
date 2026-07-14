@@ -1,0 +1,78 @@
+@model bài_tập_1.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Bảng điều khiển";
+}
+
+<h2>Bảng điều khiển</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card text-center p-3">
+            <h6>Tổng số sách</h6>
+            <h3>@Model.TongSoSach</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center p-3">
+            <h6>Tổng số bản sao</h6>
+            <h3>@Model.TongSoBanSao</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center p-3">
+            <h6>Độc giả hoạt động</h6>
+            <h3>@Model.TongSoDocGiaHoatDong</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center p-3">
+            <h6>Đang mượn</h6>
+            <h3>@Model.SoPhieuDangMuon</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center p-3 border-danger">
+            <h6>Quá hạn</h6>
+            <h3 class="text-danger">@Model.SoPhieuQuaHan</h3>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center p-3 border-warning">
+            <h6>Tiền phạt chưa thu</h6>
+            <h3 class="text-warning">@Model.TongTienPhatChuaThu.ToString("N0") đ</h3>
+        </div>
+    </div>
+</div>
+
+<h4>Phiếu mượn quá hạn cần xử lý</h4>
+@if (!Model.PhieuQuaHanGanNhat.Any())
+{
+    <p>Không có phiếu mượn nào quá hạn.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Mã phiếu</th>
+                <th>Độc giả</th>
+                <th>Ngày mượn</th>
+                <th>Hẹn trả</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.PhieuQuaHanGanNhat)
+            {
+                <tr>
+                    <td>@p.MaPhieuMuon</td>
+                    <td>@p.DocGia?.HoTen</td>
+                    <td>@p.NgayMuon.ToString("dd/MM/yyyy")</td>
+                    <td class="text-danger">@p.NgayHenTra.ToString("dd/MM/yyyy")</td>
+                    <td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@p.MaPhieuMuon" class="btn btn-sm btn-outline-primary">Xem</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

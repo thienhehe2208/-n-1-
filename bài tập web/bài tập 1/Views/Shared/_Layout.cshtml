@@ -30,16 +30,16 @@
                         @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Sach" asp-action="Index">Quản lý sách</a>
+                                <a class="nav-link text-dark" asp-controller="Saches" asp-action="Index">Quản lý sách</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="DocGia" asp-action="Index">Quản lý độc giả</a>
+                                <a class="nav-link text-dark" asp-controller="DocGias" asp-action="Index">Quản lý độc giả</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="PhieuMuon" asp-action="Index">Quản lý mượn trả</a>
+                                <a class="nav-link text-dark" asp-controller="PhieuMuons" asp-action="Index">Quản lý mượn trả</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="PhieuPhat" asp-action="Index">Quản lý phiếu phạt</a>
+                                <a class="nav-link text-dark" asp-controller="PhieuPhats" asp-action="Index">Quản lý phiếu phạt</a>
                             </li>
                         }
 
@@ -47,7 +47,7 @@
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="NhanVien" asp-action="Index">Quản lý nhân viên</a>
+                                <a class="nav-link text-dark" asp-controller="NhanViens" asp-action="Index">Quản lý nhân viên</a>
                             </li>
                         }
                     </ul>

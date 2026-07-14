@@ -74,6 +74,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hpVGlldFBoaWV1TXVvbnNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/đồ án 1/bài tập web/bài tập 1/Views/Dashboard/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/đồ án 1/bài tập web/bài tập 1/Views/DatTruocs/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGF0VHJ1b2NzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -200,6 +204,26 @@ build_metadata.AdditionalFiles.CssScope =
 
 [E:/đồ án 1/bài tập web/bài tập 1/Views/PhieuPhats/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhpZXVQaGF0c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/đồ án 1/bài tập web/bài tập 1/Views/Profile/EditDocGia.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxFZGl0RG9jR2lhLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/đồ án 1/bài tập web/bài tập 1/Views/Profile/EditNhanVien.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxFZGl0TmhhblZpZW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/đồ án 1/bài tập web/bài tập 1/Views/Profile/IndexDocGia.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleERvY0dpYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/đồ án 1/bài tập web/bài tập 1/Views/Profile/IndexNhanVien.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleE5oYW5WaWVuLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/đồ án 1/bài tập web/bài tập 1/Views/Profile/LichSuMuon.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxMaWNoU3VNdW9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/đồ án 1/bài tập web/bài tập 1/Views/Saches/Create.cshtml]

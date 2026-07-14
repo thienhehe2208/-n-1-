@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,15 +20,15 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: TacGias
+        // Danh sách tác giả - ai cũng xem được
         public async Task<IActionResult> Index()
         {
-              return _context.TacGia != null ? 
-                          View(await _context.TacGia.ToListAsync()) :
-                          Problem("Entity set 'bài_tập_1Context.TacGia'  is null.");
+            return _context.TacGia != null ?
+                        View(await _context.TacGia.ToListAsync()) :
+                        Problem("Entity set 'bài_tập_1Context.TacGia'  is null.");
         }
 
-        // GET: TacGias/Details/5
+        // Xem chi tiết 1 tác giả - ai cũng xem được
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.TacGia == null)
@@ -45,15 +46,15 @@ namespace bài_tập_1.Controllers
             return View(tacGia);
         }
 
-        // GET: TacGias/Create
+        // Hiển thị form thêm tác giả - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: TacGias/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu tác giả mới - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaTacGia,HoTen,NgaySinh,QuocTich,TieuSu")] TacGia tacGia)
@@ -67,7 +68,8 @@ namespace bài_tập_1.Controllers
             return View(tacGia);
         }
 
-        // GET: TacGias/Edit/5
+        // Hiển thị form sửa tác giả - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.TacGia == null)
@@ -83,9 +85,8 @@ namespace bài_tập_1.Controllers
             return View(tacGia);
         }
 
-        // POST: TacGias/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật tác giả - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaTacGia,HoTen,NgaySinh,QuocTich,TieuSu")] TacGia tacGia)
@@ -118,7 +119,8 @@ namespace bài_tập_1.Controllers
             return View(tacGia);
         }
 
-        // GET: TacGias/Delete/5
+        // Hiển thị xác nhận xóa tác giả - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.TacGia == null)
@@ -136,7 +138,8 @@ namespace bài_tập_1.Controllers
             return View(tacGia);
         }
 
-        // POST: TacGias/Delete/5
+        // Xử lý xóa tác giả - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -150,14 +153,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.TacGia.Remove(tacGia);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool TacGiaExists(int id)
         {
-          return (_context.TacGia?.Any(e => e.MaTacGia == id)).GetValueOrDefault();
+            return (_context.TacGia?.Any(e => e.MaTacGia == id)).GetValueOrDefault();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,15 +20,15 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // GET: TheLoais
+        // Danh sách thể loại - ai cũng xem được
         public async Task<IActionResult> Index()
         {
-              return _context.TheLoai != null ? 
-                          View(await _context.TheLoai.ToListAsync()) :
-                          Problem("Entity set 'bài_tập_1Context.TheLoai'  is null.");
+            return _context.TheLoai != null ?
+                        View(await _context.TheLoai.ToListAsync()) :
+                        Problem("Entity set 'bài_tập_1Context.TheLoai'  is null.");
         }
 
-        // GET: TheLoais/Details/5
+        // Xem chi tiết 1 thể loại - ai cũng xem được
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.TheLoai == null)
@@ -45,15 +46,15 @@ namespace bài_tập_1.Controllers
             return View(theLoai);
         }
 
-        // GET: TheLoais/Create
+        // Hiển thị form thêm thể loại - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: TheLoais/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý lưu thể loại mới - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaTheLoai,TenTheLoai,MoTa")] TheLoai theLoai)
@@ -67,7 +68,8 @@ namespace bài_tập_1.Controllers
             return View(theLoai);
         }
 
-        // GET: TheLoais/Edit/5
+        // Hiển thị form sửa thể loại - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.TheLoai == null)
@@ -83,9 +85,8 @@ namespace bài_tập_1.Controllers
             return View(theLoai);
         }
 
-        // POST: TheLoais/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Xử lý cập nhật thể loại - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaTheLoai,TenTheLoai,MoTa")] TheLoai theLoai)
@@ -118,7 +119,8 @@ namespace bài_tập_1.Controllers
             return View(theLoai);
         }
 
-        // GET: TheLoais/Delete/5
+        // Hiển thị xác nhận xóa thể loại - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.TheLoai == null)
@@ -136,7 +138,8 @@ namespace bài_tập_1.Controllers
             return View(theLoai);
         }
 
-        // POST: TheLoais/Delete/5
+        // Xử lý xóa thể loại - chỉ Admin/NhanVien
+        [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -150,14 +153,14 @@ namespace bài_tập_1.Controllers
             {
                 _context.TheLoai.Remove(theLoai);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool TheLoaiExists(int id)
         {
-          return (_context.TheLoai?.Any(e => e.MaTheLoai == id)).GetValueOrDefault();
+            return (_context.TheLoai?.Any(e => e.MaTheLoai == id)).GetValueOrDefault();
         }
     }
 }
