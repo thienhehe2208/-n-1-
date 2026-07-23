@@ -35,47 +35,73 @@ namespace bài_tập_1.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            var email = model.Email.Trim().ToLowerInvariant();
+            if (await _userManager.FindByEmailAsync(email) != null)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Email này đã được đăng ký.");
+                return View(model);
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var user = new IdentityUser
             {
-                UserName = model.Email,
-                Email = model.Email,
-                PhoneNumber = model.SoDienThoai
+                UserName = email,
+                Email = email,
+                PhoneNumber = model.SoDienThoai.Trim(),
+                EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var createUserResult = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
+            if (!createUserResult.Succeeded)
             {
-                // Gán role mặc định cho người tự đăng ký là DocGia
-                await _userManager.AddToRoleAsync(user, "DocGia");
+                foreach (var error in createUserResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
 
-                // Tạo bản ghi DocGia liên kết với tài khoản vừa tạo
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+
+            try
+            {
+                var addRoleResult = await _userManager.AddToRoleAsync(user, "DocGia");
+                if (!addRoleResult.Succeeded)
+                {
+                    var message = string.Join("; ", addRoleResult.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException($"Không thể gán quyền Độc giả: {message}");
+                }
+
                 var docGia = new DocGia
                 {
                     UserId = user.Id,
-                    HoTen = model.HoTen,
-                    SoDienThoai = model.SoDienThoai,
-                    Email = model.Email,
+                    HoTen = model.HoTen.Trim(),
+                    SoDienThoai = model.SoDienThoai.Trim(),
+                    Email = email,
+                    DiaChi = string.Empty,
+                    GioiTinh = string.Empty,
                     NgayDangKy = DateTime.Now,
                     NgayHetHanThe = DateTime.Now.AddYears(1),
                     TrangThai = TrangThaiDocGia.HoatDong
                 };
                 _context.DocGia.Add(docGia);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");
+                TempData["RegisterSuccess"] = "Đăng ký thành công. Bạn có thể đăng nhập bằng tài khoản vừa tạo.";
+                return RedirectToAction(nameof(Login));
             }
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
-
-            return View(model);
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(string.Empty, "Không thể lưu tài khoản độc giả. Vui lòng thử lại.");
+                return View(model);
+            }
         }
 
         // GET: /Account/Login
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }

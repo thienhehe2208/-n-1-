@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using bài_tập_1.Data;
 
 namespace bài_tập_1
@@ -11,9 +12,20 @@ namespace bài_tập_1
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
+            var databaseProvider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
+            var connectionString = builder.Configuration.GetConnectionString("bài_tập_1Context")
+                ?? throw new InvalidOperationException("Connection string 'bài_tập_1Context' not found.");
+
             builder.Services.AddDbContext<bài_tập_1Context>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("bài_tập_1Context")
-                    ?? throw new InvalidOperationException("Connection string 'bài_tập_1Context' not found.")));
+            {
+                if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+                    options.UseSqlServer(connectionString);
+                else
+                    options.UseSqlite(connectionString);
+            });
 
             // ---- ĐĂNG KÝ Identity ----
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -24,6 +36,10 @@ namespace bài_tập_1
             })
             .AddEntityFrameworkStores<bài_tập_1Context>()
             .AddDefaultTokenProviders();
+
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(
+                    Path.Combine(builder.Environment.ContentRootPath, ".keys")));
 
             // ---- CẤU HÌNH COOKIE PATH ----
             builder.Services.ConfigureApplicationCookie(options =>
@@ -57,6 +73,13 @@ namespace bài_tập_1
             // ---- THÊM MỚI: Seed 3 Role, đặt ngay trước app.Run() ----
             using (var scope = app.Services.CreateScope())
             {
+                var context = scope.ServiceProvider.GetRequiredService<bài_tập_1Context>();
+                if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+                    await context.Database.MigrateAsync();
+                else
+                    await context.Database.EnsureCreatedAsync();
+                await DatabaseSeeder.SeedLibraryDataAsync(context);
+
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 string[] roles = { "Admin", "NhanVien", "DocGia" };
                 foreach (var role in roles)

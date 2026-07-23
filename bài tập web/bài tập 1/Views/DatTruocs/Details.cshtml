@@ -1,48 +1,157 @@
-﻿@model bài_tập_1.Models.DatTruoc
+@using bài_tập_1.Models
+@model bài_tập_1.Models.DatTruoc
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết đặt trước";
+    var anhMacDinh = "/images/books/banner.jpg";
+    var anhBia = string.IsNullOrWhiteSpace(Model.Sach.AnhBia)
+        ? anhMacDinh
+        : Model.Sach.AnhBia;
+
+    var statusClass = Model.TrangThai switch
+    {
+        TrangThaiDatTruoc.DangCho => "is-waiting",
+        TrangThaiDatTruoc.DaCoSach => "is-ready",
+        TrangThaiDatTruoc.HoanThanh => "is-completed",
+        _ => "is-cancelled"
+    };
+
+    var statusText = Model.TrangThai switch
+    {
+        TrangThaiDatTruoc.DangCho => "Đang chờ xử lý",
+        TrangThaiDatTruoc.DaCoSach => "Sách đã sẵn sàng",
+        TrangThaiDatTruoc.HoanThanh => "Đã hoàn thành",
+        TrangThaiDatTruoc.DaHuy => "Đã hủy",
+        _ => Model.TrangThai.ToString()
+    };
 }
 
-<h1>Details</h1>
+<main class="reservation-result-page">
+    <div class="reservation-result-shell">
+        @if (TempData["DatTruocSuccess"] is string success)
+        {
+            <div class="reservation-alert reservation-alert-success">
+                <i class="bi bi-check-circle"></i>
+                @success
+            </div>
+        }
+        @if (TempData["DatTruocError"] is string error)
+        {
+            <div class="reservation-alert reservation-alert-danger">@error</div>
+        }
 
-<div>
-    <h4>DatTruoc</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DocGia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DocGia.HoTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Sach)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Sach.TenSach)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayDat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayDat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayHetHanDat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayHetHanDat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaDatTruoc">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+        <section class="reservation-success-hero">
+            <div class="reservation-success-icon">
+                <i class="bi bi-bookmark-check"></i>
+            </div>
+            <span>Yêu cầu #@Model.MaDatTruoc</span>
+            <h1>@statusText</h1>
+            <p>
+                Thư viện đã ghi nhận yêu cầu đặt trước của bạn.
+                Hãy theo dõi trạng thái để biết khi nào sách sẵn sàng.
+            </p>
+        </section>
+
+        <div class="reservation-result-grid">
+            <section class="reservation-card">
+                <div class="reservation-result-book">
+                    <img src="@anhBia"
+                         alt="Ảnh bìa @Model.Sach.TenSach"
+                         onerror="this.onerror=null; this.src='@anhMacDinh';" />
+                    <div>
+                        <span class="reservation-category">
+                            @(Model.Sach.TheLoai?.TenTheLoai ?? "Sách")
+                        </span>
+                        <h2>@Model.Sach.TenSach</h2>
+                        <p>@(Model.Sach.NhaXuatBan?.TenNXB ?? "Chưa cập nhật nhà xuất bản")</p>
+                        <a asp-controller="Saches"
+                           asp-action="Details"
+                           asp-route-id="@Model.MaSach">
+                            Xem lại chi tiết sách
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="reservation-card reservation-request-info">
+                <div class="reservation-request-status @statusClass">
+                    <span></span>
+                    @statusText
+                </div>
+
+                <dl>
+                    <div>
+                        <dt>Độc giả</dt>
+                        <dd>@Model.DocGia.HoTen</dd>
+                    </div>
+                    <div>
+                        <dt>Ngày đặt</dt>
+                        <dd>@Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</dd>
+                    </div>
+                    <div>
+                        <dt>Hiệu lực đến</dt>
+                        <dd>@(Model.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "Theo thông báo")</dd>
+                    </div>
+                    <div>
+                        <dt>Điểm nhận</dt>
+                        <dd>Quầy lưu thông thư viện</dd>
+                    </div>
+                </dl>
+            </aside>
+        </div>
+
+        <section class="reservation-card reservation-next-steps">
+            <h2>Các bước tiếp theo</h2>
+            <div class="reservation-timeline">
+                <div class="is-active">
+                    <span><i class="bi bi-check-lg"></i></span>
+                    <strong>Đã gửi yêu cầu</strong>
+                    <small>Thư viện đã tiếp nhận</small>
+                </div>
+                <div class="@(Model.TrangThai == TrangThaiDatTruoc.DaCoSach || Model.TrangThai == TrangThaiDatTruoc.HoanThanh ? "is-active" : "")">
+                    <span><i class="bi bi-bell"></i></span>
+                    <strong>Nhận thông báo</strong>
+                    <small>Khi sách sẵn sàng</small>
+                </div>
+                <div class="@(Model.TrangThai == TrangThaiDatTruoc.HoanThanh ? "is-active" : "")">
+                    <span><i class="bi bi-building-check"></i></span>
+                    <strong>Đến nhận sách</strong>
+                    <small>Mang theo thẻ độc giả</small>
+                </div>
+            </div>
+        </section>
+
+        <div class="reservation-result-actions">
+            @if (User.IsInRole("DocGia"))
+            {
+                <a asp-action="CuaToi" class="btn btn-primary">
+                    <i class="bi bi-list-check"></i>
+                    Đặt trước của tôi
+                </a>
+            }
+            else
+            {
+                <a asp-action="Index" class="btn btn-primary">Danh sách yêu cầu</a>
+                <a asp-action="Edit" asp-route-id="@Model.MaDatTruoc" class="btn btn-outline-warning">
+                    Cập nhật trạng thái
+                </a>
+            }
+
+            @if (Model.TrangThai == TrangThaiDatTruoc.DangCho)
+            {
+                <form asp-action="Huy" asp-route-id="@Model.MaDatTruoc" method="post"
+                      onsubmit="return confirm('Bạn chắc chắn muốn hủy yêu cầu này?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger">
+                        <i class="bi bi-x-circle"></i>
+                        Hủy yêu cầu
+                    </button>
+                </form>
+            }
+
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                Tiếp tục xem sách
+            </a>
+        </div>
+    </div>
+</main>

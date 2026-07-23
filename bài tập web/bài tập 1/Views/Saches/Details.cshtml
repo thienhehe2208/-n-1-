@@ -1,78 +1,156 @@
-﻿@model bài_tập_1.Models.Sach
+@using bài_tập_1.Models
+@model bài_tập_1.Models.Sach
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.TenSach;
+
+    var anhMacDinh = "/images/books/banner.jpg";
+    var anhBia = string.IsNullOrWhiteSpace(Model.AnhBia)
+        ? anhMacDinh
+        : Model.AnhBia;
+
+    var tenTacGia = Model.SachTacGias
+        .Where(st => st.TacGia != null)
+        .Select(st => st.TacGia.HoTen)
+        .ToList();
+
+    var tongBanSao = Model.BanSaos.Count;
+    var soBanSanCo = Model.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
 }
 
-<h1>Details</h1>
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-controller="Saches" asp-action="Index">Sách</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.TenSach</li>
+        </ol>
+    </nav>
 
-<div>
-    <h4>Sach</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenSach)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenSach)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ISBN)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ISBN)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GiaSach)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GiaSach)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TheLoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TheLoai.TenTheLoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NhaXuatBan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NhaXuatBan.TenNXB)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NamXuatBan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NamXuatBan)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoTrang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoTrang)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgonNgu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgonNgu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoTa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoTa)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AnhBia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AnhBia)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaSach">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="row g-0">
+            <div class="col-md-4 col-lg-3 bg-light p-4 text-center">
+                <img src="@anhBia"
+                     alt="Ảnh bìa @Model.TenSach"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 430px; object-fit: cover;"
+                     onerror="this.onerror=null; this.src='@anhMacDinh';" />
+            </div>
+
+            <div class="col-md-8 col-lg-9">
+                <div class="card-body p-4 p-lg-5">
+                    <span class="badge bg-primary mb-3">
+                        @(Model.TheLoai?.TenTheLoai ?? "Chưa phân loại")
+                    </span>
+
+                    <h1 class="display-6 fw-bold mb-3">@Model.TenSach</h1>
+
+                    <p class="text-muted fs-5 mb-4">
+                        Tác giả:
+                        <strong class="text-dark">
+                            @(tenTacGia.Count > 0
+                                ? string.Join(", ", tenTacGia)
+                                : "Chưa cập nhật")
+                        </strong>
+                    </p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">ISBN</small>
+                                <strong>@(string.IsNullOrWhiteSpace(Model.ISBN) ? "Chưa cập nhật" : Model.ISBN)</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Nhà xuất bản</small>
+                                <strong>@(Model.NhaXuatBan?.TenNXB ?? "Chưa cập nhật")</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Năm xuất bản</small>
+                                <strong>@(Model.NamXuatBan?.ToString() ?? "Chưa cập nhật")</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Số trang</small>
+                                <strong>@(Model.SoTrang?.ToString() ?? "Chưa cập nhật")</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Ngôn ngữ</small>
+                                <strong>@(string.IsNullOrWhiteSpace(Model.NgonNgu) ? "Chưa cập nhật" : Model.NgonNgu)</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="border rounded p-3 h-100">
+                                <small class="text-muted d-block">Tình trạng</small>
+                                @if (soBanSanCo > 0)
+                                {
+                                    <strong class="text-success">Còn @soBanSanCo/@tongBanSao bản</strong>
+                                }
+                                else
+                                {
+                                    <strong class="text-danger">Đang hết sách</strong>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h2 class="h5 fw-bold">Mô tả</h2>
+                        <p class="text-secondary mb-0" style="white-space: pre-line;">
+                            @(string.IsNullOrWhiteSpace(Model.MoTa)
+                                ? "Chưa có mô tả cho cuốn sách này."
+                                : Model.MoTa)
+                        </p>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <span class="fs-3 fw-bold text-primary">
+                            @Model.GiaSach.ToString("N0") đ
+                        </span>
+
+                        <a asp-controller="DatTruocs"
+                           asp-action="Create"
+                           asp-route-maSach="@Model.MaSach"
+                           class="btn btn-primary">
+                            <i class="bi bi-bookmark-check me-1"></i>
+                            Đặt trước
+                        </a>
+
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Quay lại
+                        </a>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+                        {
+                            <a asp-controller="Saches"
+                               asp-action="Edit"
+                               asp-route-id="@Model.MaSach"
+                               class="btn btn-outline-warning">
+                                <i class="bi bi-pencil me-1"></i>
+                                Sửa sách
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

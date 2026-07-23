@@ -1,43 +1,217 @@
-﻿@model bài_tập_1.Models.DatTruoc
+@model bài_tập_1.Models.ViewModels.DatTruocViewModel
 
 @{
-    ViewData["Title"] = "Đặt trước sách";
+    ViewData["Title"] = "Xác nhận đặt trước";
+    var anhMacDinh = "/images/books/banner.jpg";
+    var anhBia = string.IsNullOrWhiteSpace(Model.Sach.AnhBia)
+        ? anhMacDinh
+        : Model.Sach.AnhBia;
+    var tacGia = Model.Sach.SachTacGias
+        .Where(st => st.TacGia != null)
+        .Select(st => st.TacGia.HoTen)
+        .ToList();
 }
 
-<h1>Đặt trước sách</h1>
+<main class="reservation-page">
+    <div class="reservation-shell">
+        <nav class="reservation-breadcrumb" aria-label="breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <i class="bi bi-chevron-right"></i>
+            <a asp-controller="Saches" asp-action="Details" asp-route-id="@Model.MaSach">
+                Chi tiết sách
+            </a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Xác nhận đặt trước</span>
+        </nav>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <header class="reservation-heading">
+            <div>
+                <span class="reservation-kicker">Yêu cầu mượn sách</span>
+                <h1>Xác nhận đặt trước</h1>
+                <p>Kiểm tra thông tin trước khi gửi yêu cầu đến thư viện.</p>
+            </div>
+            <div class="reservation-secure">
+                <i class="bi bi-shield-check"></i>
+                Giao dịch an toàn
+            </div>
+        </header>
 
-            @* Chỉ Admin/NhanVien mới thấy dropdown chọn độc giả - độc giả tự đặt thì controller tự gán */ *@
-            @if (ViewBag.IsStaff == true)
-            {
-                <div class="form-group">
-                    <label asp-for="MaDocGia" class="control-label">Đặt hộ cho độc giả</label>
-                    <select asp-for="MaDocGia" class="form-control" asp-items="ViewBag.MaDocGia"></select>
+        <form asp-action="Create" method="post" class="reservation-grid">
+            @Html.AntiForgeryToken()
+            <input asp-for="MaSach" type="hidden" />
+
+            <section class="reservation-main">
+                <div asp-validation-summary="ModelOnly"
+                     class="reservation-alert reservation-alert-danger"></div>
+
+                <article class="reservation-card reservation-book-card">
+                    <div class="reservation-card-title">
+                        <span class="reservation-step">1</span>
+                        <div>
+                            <h2>Sách bạn đang đặt</h2>
+                            <p>Yêu cầu áp dụng cho bất kỳ bản sao sẵn có nào.</p>
+                        </div>
+                    </div>
+
+                    <div class="reservation-book">
+                        <img src="@anhBia"
+                             alt="Ảnh bìa @Model.Sach.TenSach"
+                             onerror="this.onerror=null; this.src='@anhMacDinh';" />
+
+                        <div class="reservation-book-info">
+                            <span class="reservation-category">
+                                @(Model.Sach.TheLoai?.TenTheLoai ?? "Chưa phân loại")
+                            </span>
+                            <h3>@Model.Sach.TenSach</h3>
+                            <p class="reservation-author">
+                                @(tacGia.Count > 0 ? string.Join(", ", tacGia) : "Chưa cập nhật tác giả")
+                            </p>
+
+                            <dl class="reservation-book-meta">
+                                <div>
+                                    <dt>ISBN</dt>
+                                    <dd>@(string.IsNullOrWhiteSpace(Model.Sach.ISBN) ? "—" : Model.Sach.ISBN)</dd>
+                                </div>
+                                <div>
+                                    <dt>Nhà xuất bản</dt>
+                                    <dd>@(Model.Sach.NhaXuatBan?.TenNXB ?? "Chưa cập nhật")</dd>
+                                </div>
+                                <div>
+                                    <dt>Vị trí</dt>
+                                    <dd>Quầy lưu thông thư viện</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="reservation-card">
+                    <div class="reservation-card-title">
+                        <span class="reservation-step">2</span>
+                        <div>
+                            <h2>Thông tin người nhận</h2>
+                            <p>Thư viện dùng thông tin này để xác nhận yêu cầu.</p>
+                        </div>
+                    </div>
+
+                    @if (Model.IsStaff)
+                    {
+                        <div class="reservation-field">
+                            <label asp-for="MaDocGia">Chọn độc giả</label>
+                            <select asp-for="MaDocGia"
+                                    asp-items="ViewBag.MaDocGia"
+                                    class="reservation-select">
+                                <option value="">-- Chọn độc giả cần đặt hộ --</option>
+                            </select>
+                            <span asp-validation-for="MaDocGia" class="text-danger"></span>
+                        </div>
+                    }
+                    else if (Model.DocGia != null)
+                    {
+                        <input asp-for="MaDocGia" type="hidden" />
+                        <div class="reservation-patron">
+                            <div class="reservation-avatar">
+                                @Model.DocGia.HoTen.Trim().Substring(0, 1).ToUpper()
+                            </div>
+                            <div>
+                                <strong>@Model.DocGia.HoTen</strong>
+                                <span>@Model.DocGia.Email</span>
+                                <span>@Model.DocGia.SoDienThoai</span>
+                            </div>
+                            <a asp-controller="Profile" asp-action="Edit">Cập nhật</a>
+                        </div>
+                    }
+
+                    <div class="reservation-pickup">
+                        <i class="bi bi-geo-alt"></i>
+                        <div>
+                            <small>Điểm nhận sách</small>
+                            <strong>Quầy lưu thông thư viện</strong>
+                            <span>Vui lòng mang theo thẻ độc giả khi đến nhận.</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="reservation-card">
+                    <div class="reservation-card-title">
+                        <span class="reservation-step">3</span>
+                        <div>
+                            <h2>Xác nhận quy định</h2>
+                            <p>Yêu cầu sẽ được xử lý theo thứ tự trong hàng chờ.</p>
+                        </div>
+                    </div>
+
+                    <label class="reservation-checkbox">
+                        <input asp-for="DongYQuyDinh" />
+                        <span>
+                            Tôi xác nhận thông tin trên là chính xác và đồng ý đến nhận sách
+                            trong thời hạn thư viện thông báo.
+                        </span>
+                    </label>
+                    <span asp-validation-for="DongYQuyDinh" class="text-danger d-block mt-2"></span>
+                </article>
+            </section>
+
+            <aside class="reservation-sidebar">
+                <div class="reservation-summary">
+                    <h2>Tóm tắt yêu cầu</h2>
+
+                    <div class="reservation-availability @(Model.SoBanSanCo > 0 ? "is-available" : "is-waiting")">
+                        <i class="bi @(Model.SoBanSanCo > 0 ? "bi-check-circle" : "bi-clock-history")"></i>
+                        <div>
+                            @if (Model.SoBanSanCo > 0)
+                            {
+                                <strong>Có thể phục vụ</strong>
+                                <span>@Model.SoBanSanCo/@Model.TongBanSao bản đang sẵn có</span>
+                            }
+                            else
+                            {
+                                <strong>Tham gia hàng chờ</strong>
+                                <span>Hiện chưa có bản sẵn có</span>
+                            }
+                        </div>
+                    </div>
+
+                    <dl class="reservation-summary-list">
+                        <div>
+                            <dt>Ngày gửi yêu cầu</dt>
+                            <dd>@DateTime.Now.ToString("dd/MM/yyyy")</dd>
+                        </div>
+                        <div>
+                            <dt>Hiệu lực yêu cầu</dt>
+                            <dd>7 ngày</dd>
+                        </div>
+                        <div>
+                            <dt>Đang chờ trước bạn</dt>
+                            <dd>@Model.SoNguoiDangCho người</dd>
+                        </div>
+                        <div>
+                            <dt>Phí đặt trước</dt>
+                            <dd class="reservation-free">Miễn phí</dd>
+                        </div>
+                    </dl>
+
+                    <button type="submit" class="reservation-submit">
+                        <i class="bi bi-bookmark-check"></i>
+                        Xác nhận đặt trước
+                    </button>
+
+                    <a asp-controller="Saches"
+                       asp-action="Details"
+                       asp-route-id="@Model.MaSach"
+                       class="reservation-cancel-link">
+                        Quay lại chi tiết sách
+                    </a>
+
+                    <p class="reservation-note">
+                        <i class="bi bi-info-circle"></i>
+                        Bạn có thể theo dõi hoặc hủy yêu cầu trong mục “Đặt trước của tôi”.
+                    </p>
                 </div>
-            }
-
-            <div class="form-group">
-                <label asp-for="MaSach" class="control-label"></label>
-                <select asp-for="MaSach" class="form-control" asp-items="ViewBag.MaSach"></select>
-            </div>
-
-            @* NgayDat và TrangThai không cho người dùng tự nhập - controller tự set khi lưu *@
-
-            <div class="form-group">
-                <input type="submit" value="Đặt trước" class="btn btn-primary" />
-            </div>
+            </aside>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Quay lại danh sách</a>
-</div>
+</main>
 
 @section Scripts {
     @{

@@ -1,5 +1,11 @@
+wwwroot\css\library.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\images\books\banner.jpg
+wwwroot\images\books\dac-nhan-tam.jpg
+wwwroot\images\books\nha-gia-kim.jpg
+wwwroot\images\books\thoi-quen-nguyen-tu.jpg
+wwwroot\images\books\tu-duy-nhanh-va-cham.jpg
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map

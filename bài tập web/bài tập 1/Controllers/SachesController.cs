@@ -38,6 +38,10 @@ namespace bài_tập_1.Controllers
             var sach = await _context.Sach
                 .Include(s => s.NhaXuatBan)
                 .Include(s => s.TheLoai)
+                .Include(s => s.SachTacGias)
+                    .ThenInclude(st => st.TacGia)
+                .Include(s => s.BanSaos)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.MaSach == id);
             if (sach == null)
             {

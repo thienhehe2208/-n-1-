@@ -1,48 +1,338 @@
 ﻿@model bài_tập_1.Models.ViewModels.RegisterViewModel
+
 @{
     ViewData["Title"] = "Đăng ký";
 }
 
-<h2>Đăng ký tài khoản độc giả</h2>
+<div class="library-register-page">
 
-<div class="row">
-    <div class="col-md-5">
-        <form asp-action="Register" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="library-register-wrapper">
 
-            <div class="form-group mb-3">
-                <label asp-for="HoTen" class="control-label"></label>
-                <input asp-for="HoTen" class="form-control" />
-                <span asp-validation-for="HoTen" class="text-danger"></span>
+        <!-- KHỐI GIỚI THIỆU BÊN TRÁI -->
+        <section class="library-register-visual">
+
+            <div class="library-register-overlay"></div>
+
+            <div class="library-register-visual-content">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="library-register-brand">
+
+                    <span class="library-register-brand-icon">
+                        <i class="bi bi-book-half"></i>
+                    </span>
+
+                    <span>
+                        <strong>THƯ VIỆN TRI THỨC</strong>
+                        <small>Kết nối tri thức - Lan tỏa tương lai</small>
+                    </span>
+                </a>
+
+                <div class="library-register-introduction">
+
+                    <span class="library-register-label">
+                        Đăng ký tài khoản độc giả
+                    </span>
+
+                    <h1>
+                        Bắt đầu hành trình khám phá tri thức
+                    </h1>
+
+                    <p>
+                        Tạo tài khoản độc giả để tìm kiếm sách, theo dõi
+                        lịch sử mượn, đặt trước sách và nhận các thông báo
+                        mới nhất từ thư viện.
+                    </p>
+
+                    <div class="library-register-features">
+
+                        <div class="library-register-feature">
+                            <span>
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <div>
+                                <strong>Tra cứu sách nhanh chóng</strong>
+                                <small>
+                                    Tìm kiếm sách theo tên, tác giả và thể loại.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="library-register-feature">
+                            <span>
+                                <i class="bi bi-journal-bookmark"></i>
+                            </span>
+
+                            <div>
+                                <strong>Quản lý sách đang mượn</strong>
+                                <small>
+                                    Theo dõi ngày mượn, hạn trả và trạng thái sách.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="library-register-feature">
+                            <span>
+                                <i class="bi bi-bookmark-check"></i>
+                            </span>
+
+                            <div>
+                                <strong>Đặt trước sách yêu thích</strong>
+                                <small>
+                                    Đăng ký trước những cuốn sách đang được quan tâm.
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <p class="library-register-copyright">
+                    © 2026 Thư viện tri thức. All rights reserved.
+                </p>
             </div>
+        </section>
 
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+        <!-- FORM ĐĂNG KÝ BÊN PHẢI -->
+        <section class="library-register-form-section">
+
+            <div class="library-register-form-box">
+
+                <div class="library-register-mobile-brand">
+
+                    <span>
+                        <i class="bi bi-book-half"></i>
+                    </span>
+
+                    <div>
+                        <strong>THƯ VIỆN</strong>
+                        <small>Kết nối tri thức</small>
+                    </div>
+                </div>
+
+                <div class="library-register-heading">
+
+                    <span class="library-register-welcome">
+                        Tham gia ngay
+                    </span>
+
+                    <h2>Đăng ký tài khoản</h2>
+
+                    <p>
+                        Vui lòng nhập đầy đủ thông tin để tạo tài khoản độc giả.
+                    </p>
+                </div>
+
+                <form asp-action="Register"
+                      method="post"
+                      autocomplete="on"
+                      class="library-register-form">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="library-register-validation">
+                    </div>
+
+                    <!-- HỌ TÊN -->
+                    <div class="library-register-field">
+
+                        <label asp-for="HoTen">
+                            Họ và tên
+                        </label>
+
+                        <div class="library-register-input-group">
+
+                            <span class="library-register-input-icon">
+                                <i class="bi bi-person"></i>
+                            </span>
+
+                            <input asp-for="HoTen"
+                                   class="library-register-input"
+                                   placeholder="Nhập họ và tên"
+                                   autocomplete="name" />
+                        </div>
+
+                        <span asp-validation-for="HoTen"
+                              class="library-register-error">
+                        </span>
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div class="library-register-field">
+
+                        <label asp-for="Email">
+                            Email
+                        </label>
+
+                        <div class="library-register-input-group">
+
+                            <span class="library-register-input-icon">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+
+                            <input asp-for="Email"
+                                   class="library-register-input"
+                                   placeholder="Nhập địa chỉ email"
+                                   autocomplete="email" />
+                        </div>
+
+                        <span asp-validation-for="Email"
+                              class="library-register-error">
+                        </span>
+                    </div>
+
+                    <!-- SỐ ĐIỆN THOẠI -->
+                    <div class="library-register-field">
+
+                        <label asp-for="SoDienThoai">
+                            Số điện thoại
+                        </label>
+
+                        <div class="library-register-input-group">
+
+                            <span class="library-register-input-icon">
+                                <i class="bi bi-telephone"></i>
+                            </span>
+
+                            <input asp-for="SoDienThoai"
+                                   class="library-register-input"
+                                   placeholder="Nhập số điện thoại"
+                                   autocomplete="tel" />
+                        </div>
+
+                        <span asp-validation-for="SoDienThoai"
+                              class="library-register-error">
+                        </span>
+                    </div>
+
+                    <!-- MẬT KHẨU -->
+                    <div class="library-register-field">
+
+                        <label asp-for="Password">
+                            Mật khẩu
+                        </label>
+
+                        <div class="library-register-input-group">
+
+                            <span class="library-register-input-icon">
+                                <i class="bi bi-lock"></i>
+                            </span>
+
+                            <input asp-for="Password"
+                                   class="library-register-input"
+                                   placeholder="Nhập mật khẩu"
+                                   autocomplete="new-password"
+                                   id="registerPassword" />
+
+                            <button type="button"
+                                    class="library-register-show-password"
+                                    id="toggleRegisterPassword"
+                                    aria-label="Hiện hoặc ẩn mật khẩu">
+
+                                <i class="bi bi-eye"
+                                   id="registerPasswordIcon">
+                                </i>
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="Password"
+                              class="library-register-error">
+                        </span>
+                    </div>
+
+                    <!-- XÁC NHẬN MẬT KHẨU -->
+                    <div class="library-register-field">
+
+                        <label asp-for="ConfirmPassword">
+                            Xác nhận mật khẩu
+                        </label>
+
+                        <div class="library-register-input-group">
+
+                            <span class="library-register-input-icon">
+                                <i class="bi bi-shield-lock"></i>
+                            </span>
+
+                            <input asp-for="ConfirmPassword"
+                                   class="library-register-input"
+                                   placeholder="Nhập lại mật khẩu"
+                                   autocomplete="new-password"
+                                   id="registerConfirmPassword" />
+
+                            <button type="button"
+                                    class="library-register-show-password"
+                                    id="toggleRegisterConfirmPassword"
+                                    aria-label="Hiện hoặc ẩn mật khẩu xác nhận">
+
+                                <i class="bi bi-eye"
+                                   id="registerConfirmPasswordIcon">
+                                </i>
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="ConfirmPassword"
+                              class="library-register-error">
+                        </span>
+                    </div>
+
+                    <!-- ĐIỀU KHOẢN -->
+                    <div class="library-register-agreement">
+
+                        <label class="library-register-agreement-label">
+
+                            <input type="checkbox"
+                                   id="acceptTerms"
+                                   required />
+
+                            <span class="library-register-custom-checkbox">
+                                <i class="bi bi-check"></i>
+                            </span>
+
+                            <span>
+                                Tôi đồng ý với
+                                <a href="#">điều khoản sử dụng</a>
+                                và
+                                <a href="#">chính sách bảo mật</a>.
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- NÚT ĐĂNG KÝ -->
+                    <button type="submit"
+                            class="library-register-submit">
+
+                        <span>Đăng ký tài khoản</span>
+
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <!-- PHÂN CÁCH -->
+                    <div class="library-register-divider">
+                        <span>Hoặc</span>
+                    </div>
+
+                    <!-- ĐĂNG NHẬP -->
+                    <p class="library-register-login-text">
+                        Bạn đã có tài khoản?
+
+                        <a asp-action="Login">
+                            Đăng nhập ngay
+                        </a>
+                    </p>
+
+                    <!-- QUAY LẠI -->
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="library-register-back">
+
+                        <i class="bi bi-arrow-left"></i>
+                        Quay lại trang chủ
+                    </a>
+                </form>
             </div>
+        </section>
 
-            <div class="form-group mb-3">
-                <label asp-for="SoDienThoai" class="control-label"></label>
-                <input asp-for="SoDienThoai" class="form-control" />
-                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="ConfirmPassword" class="control-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Đăng ký</button>
-            <a asp-action="Login" class="btn btn-link">Đã có tài khoản? Đăng nhập</a>
-        </form>
     </div>
 </div>
 
@@ -50,4 +340,41 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function createPasswordToggle(buttonId, inputId, iconId) {
+                const button = document.getElementById(buttonId);
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(iconId);
+
+                if (!button || !input || !icon) {
+                    return;
+                }
+
+                button.addEventListener("click", function () {
+                    const isPassword = input.type === "password";
+
+                    input.type = isPassword ? "text" : "password";
+
+                    icon.className = isPassword
+                        ? "bi bi-eye-slash"
+                        : "bi bi-eye";
+                });
+            }
+
+            createPasswordToggle(
+                "toggleRegisterPassword",
+                "registerPassword",
+                "registerPasswordIcon"
+            );
+
+            createPasswordToggle(
+                "toggleRegisterConfirmPassword",
+                "registerConfirmPassword",
+                "registerConfirmPasswordIcon"
+            );
+        });
+    </script>
 }

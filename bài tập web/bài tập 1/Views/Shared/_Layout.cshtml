@@ -1,98 +1,432 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    string currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    string currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    bool isAdmin =
+        User.Identity?.IsAuthenticated == true &&
+        (User.IsInRole("Admin") || User.IsInRole("NhanVien"));
+
+    string userEmail =
+        User.Identity?.IsAuthenticated == true
+            ? User.Identity.Name ?? "Tài khoản"
+            : "Khách";
+
+    string userRole = User.IsInRole("Admin")
+        ? "Quản trị viên"
+        : User.IsInRole("NhanVien")
+            ? "Nhân viên"
+            : User.IsInRole("DocGia")
+                ? "Độc giả"
+                : "Khách";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - bài_tập_1</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/bài_tập_1.styles.css" asp-append-version="true" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Quản lý thư viện</title>
+
+    <!-- Font chữ -->
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- CSS riêng -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/library.css"
+          asp-append-version="true" />
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">bài_tập_1</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+    @if (isAdmin)
+    {
+        <div class="admin-layout">
 
-                        @* ---- Menu chỉ dành cho Admin/NhanVien ---- *@
-                        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Saches" asp-action="Index">Quản lý sách</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="DocGias" asp-action="Index">Quản lý độc giả</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="PhieuMuons" asp-action="Index">Quản lý mượn trả</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="PhieuPhats" asp-action="Index">Quản lý phiếu phạt</a>
-                            </li>
-                        }
+            <!-- SIDEBAR -->
+            <aside class="admin-sidebar" id="adminSidebar">
 
-                        @* ---- Menu chỉ dành riêng cho Admin ---- *@
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="NhanViens" asp-action="Index">Quản lý nhân viên</a>
-                            </li>
-                        }
-                    </ul>
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
 
-                    @* ---- Khu vực Đăng nhập / Đăng xuất bên phải ---- *@
-                    <ul class="navbar-nav">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item d-flex align-items-center me-3">
-                                <span class="text-dark">Xin chào, @User.Identity.Name</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Đăng xuất</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Đăng ký</a>
-                            </li>
-                        }
-                    </ul>
+                    <div class="brand-text">
+                        <strong>QUẢN LÝ THƯ VIỆN</strong>
+                        <span>Library Management System</span>
+                    </div>
                 </div>
+
+                <nav class="sidebar-navigation">
+
+                    <a asp-controller="Dashboard"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "Dashboard" ? "active" : "")">
+
+                        <i class="bi bi-house-door"></i>
+                        <span>Trang chủ</span>
+                    </a>
+
+                    <div class="sidebar-title">
+                        QUẢN LÝ
+                    </div>
+
+                    <a asp-controller="Saches"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "Saches" ? "active" : "")">
+
+                        <i class="bi bi-book"></i>
+                        <span>Sách</span>
+                    </a>
+
+                    <a asp-controller="DocGias"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "DocGias" ? "active" : "")">
+
+                        <i class="bi bi-people"></i>
+                        <span>Độc giả</span>
+                    </a>
+
+                    <a asp-controller="PhieuMuons"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "PhieuMuons" ? "active" : "")">
+
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Phiếu mượn</span>
+                    </a>
+
+                    <a asp-controller="ChiTietPhieuMuons"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "ChiTietPhieuMuons" ? "active" : "")">
+
+                        <i class="bi bi-arrow-return-left"></i>
+                        <span>Chi tiết mượn trả</span>
+                    </a>
+
+                    <a asp-controller="BanSaos"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "BanSaos" ? "active" : "")">
+
+                        <i class="bi bi-archive"></i>
+                        <span>Kho sách</span>
+                    </a>
+
+                    <a asp-controller="TheLoais"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "TheLoais" ? "active" : "")">
+
+                        <i class="bi bi-tags"></i>
+                        <span>Thể loại</span>
+                    </a>
+
+                    <a asp-controller="NhaXuatBans"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "NhaXuatBans" ? "active" : "")">
+
+                        <i class="bi bi-building"></i>
+                        <span>Nhà xuất bản</span>
+                    </a>
+
+                    <a asp-controller="TacGias"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "TacGias" ? "active" : "")">
+
+                        <i class="bi bi-person"></i>
+                        <span>Tác giả</span>
+                    </a>
+
+                    <a asp-controller="DatTruocs"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "DatTruocs" ? "active" : "")">
+
+                        <i class="bi bi-bookmark-check"></i>
+                        <span>Đặt trước</span>
+                    </a>
+
+                    <a asp-controller="PhieuPhats"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "PhieuPhats" ? "active" : "")">
+
+                        <i class="bi bi-receipt"></i>
+                        <span>Phiếu phạt</span>
+                    </a>
+
+                    <div class="sidebar-title">
+                        HỆ THỐNG
+                    </div>
+
+                    <a asp-controller="NhanViens"
+                       asp-action="Index"
+                       class="sidebar-item @(currentController == "NhanViens" ? "active" : "")">
+
+                        <i class="bi bi-person-gear"></i>
+                        <span>Nhân viên</span>
+                    </a>
+
+                    <a asp-controller="Profile"
+                       asp-action="IndexNhanVien"
+                       class="sidebar-item @(currentController == "Profile" ? "active" : "")">
+
+                        <i class="bi bi-gear"></i>
+                        <span>Cài đặt tài khoản</span>
+                    </a>
+
+                    <form asp-controller="Account"
+                          asp-action="Logout"
+                          method="post"
+                          class="sidebar-logout-form">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="sidebar-item sidebar-logout-button">
+
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
+
+                </nav>
+            </aside>
+
+            <!-- PHẦN NỘI DUNG BÊN PHẢI -->
+            <div class="admin-main" id="adminMain">
+
+                <!-- HEADER -->
+                <header class="admin-header">
+
+                    <div class="header-left">
+
+                        <button type="button"
+                                class="sidebar-toggle"
+                                id="sidebarToggle"
+                                aria-label="Thu gọn menu">
+
+                            <i class="bi bi-list"></i>
+                        </button>
+
+                        <h1 class="page-heading">
+                            @ViewData["Title"]
+                        </h1>
+                    </div>
+
+                    <div class="header-right">
+
+                        <form asp-controller="Saches"
+                              asp-action="Index"
+                              method="get"
+                              class="header-search-form">
+
+                            <input type="text"
+                                   name="searchString"
+                                   placeholder="Tìm kiếm sách, độc giả..." />
+
+                            <button type="submit"
+                                    aria-label="Tìm kiếm">
+
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+
+                        <button type="button"
+                                class="header-notification"
+                                title="Thông báo">
+
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+
+                        <div class="dropdown">
+                            <button class="user-menu"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+
+                                <span class="user-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+
+                                <span class="user-details">
+                                    <strong>@userEmail</strong>
+                                    <small>@userRole</small>
+                                </span>
+
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="Profile"
+                                       asp-action="IndexNhanVien">
+
+                                        <i class="bi bi-person-circle me-2"></i>
+                                        Thông tin tài khoản
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+
+                                <li>
+                                    <form asp-controller="Account"
+                                          asp-action="Logout"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="dropdown-item text-danger">
+
+                                            <i class="bi bi-box-arrow-right me-2"></i>
+                                            Đăng xuất
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </header>
+
+                <!-- NỘI DUNG TỪ CÁC VIEW -->
+                <main class="admin-content">
+                    @RenderBody()
+                </main>
+
+                <footer class="admin-footer">
+                    © @DateTime.Now.Year Quản lý thư viện. All rights reserved.
+                </footer>
+
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+        </div>
+    }
+    else
+    {
+        <!-- GIAO DIỆN DÀNH CHO ĐỘC GIẢ HOẶC CHƯA ĐĂNG NHẬP -->
+        <header class="reader-header">
+            <div class="container-fluid d-flex align-items-center justify-content-between">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="reader-logo">
+
+                    <i class="bi bi-book-half"></i>
+
+                    <span>
+                        <strong>THƯ VIỆN</strong>
+                        <small>Kết nối tri thức</small>
+                    </span>
+                </a>
+
+                <nav class="reader-navigation">
+
+                    <a asp-controller="Home"
+                       asp-action="Index">
+
+                        Trang chủ
+                    </a>
+
+                    <a asp-controller="Saches"
+                       asp-action="Index">
+
+                        Sách
+                    </a>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Profile"
+                           asp-action="Index">
+
+                            Tài khoản
+                        </a>
+
+                        @if (User.IsInRole("DocGia"))
+                        {
+                            <a asp-controller="DatTruocs"
+                               asp-action="CuaToi">
+
+                                Đặt trước của tôi
+                            </a>
+                        }
+
+                        <form asp-controller="Account"
+                              asp-action="Logout"
+                              method="post"
+                              class="d-inline">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="reader-logout-button">
+
+                                Đăng xuất
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account"
+                           asp-action="Login">
+
+                            Đăng nhập
+                        </a>
+
+                        <a asp-controller="Account"
+                           asp-action="Register"
+                           class="reader-register-button">
+
+                            Đăng ký
+                        </a>
+                    }
+
+                </nav>
+            </div>
+        </header>
+
+        <main class="reader-main">
             @RenderBody()
         </main>
-    </div>
+    }
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - bài_tập_1 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
 using bài_tập_1.Models;
+using bài_tập_1.Models.ViewModels;
 
 namespace bài_tập_1.Controllers
 {
@@ -34,8 +35,7 @@ namespace bài_tập_1.Controllers
             return View(await bài_tập_1Context.ToListAsync());
         }
 
-        // Xem chi tiết 1 đặt trước - chỉ Admin/NhanVien
-        [Authorize(Roles = "Admin,NhanVien")]
+        // Nhân viên xem mọi yêu cầu; độc giả chỉ xem yêu cầu của chính mình.
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.DatTruoc == null)
@@ -46,73 +46,157 @@ namespace bài_tập_1.Controllers
             var datTruoc = await _context.DatTruoc
                 .Include(d => d.DocGia)
                 .Include(d => d.Sach)
+                    .ThenInclude(s => s.TheLoai)
+                .Include(d => d.Sach)
+                    .ThenInclude(s => s.NhaXuatBan)
                 .FirstOrDefaultAsync(m => m.MaDatTruoc == id);
             if (datTruoc == null)
             {
                 return NotFound();
             }
 
+            if (!(User.IsInRole("Admin") || User.IsInRole("NhanVien")))
+            {
+                var userId = _userManager.GetUserId(User);
+                if (datTruoc.DocGia.UserId != userId)
+                    return Forbid();
+            }
+
             return View(datTruoc);
         }
 
-        // Hiển thị form đặt trước - độc giả tự đặt được, nhân viên cũng đặt hộ được
+        // Trang xác nhận đặt trước. maSach được truyền từ nút Đặt trước của cuốn sách.
         [Authorize(Roles = "Admin,NhanVien,DocGia")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? maSach)
         {
-            bool isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
-            ViewBag.IsStaff = isStaff;
+            if (maSach == null)
+                return RedirectToAction("Index", "Saches");
 
-            if (isStaff)
-            {
-                // Nhân viên/Admin được chọn đặt hộ cho bất kỳ độc giả nào
-                ViewData["MaDocGia"] = new SelectList(_context.DocGia, "MaDocGia", "HoTen");
-            }
-            // Nếu là độc giả tự đặt, không cần dropdown - View sẽ tự ẩn dựa vào ViewBag.IsStaff
+            var model = await TaoDatTruocViewModelAsync(maSach.Value);
+            if (model == null)
+                return NotFound();
 
-            ViewData["MaSach"] = new SelectList(_context.Sach, "MaSach", "TenSach");
-            return View();
+            return View(model);
         }
 
-        // Xử lý lưu đặt trước mới
+        // Lưu yêu cầu đặt trước sau khi người dùng xác nhận.
         [Authorize(Roles = "Admin,NhanVien,DocGia")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaDatTruoc,MaDocGia,MaSach,NgayDat,NgayHetHanDat,TrangThai")] DatTruoc datTruoc)
+        public async Task<IActionResult> Create(DatTruocViewModel input)
         {
-            bool isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
+            var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
+            DocGia? docGia;
 
-            if (!isStaff)
-            {
-                // Độc giả tự đặt: bỏ qua MaDocGia người dùng gửi lên (nếu có),
-                // luôn lấy đúng hồ sơ của chính người đang đăng nhập -> chống giả mạo đặt hộ người khác
-                var userId = _userManager.GetUserId(User);
-                var docGia = await _context.DocGia.FirstOrDefaultAsync(d => d.UserId == userId);
-                if (docGia == null)
-                {
-                    return Forbid();
-                }
-                datTruoc.MaDocGia = docGia.MaDocGia;
-                ModelState.Remove(nameof(datTruoc.MaDocGia));
-            }
-
-            datTruoc.NgayDat = DateTime.Now;
-            datTruoc.TrangThai = TrangThaiDatTruoc.DangCho;
-            ModelState.Remove(nameof(datTruoc.TrangThai));
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(datTruoc);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewBag.IsStaff = isStaff;
             if (isStaff)
             {
-                ViewData["MaDocGia"] = new SelectList(_context.DocGia, "MaDocGia", "HoTen", datTruoc.MaDocGia);
+                docGia = input.MaDocGia.HasValue
+                    ? await _context.DocGia.FindAsync(input.MaDocGia.Value)
+                    : null;
             }
-            ViewData["MaSach"] = new SelectList(_context.Sach, "MaSach", "TenSach", datTruoc.MaSach);
-            return View(datTruoc);
+            else
+            {
+                var userId = _userManager.GetUserId(User);
+                docGia = await _context.DocGia.FirstOrDefaultAsync(d => d.UserId == userId);
+            }
+
+            if (docGia == null)
+                ModelState.AddModelError(string.Empty, "Không tìm thấy hồ sơ độc giả hợp lệ.");
+            else if (docGia.TrangThai != TrangThaiDocGia.HoatDong)
+                ModelState.AddModelError(string.Empty, "Thẻ độc giả đang bị khóa.");
+            else if (docGia.NgayHetHanThe < DateTime.Today)
+                ModelState.AddModelError(string.Empty, "Thẻ độc giả đã hết hạn.");
+
+            var sachTonTai = await _context.Sach.AnyAsync(s => s.MaSach == input.MaSach);
+            if (!sachTonTai)
+                ModelState.AddModelError(string.Empty, "Cuốn sách không tồn tại.");
+
+            if (docGia != null)
+            {
+                var daDatTrung = await _context.DatTruoc.AnyAsync(d =>
+                    d.MaDocGia == docGia.MaDocGia &&
+                    d.MaSach == input.MaSach &&
+                    (d.TrangThai == TrangThaiDatTruoc.DangCho ||
+                     d.TrangThai == TrangThaiDatTruoc.DaCoSach));
+
+                if (daDatTrung)
+                    ModelState.AddModelError(string.Empty, "Bạn đã có một yêu cầu đang hoạt động cho cuốn sách này.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var invalidModel = await TaoDatTruocViewModelAsync(input.MaSach, input.MaDocGia);
+                if (invalidModel == null)
+                    return NotFound();
+
+                invalidModel.DongYQuyDinh = input.DongYQuyDinh;
+                return View(invalidModel);
+            }
+
+            var datTruoc = new DatTruoc
+            {
+                MaDocGia = docGia!.MaDocGia,
+                MaSach = input.MaSach,
+                NgayDat = DateTime.Now,
+                NgayHetHanDat = DateTime.Now.AddDays(7),
+                TrangThai = TrangThaiDatTruoc.DangCho
+            };
+
+            _context.DatTruoc.Add(datTruoc);
+            await _context.SaveChangesAsync();
+
+            TempData["DatTruocSuccess"] = "Yêu cầu đặt trước đã được ghi nhận.";
+            return RedirectToAction(nameof(Details), new { id = datTruoc.MaDatTruoc });
+        }
+
+        // Danh sách đặt trước của độc giả đang đăng nhập.
+        [Authorize(Roles = "DocGia")]
+        public async Task<IActionResult> CuaToi()
+        {
+            var userId = _userManager.GetUserId(User);
+            var docGia = await _context.DocGia.FirstOrDefaultAsync(d => d.UserId == userId);
+            if (docGia == null)
+                return NotFound();
+
+            var danhSach = await _context.DatTruoc
+                .Include(d => d.Sach)
+                .Where(d => d.MaDocGia == docGia.MaDocGia)
+                .OrderByDescending(d => d.NgayDat)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(danhSach);
+        }
+
+        // Độc giả được hủy khi yêu cầu vẫn đang chờ; nhân viên có thể hủy giúp.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Huy(int id)
+        {
+            var datTruoc = await _context.DatTruoc
+                .Include(d => d.DocGia)
+                .FirstOrDefaultAsync(d => d.MaDatTruoc == id);
+
+            if (datTruoc == null)
+                return NotFound();
+
+            var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
+            if (!isStaff && datTruoc.DocGia.UserId != _userManager.GetUserId(User))
+                return Forbid();
+
+            if (datTruoc.TrangThai != TrangThaiDatTruoc.DangCho)
+            {
+                TempData["DatTruocError"] = "Chỉ yêu cầu đang chờ mới có thể hủy.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            datTruoc.TrangThai = TrangThaiDatTruoc.DaHuy;
+            await _context.SaveChangesAsync();
+
+            TempData["DatTruocSuccess"] = "Đã hủy yêu cầu đặt trước.";
+            return isStaff
+                ? RedirectToAction(nameof(Index))
+                : RedirectToAction(nameof(CuaToi));
         }
 
         // Hiển thị form sửa đặt trước - chỉ Admin/NhanVien (cập nhật trạng thái)
@@ -209,6 +293,66 @@ namespace bài_tập_1.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<DatTruocViewModel?> TaoDatTruocViewModelAsync(
+            int maSach,
+            int? maDocGiaDuocChon = null)
+        {
+            var sach = await _context.Sach
+                .Include(s => s.TheLoai)
+                .Include(s => s.NhaXuatBan)
+                .Include(s => s.SachTacGias)
+                    .ThenInclude(st => st.TacGia)
+                .Include(s => s.BanSaos)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.MaSach == maSach);
+
+            if (sach == null)
+                return null;
+
+            var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
+            DocGia? docGia = null;
+
+            if (isStaff)
+            {
+                var docGias = await _context.DocGia
+                    .Where(d => d.TrangThai == TrangThaiDocGia.HoatDong)
+                    .OrderBy(d => d.HoTen)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                ViewData["MaDocGia"] = new SelectList(
+                    docGias, "MaDocGia", "HoTen", maDocGiaDuocChon);
+
+                if (maDocGiaDuocChon.HasValue)
+                    docGia = docGias.FirstOrDefault(d => d.MaDocGia == maDocGiaDuocChon);
+            }
+            else
+            {
+                var userId = _userManager.GetUserId(User);
+                docGia = await _context.DocGia
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.UserId == userId);
+            }
+
+            var soNguoiDangCho = await _context.DatTruoc.CountAsync(d =>
+                d.MaSach == maSach &&
+                (d.TrangThai == TrangThaiDatTruoc.DangCho ||
+                 d.TrangThai == TrangThaiDatTruoc.DaCoSach));
+
+            return new DatTruocViewModel
+            {
+                MaSach = sach.MaSach,
+                MaDocGia = maDocGiaDuocChon ?? docGia?.MaDocGia,
+                Sach = sach,
+                DocGia = docGia,
+                IsStaff = isStaff,
+                TongBanSao = sach.BanSaos.Count,
+                SoBanSanCo = sach.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo),
+                SoNguoiDangCho = soNguoiDangCho,
+                NgayHetHanDuKien = DateTime.Now.AddDays(7)
+            };
         }
 
         private bool DatTruocExists(int id)

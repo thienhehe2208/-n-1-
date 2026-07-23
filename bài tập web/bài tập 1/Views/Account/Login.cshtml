@@ -1,36 +1,264 @@
 ﻿@model bài_tập_1.Models.ViewModels.LoginViewModel
+
 @{
     ViewData["Title"] = "Đăng nhập";
 }
 
-<h2>Đăng nhập</h2>
+@if (TempData["RegisterSuccess"] is string message)
+{
+    <div class="alert alert-success m-3" role="alert">@message</div>
+}
 
-<div class="row">
-    <div class="col-md-5">
-        <form asp-action="Login" method="post">
-            <input type="hidden" asp-for="ReturnUrl" />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="library-login-page">
 
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+    <div class="library-login-wrapper">
+
+        <!-- KHỐI GIỚI THIỆU BÊN TRÁI -->
+        <section class="library-login-visual">
+
+            <div class="library-login-overlay"></div>
+
+            <div class="library-login-visual-content">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="library-login-brand">
+
+                    <span class="library-login-brand-icon">
+                        <i class="bi bi-book-half"></i>
+                    </span>
+
+                    <span>
+                        <strong>THƯ VIỆN TRI THỨC</strong>
+                        <small>Kết nối tri thức - Lan tỏa tương lai</small>
+                    </span>
+                </a>
+
+                <div class="library-login-introduction">
+
+                    <span class="library-login-label">
+                        Hệ thống quản lý thư viện
+                    </span>
+
+                    <h1>
+                        Chào mừng bạn quay trở lại
+                    </h1>
+
+                    <p>
+                        Đăng nhập để tìm kiếm sách, quản lý phiếu mượn,
+                        đặt trước sách và theo dõi lịch sử sử dụng thư viện.
+                    </p>
+
+                    <div class="library-login-features">
+
+                        <div class="library-login-feature">
+                            <span>
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <div>
+                                <strong>Tìm kiếm nhanh chóng</strong>
+                                <small>
+                                    Tra cứu sách theo tên, tác giả và thể loại.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="library-login-feature">
+                            <span>
+                                <i class="bi bi-journal-check"></i>
+                            </span>
+
+                            <div>
+                                <strong>Quản lý sách đang mượn</strong>
+                                <small>
+                                    Theo dõi ngày mượn, ngày trả và trạng thái sách.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="library-login-feature">
+                            <span>
+                                <i class="bi bi-bookmark-check"></i>
+                            </span>
+
+                            <div>
+                                <strong>Đặt trước sách</strong>
+                                <small>
+                                    Đăng ký trước những cuốn sách bạn yêu thích.
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <p class="library-login-copyright">
+                    © 2026 Thư viện tri thức. All rights reserved.
+                </p>
             </div>
+        </section>
 
-            <div class="form-group mb-3">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+        <!-- FORM ĐĂNG NHẬP BÊN PHẢI -->
+        <section class="library-login-form-section">
+
+            <div class="library-login-form-box">
+
+                <div class="library-login-mobile-brand">
+
+                    <span>
+                        <i class="bi bi-book-half"></i>
+                    </span>
+
+                    <div>
+                        <strong>THƯ VIỆN</strong>
+                        <small>Kết nối tri thức</small>
+                    </div>
+                </div>
+
+                <div class="library-login-heading">
+
+                    <span class="library-login-welcome">
+                        Xin chào!
+                    </span>
+
+                    <h2>Đăng nhập tài khoản</h2>
+
+                    <p>
+                        Vui lòng nhập thông tin tài khoản để tiếp tục.
+                    </p>
+                </div>
+
+                <form asp-action="Login"
+                      method="post"
+                      class="library-login-form">
+
+                    <input type="hidden"
+                           asp-for="ReturnUrl" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="library-login-validation">
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div class="library-login-field">
+
+                        <label asp-for="Email">
+                            Email
+                        </label>
+
+                        <div class="library-login-input-group">
+
+                            <span class="library-login-input-icon">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+
+                            <input asp-for="Email"
+                                   class="library-login-input"
+                                   placeholder="Nhập địa chỉ email"
+                                   autocomplete="email" />
+                        </div>
+
+                        <span asp-validation-for="Email"
+                              class="library-login-error">
+                        </span>
+                    </div>
+
+                    <!-- MẬT KHẨU -->
+                    <div class="library-login-field">
+
+                        <div class="library-login-label-row">
+
+                            <label asp-for="Password">
+                                Mật khẩu
+                            </label>
+
+                            <a href="#"
+                               class="library-login-forgot">
+                                Quên mật khẩu?
+                            </a>
+                        </div>
+
+                        <div class="library-login-input-group">
+
+                            <span class="library-login-input-icon">
+                                <i class="bi bi-lock"></i>
+                            </span>
+
+                            <input asp-for="Password"
+                                   class="library-login-input"
+                                   placeholder="Nhập mật khẩu"
+                                   autocomplete="current-password"
+                                   id="loginPassword" />
+
+                            <button type="button"
+                                    class="library-login-show-password"
+                                    id="toggleLoginPassword"
+                                    aria-label="Hiện hoặc ẩn mật khẩu">
+
+                                <i class="bi bi-eye"
+                                   id="loginPasswordIcon">
+                                </i>
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="Password"
+                              class="library-login-error">
+                        </span>
+                    </div>
+
+                    <!-- GHI NHỚ -->
+                    <div class="library-login-options">
+
+                        <label class="library-login-remember">
+
+                            <input asp-for="RememberMe" />
+
+                            <span class="library-login-custom-checkbox">
+                                <i class="bi bi-check"></i>
+                            </span>
+
+                            <span>
+                                Ghi nhớ đăng nhập
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- NÚT ĐĂNG NHẬP -->
+                    <button type="submit"
+                            class="library-login-submit">
+
+                        <span>Đăng nhập</span>
+
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <!-- PHÂN CÁCH -->
+                    <div class="library-login-divider">
+                        <span>Hoặc</span>
+                    </div>
+
+                    <!-- ĐĂNG KÝ -->
+                    <p class="library-login-register-text">
+                        Bạn chưa có tài khoản?
+
+                        <a asp-action="Register">
+                            Đăng ký ngay
+                        </a>
+                    </p>
+
+                    <!-- QUAY LẠI -->
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="library-login-back">
+
+                        <i class="bi bi-arrow-left"></i>
+                        Quay lại trang chủ
+                    </a>
+                </form>
             </div>
+        </section>
 
-            <div class="form-check mb-3">
-                <input asp-for="RememberMe" class="form-check-input" />
-                <label asp-for="RememberMe" class="form-check-label"></label>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Đăng nhập</button>
-            <a asp-action="Register" class="btn btn-link">Chưa có tài khoản? Đăng ký</a>
-        </form>
     </div>
 </div>
 
@@ -38,4 +266,34 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButton =
+                document.getElementById("toggleLoginPassword");
+
+            const passwordInput =
+                document.getElementById("loginPassword");
+
+            const passwordIcon =
+                document.getElementById("loginPasswordIcon");
+
+            if (!toggleButton || !passwordInput || !passwordIcon) {
+                return;
+            }
+
+            toggleButton.addEventListener("click", function () {
+                const isPassword =
+                    passwordInput.type === "password";
+
+                passwordInput.type =
+                    isPassword ? "text" : "password";
+
+                passwordIcon.className =
+                    isPassword
+                        ? "bi bi-eye-slash"
+                        : "bi bi-eye";
+            });
+        });
+    </script>
 }

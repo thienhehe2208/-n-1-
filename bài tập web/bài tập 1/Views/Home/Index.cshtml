@@ -1,8 +1,634 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model bài_tập_1.Models.ViewModels.TrangChuViewModel
+
+@{
+    ViewData["Title"] = "Trang chủ";
+
+    /*
+     * Danh sách ảnh sách mới.
+     * Ảnh phải nằm trong:
+     * wwwroot/images/books
+     */
+    string[] anhSachMoi =
+    {
+        "/images/books/dac-nhan-tam.jpg",
+        "/images/books/nha-gia-kim.jpg",
+        "/images/books/thoi-quen-nguyen-tu.jpg",
+        "/images/books/tu-duy-nhanh-va-cham.jpg"
+    };
+
+    /*
+     * Ảnh mặc định khi không tìm thấy ảnh.
+     * Bạn cần đặt file no-book.jpg tại:
+     * wwwroot/images/books/no-book.jpg
+     */
+    string anhMacDinh = "/images/books/no-book.jpg";
+
+    int viTriSachMoi = 0;
+    int viTriSachDangMuon = 0;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- =========================
+     BỐ CỤC TRANG ĐỘC GIẢ
+========================= -->
+
+<div class="reader-page-layout">
+
+    <!-- THANH MENU BÊN TRÁI -->
+    <aside class="reader-sidebar">
+
+        <!-- Menu chính -->
+        <nav class="reader-sidebar-menu">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="reader-menu-item active">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-house-door"></i>
+                </span>
+
+                <span>Trang chủ</span>
+            </a>
+
+            <a asp-controller="Sach"
+               asp-action="Index"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-search"></i>
+                </span>
+
+                <span>Tìm kiếm sách</span>
+            </a>
+
+            <a asp-controller="TheLoai"
+               asp-action="Index"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-journals"></i>
+                </span>
+
+                <span>Danh mục sách</span>
+            </a>
+
+            <a asp-controller="Sach"
+               asp-action="Index"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-book"></i>
+                </span>
+
+                <span>Sách mới</span>
+            </a>
+
+            <a href="#"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-star"></i>
+                </span>
+
+                <span>Sách hay</span>
+            </a>
+
+            <a href="#"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-pc-display"></i>
+                </span>
+
+                <span>Sách điện tử</span>
+            </a>
+
+            <a href="#"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-heart"></i>
+                </span>
+
+                <span>Yêu thích</span>
+            </a>
+
+            <a asp-controller="PhieuMuon"
+               asp-action="Index"
+               class="reader-menu-item">
+
+                <span class="reader-menu-icon">
+                    <i class="bi bi-clock-history"></i>
+                </span>
+
+                <span>Lịch sử mượn</span>
+            </a>
+        </nav>
+
+        <!-- Tài khoản của tôi -->
+        <div class="reader-sidebar-section">
+
+            <h3 class="reader-sidebar-title">
+                Tài khoản của tôi
+            </h3>
+
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <a asp-area="Identity"
+                   asp-page="/Account/Manage/Index"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+
+                    <span>Thông tin cá nhân</span>
+                </a>
+
+                <a asp-controller="PhieuMuon"
+                   asp-action="Index"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-journal-bookmark"></i>
+                    </span>
+
+                    <span>Sách đang mượn</span>
+                </a>
+
+                <a asp-controller="PhieuMuon"
+                   asp-action="Index"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </span>
+
+                    <span>Lịch sử mượn trả</span>
+                </a>
+
+                <a href="#"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-cash-coin"></i>
+                    </span>
+
+                    <span>Phí và xử lý</span>
+                </a>
+
+                <a asp-controller="DatTruoc"
+                   asp-action="Index"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-bookmark-check"></i>
+                    </span>
+
+                    <span>Đặt chỗ sách</span>
+                </a>
+            }
+            else
+            {
+                <a asp-area="Identity"
+                   asp-page="/Account/Login"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </span>
+
+                    <span>Đăng nhập</span>
+                </a>
+
+                <a asp-area="Identity"
+                   asp-page="/Account/Register"
+                   class="reader-menu-item">
+
+                    <span class="reader-menu-icon">
+                        <i class="bi bi-person-plus"></i>
+                    </span>
+
+                    <span>Đăng ký tài khoản</span>
+                </a>
+            }
+        </div>
+
+        <!-- Hỗ trợ -->
+        <div class="reader-support-card">
+
+            <span class="reader-support-icon">
+                <i class="bi bi-headset"></i>
+            </span>
+
+            <div>
+                <strong>Hỗ trợ bạn đọc</strong>
+
+                <p>
+                    <i class="bi bi-telephone"></i>
+                    (024) 1234 5678
+                </p>
+
+                <p>
+                    <i class="bi bi-clock"></i>
+                    7:30 - 17:00
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- PHẦN NỘI DUNG BÊN PHẢI -->
+    <main class="reader-page-content">
+
+       
+        <section class="hero-banner">
+
+            <div class="hero-content">
+
+
+
+                <span class="hero-small-title">
+
+                    Chào mừng bạn đến với
+
+                </span>
+
+
+
+                <h1>THƯ VIỆN TRI THỨC</h1>
+
+
+
+                <p>
+
+                    Khám phá hàng nghìn đầu sách thuộc nhiều chủ đề khác nhau.
+
+                </p>
+
+
+
+                <a asp-controller="Sach"
+                   asp-action="Index"
+                   class="hero-button">
+
+
+
+                    <i class="bi bi-search"></i>
+
+                    Tìm sách ngay
+
+                </a>
+
+            </div>
+
+
+
+            <div class="hero-image">
+
+                <img src="~/images/books/banner.jpg"
+                     alt="Banner thư viện"
+                     class="hero-banner-image" />
+
+            </div>
+
+        </section>
+        <!-- =========================
+     BỐ CỤC NỘI DUNG TRANG CHỦ
+========================= -->
+        <div class="home-grid">
+
+            <!-- CỘT NỘI DUNG BÊN TRÁI -->
+            <div class="home-left">
+
+                <!-- =========================
+             SÁCH MỚI CẬP NHẬT
+        ========================= -->
+                <section class="content-card">
+
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-label">
+                                Khám phá
+                            </span>
+
+                            <h2>Sách mới cập nhật</h2>
+                        </div>
+
+                        <a asp-controller="Sach"
+                           asp-action="Index">
+
+                            Xem tất cả
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    @if (Model.SachMoi != null && Model.SachMoi.Count > 0)
+                    {
+                        <div class="book-grid">
+
+                            @foreach (var sach in Model.SachMoi)
+                            {
+                                /*
+                                 * Lấy ảnh theo thứ tự:
+                                 * Sách 1: Đắc nhân tâm
+                                 * Sách 2: Nhà giả kim
+                                 * Sách 3: Thói quen nguyên tử
+                                 * Sách 4: Tư duy nhanh và chậm
+                                 *
+                                 * Nếu có nhiều hơn 4 sách thì ảnh sẽ lặp lại.
+                                 */
+                                string anhHienTai =
+                                    anhSachMoi[viTriSachMoi % anhSachMoi.Length];
+
+                                <article class="book-card">
+
+                                    <!-- ẢNH BÌA SÁCH -->
+                                    <a asp-controller="Saches"
+                                       asp-action="Details"
+                                       asp-route-id="@sach.MaSach"
+                                       class="book-image-link">
+
+                                        <span class="book-new-label">
+                                            Mới
+                                        </span>
+
+                                        <img src="@anhHienTai"
+                                             alt="Ảnh bìa @sach.TenSach"
+                                             class="book-image"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='@anhMacDinh';" />
+                                    </a>
+
+                                    <!-- THÔNG TIN SÁCH -->
+                                    <div class="book-content">
+
+                                        <a asp-controller="Saches"
+                                           asp-action="Details"
+                                           asp-route-id="@sach.MaSach"
+                                           class="book-title">
+
+                                            @sach.TenSach
+                                        </a>
+
+                                        <p class="book-description">
+                                            @(string.IsNullOrWhiteSpace(sach.MoTa)
+                                                ? "Chưa có mô tả cho cuốn sách này."
+                                                : sach.MoTa)
+                                        </p>
+
+                                        <div class="book-meta">
+
+                                            <span>
+                                                <i class="bi bi-calendar3"></i>
+
+                                                @(sach.NamXuatBan?.ToString()
+                                                    ?? "Đang cập nhật")
+                                            </span>
+
+                                            <strong>
+                                                @sach.GiaSach.ToString("N0") đ
+                                            </strong>
+                                        </div>
+
+                                        <div class="book-actions">
+
+                                            <a asp-controller="Saches"
+                                               asp-action="Details"
+                                               asp-route-id="@sach.MaSach"
+                                               class="book-detail-button">
+
+                                                <i class="bi bi-eye"></i>
+                                                Xem chi tiết
+                                            </a>
+
+                                            <a asp-controller="DatTruocs"
+                                               asp-action="Create"
+                                               asp-route-maSach="@sach.MaSach"
+                                               class="book-reserve-button">
+
+                                                <i class="bi bi-bookmark-check"></i>
+                                                Đặt trước
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                viTriSachMoi++;
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-message">
+
+                            <i class="bi bi-journal-x"></i>
+
+                            <p>Chưa có sách mới.</p>
+                        </div>
+                    }
+                </section>
+
+            </div>
+
+            <!-- CỘT NỘI DUNG BÊN PHẢI -->
+            <aside class="home-right">
+
+                <!-- =========================
+             SÁCH ĐANG MƯỢN
+        ========================= -->
+                <section class="content-card">
+
+                    <div class="section-heading compact-heading">
+                        <div>
+                            <span class="section-label">
+                                Của bạn
+                            </span>
+
+                            <h2>Sách đang mượn</h2>
+                        </div>
+
+                        <a asp-controller="PhieuMuon"
+                           asp-action="Index">
+
+                            Xem tất cả
+                        </a>
+                    </div>
+
+                    @if (Model.SachDangMuon != null &&
+                         Model.SachDangMuon.Count > 0)
+                    {
+                        <div class="borrowed-list">
+
+                            @foreach (var sach in Model.SachDangMuon)
+                            {
+                                string anhDangMuon =
+                                    anhSachMoi[viTriSachDangMuon % anhSachMoi.Length];
+
+                                <article class="borrowed-item">
+
+                                    <a asp-controller="Saches"
+                                       asp-action="Details"
+                                       asp-route-id="@sach.MaSach"
+                                       class="borrowed-image-link">
+
+                                        <img src="@anhDangMuon"
+                                             alt="Ảnh bìa @sach.TenSach"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='@anhMacDinh';" />
+                                    </a>
+
+                                    <div class="borrowed-details">
+
+                                        <a asp-controller="Saches"
+                                           asp-action="Details"
+                                           asp-route-id="@sach.MaSach">
+
+                                            <strong>
+                                                @sach.TenSach
+                                            </strong>
+                                        </a>
+
+                                        <small>
+                                            Ngày trả:
+                                            @sach.NgayTra.ToString("dd/MM/yyyy")
+                                        </small>
+                                    </div>
+
+                                    @if (sach.SoNgayConLai < 0)
+                                    {
+                                        <span class="days-badge overdue-badge">
+                                            Quá hạn
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="days-badge">
+                                            Còn @sach.SoNgayConLai ngày
+                                        </span>
+                                    }
+                                </article>
+
+                                viTriSachDangMuon++;
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-message small-empty-message">
+
+                            <i class="bi bi-journal-check"></i>
+
+                            <p>Bạn chưa mượn cuốn sách nào.</p>
+                        </div>
+                    }
+                </section>
+
+                <!-- =========================
+             THÔNG BÁO
+        ========================= -->
+                <section class="content-card">
+
+                    <div class="section-heading compact-heading">
+                        <div>
+                            <span class="section-label">
+                                Cập nhật
+                            </span>
+
+                            <h2>Thông báo</h2>
+                        </div>
+
+                        <a href="#">
+                            Xem tất cả
+                        </a>
+                    </div>
+
+                    @if (Model.ThongBao != null &&
+                         Model.ThongBao.Count > 0)
+                    {
+                        <div class="notice-list">
+
+                            @foreach (var thongBao in Model.ThongBao)
+                            {
+                                var iconClass = thongBao.Loai switch
+                                {
+                                    "success" =>
+                                        "bi-check-circle-fill notice-success",
+
+                                    "warning" =>
+                                        "bi-exclamation-circle-fill notice-warning",
+
+                                    _ =>
+                                        "bi-info-circle-fill notice-info"
+                                };
+
+                                <article class="notice-item">
+
+                                    <i class="bi @iconClass"></i>
+
+                                    <div>
+                                        <p>
+                                            @thongBao.NoiDung
+                                        </p>
+
+                                        <time>
+                                            @thongBao.NgayThongBao.ToString("dd/MM/yyyy")
+                                        </time>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-message small-empty-message">
+
+                            <i class="bi bi-bell-slash"></i>
+
+                            <p>Chưa có thông báo mới.</p>
+                        </div>
+                    }
+                </section>
+
+                <!-- =========================
+             LỊCH THƯ VIỆN
+        ========================= -->
+                <section class="content-card opening-card">
+
+                    <div class="section-heading compact-heading">
+                        <div>
+                            <span class="section-label">
+                                Thời gian
+                            </span>
+
+                            <h2>Lịch thư viện</h2>
+                        </div>
+                    </div>
+
+                    <div class="opening-content">
+
+                        <span class="opening-icon">
+                            <i class="bi bi-calendar-week"></i>
+                        </span>
+
+                        <div>
+                            <strong>Giờ mở cửa</strong>
+
+                            <p>
+                                Thứ 2 - Thứ 6: 07:30 - 17:00
+                            </p>
+
+                            <p>
+                                Thứ 7: 07:30 - 11:30
+                            </p>
+
+                            <p>
+                                Chủ nhật: Nghỉ
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+    </main>
 </div>

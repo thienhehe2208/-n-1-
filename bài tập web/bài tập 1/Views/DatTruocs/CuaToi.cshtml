@@ -1,0 +1,113 @@
+@using bài_tập_1.Models
+@model IEnumerable<bài_tập_1.Models.DatTruoc>
+
+@{
+    ViewData["Title"] = "Đặt trước của tôi";
+}
+
+<main class="my-reservations-page">
+    <div class="my-reservations-shell">
+        <header class="my-reservations-header">
+            <div>
+                <span class="reservation-kicker">Tài khoản độc giả</span>
+                <h1>Đặt trước của tôi</h1>
+                <p>Theo dõi trạng thái và quản lý các yêu cầu đặt sách của bạn.</p>
+            </div>
+            <a asp-controller="Saches" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+                Tìm thêm sách
+            </a>
+        </header>
+
+        @if (TempData["DatTruocSuccess"] is string success)
+        {
+            <div class="reservation-alert reservation-alert-success">
+                <i class="bi bi-check-circle"></i>
+                @success
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <section class="reservation-empty">
+                <i class="bi bi-bookmark"></i>
+                <h2>Bạn chưa đặt trước cuốn sách nào</h2>
+                <p>Khi tìm thấy cuốn sách yêu thích, hãy bấm “Đặt trước”.</p>
+                <a asp-controller="Saches" asp-action="Index" class="btn btn-primary">
+                    Khám phá kho sách
+                </a>
+            </section>
+        }
+        else
+        {
+            <div class="my-reservations-list">
+                @foreach (var item in Model)
+                {
+                    var statusText = item.TrangThai switch
+                    {
+                        TrangThaiDatTruoc.DangCho => "Đang chờ",
+                        TrangThaiDatTruoc.DaCoSach => "Sẵn sàng nhận",
+                        TrangThaiDatTruoc.HoanThanh => "Hoàn thành",
+                        TrangThaiDatTruoc.DaHuy => "Đã hủy",
+                        _ => item.TrangThai.ToString()
+                    };
+
+                    var statusClass = item.TrangThai switch
+                    {
+                        TrangThaiDatTruoc.DangCho => "is-waiting",
+                        TrangThaiDatTruoc.DaCoSach => "is-ready",
+                        TrangThaiDatTruoc.HoanThanh => "is-completed",
+                        _ => "is-cancelled"
+                    };
+
+                    var anhBia = string.IsNullOrWhiteSpace(item.Sach.AnhBia)
+                        ? "/images/books/banner.jpg"
+                        : item.Sach.AnhBia;
+
+                    <article class="my-reservation-item">
+                        <img src="@anhBia" alt="Ảnh bìa @item.Sach.TenSach" />
+                        <div class="my-reservation-content">
+                            <div class="my-reservation-top">
+                                <div>
+                                    <span>Yêu cầu #@item.MaDatTruoc</span>
+                                    <h2>@item.Sach.TenSach</h2>
+                                </div>
+                                <span class="reservation-request-status @statusClass">@statusText</span>
+                            </div>
+
+                            <div class="my-reservation-meta">
+                                <span><i class="bi bi-calendar3"></i> Đặt ngày @item.NgayDat.ToString("dd/MM/yyyy")</span>
+                                <span><i class="bi bi-geo-alt"></i> Quầy lưu thông thư viện</span>
+                                <span>
+                                    <i class="bi bi-hourglass-split"></i>
+                                    Hiệu lực đến @(item.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "khi có thông báo")
+                                </span>
+                            </div>
+
+                            <div class="my-reservation-actions">
+                                <a asp-action="Details"
+                                   asp-route-id="@item.MaDatTruoc"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Xem chi tiết
+                                </a>
+
+                                @if (item.TrangThai == TrangThaiDatTruoc.DangCho)
+                                {
+                                    <form asp-action="Huy"
+                                          asp-route-id="@item.MaDatTruoc"
+                                          method="post"
+                                          onsubmit="return confirm('Bạn chắc chắn muốn hủy yêu cầu này?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            Hủy yêu cầu
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</main>

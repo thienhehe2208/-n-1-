@@ -11,6 +11,7 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "6.0.36",
           "Microsoft.EntityFrameworkCore.Design": "6.0.36",
           "Microsoft.EntityFrameworkCore.SqlServer": "6.0.36",
+          "Microsoft.EntityFrameworkCore.Sqlite": "6.0.36",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "6.0.18"
         },
         "runtime": {
@@ -1080,6 +1081,17 @@
           }
         }
       },
+      "Microsoft.Data.Sqlite.Core/6.0.36": {
+        "dependencies": {
+          "SQLitePCLRaw.core": "2.1.2"
+        },
+        "runtime": {
+          "lib/net6.0/Microsoft.Data.Sqlite.dll": {
+            "assemblyVersion": "6.0.36.0",
+            "fileVersion": "6.0.3624.51504"
+          }
+        }
+      },
       "Microsoft.DiaSymReader/1.3.0": {
         "runtime": {
           "lib/netstandard1.1/Microsoft.DiaSymReader.dll": {
@@ -1151,6 +1163,25 @@
           }
         }
       },
+      "Microsoft.EntityFrameworkCore.Sqlite/6.0.36": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "6.0.36",
+          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.2"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Sqlite.Core/6.0.36": {
+        "dependencies": {
+          "Microsoft.Data.Sqlite.Core": "6.0.36",
+          "Microsoft.EntityFrameworkCore.Relational": "6.0.36",
+          "Microsoft.Extensions.DependencyModel": "6.0.2"
+        },
+        "runtime": {
+          "lib/net6.0/Microsoft.EntityFrameworkCore.Sqlite.dll": {
+            "assemblyVersion": "6.0.36.0",
+            "fileVersion": "6.0.3624.51504"
+          }
+        }
+      },
       "Microsoft.EntityFrameworkCore.SqlServer/6.0.36": {
         "dependencies": {
           "Microsoft.Data.SqlClient": "2.1.7",
@@ -1206,6 +1237,18 @@
         "runtime": {
           "lib/net6.0/Microsoft.Extensions.DependencyInjection.dll": {
             "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.3624.51421"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyModel/6.0.2": {
+        "dependencies": {
+          "System.Text.Encodings.Web": "6.0.1",
+          "System.Text.Json": "6.0.11"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.dll": {
+            "assemblyVersion": "6.0.0.2",
             "fileVersion": "6.0.3624.51421"
           }
         }
@@ -1575,6 +1618,151 @@
           }
         }
       },
+      "SQLitePCLRaw.bundle_e_sqlite3/2.1.2": {
+        "dependencies": {
+          "SQLitePCLRaw.lib.e_sqlite3": "2.1.2",
+          "SQLitePCLRaw.provider.e_sqlite3": "2.1.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/SQLitePCLRaw.batteries_v2.dll": {
+            "assemblyVersion": "2.1.2.1721",
+            "fileVersion": "2.1.2.1721"
+          }
+        }
+      },
+      "SQLitePCLRaw.core/2.1.2": {
+        "runtime": {
+          "lib/netstandard2.0/SQLitePCLRaw.core.dll": {
+            "assemblyVersion": "2.1.2.1721",
+            "fileVersion": "2.1.2.1721"
+          }
+        }
+      },
+      "SQLitePCLRaw.lib.e_sqlite3/2.1.2": {
+        "runtimeTargets": {
+          "runtimes/alpine-arm/native/libe_sqlite3.so": {
+            "rid": "alpine-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/alpine-arm64/native/libe_sqlite3.so": {
+            "rid": "alpine-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/alpine-x64/native/libe_sqlite3.so": {
+            "rid": "alpine-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/browser-wasm/nativeassets/net6.0/e_sqlite3.a": {
+            "rid": "browser-wasm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-arm/native/libe_sqlite3.so": {
+            "rid": "linux-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-arm64/native/libe_sqlite3.so": {
+            "rid": "linux-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-armel/native/libe_sqlite3.so": {
+            "rid": "linux-armel",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-mips64/native/libe_sqlite3.so": {
+            "rid": "linux-mips64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-musl-arm/native/libe_sqlite3.so": {
+            "rid": "linux-musl-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-musl-arm64/native/libe_sqlite3.so": {
+            "rid": "linux-musl-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-musl-x64/native/libe_sqlite3.so": {
+            "rid": "linux-musl-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-s390x/native/libe_sqlite3.so": {
+            "rid": "linux-s390x",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libe_sqlite3.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x86/native/libe_sqlite3.so": {
+            "rid": "linux-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/maccatalyst-arm64/native/libe_sqlite3.dylib": {
+            "rid": "maccatalyst-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/maccatalyst-x64/native/libe_sqlite3.dylib": {
+            "rid": "maccatalyst-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx-arm64/native/libe_sqlite3.dylib": {
+            "rid": "osx-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx-x64/native/libe_sqlite3.dylib": {
+            "rid": "osx-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-arm/native/e_sqlite3.dll": {
+            "rid": "win-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-arm64/native/e_sqlite3.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/e_sqlite3.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/e_sqlite3.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "SQLitePCLRaw.provider.e_sqlite3/2.1.2": {
+        "dependencies": {
+          "SQLitePCLRaw.core": "2.1.2"
+        },
+        "runtime": {
+          "lib/net6.0/SQLitePCLRaw.provider.e_sqlite3.dll": {
+            "assemblyVersion": "2.1.2.1721",
+            "fileVersion": "2.1.2.1721"
+          }
+        }
+      },
       "System.Collections.Immutable/6.0.1": {
         "runtime": {
           "lib/net6.0/System.Collections.Immutable.dll": {
@@ -1770,6 +1958,30 @@
           "lib/netcoreapp3.0/System.Security.Permissions.dll": {
             "assemblyVersion": "4.0.3.0",
             "fileVersion": "4.700.19.56404"
+          }
+        }
+      },
+      "System.Text.Encodings.Web/6.0.1": {
+        "runtime": {
+          "lib/net6.0/System.Text.Encodings.Web.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.3624.51421"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/browser/lib/net6.0/System.Text.Encodings.Web.dll": {
+            "rid": "browser",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.3624.51421"
+          }
+        }
+      },
+      "System.Text.Json/6.0.11": {
+        "runtime": {
+          "lib/net6.0/System.Text.Json.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.3624.51421"
           }
         }
       },
@@ -2276,6 +2488,13 @@
       "path": "microsoft.data.sqlclient.sni.runtime/2.1.1",
       "hashPath": "microsoft.data.sqlclient.sni.runtime.2.1.1.nupkg.sha512"
     },
+    "Microsoft.Data.Sqlite.Core/6.0.36": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Vh74dyfNQJBc58lcOuhSKH39AuQlgGatAY4bOCZx7F+8/GO3Ba2G9G1swCVhBQkeTG2Ftew8R6iga02ATZiE6w==",
+      "path": "microsoft.data.sqlite.core/6.0.36",
+      "hashPath": "microsoft.data.sqlite.core.6.0.36.nupkg.sha512"
+    },
     "Microsoft.DiaSymReader/1.3.0": {
       "type": "package",
       "serviceable": true,
@@ -2318,6 +2537,20 @@
       "path": "microsoft.entityframeworkcore.relational/6.0.36",
       "hashPath": "microsoft.entityframeworkcore.relational.6.0.36.nupkg.sha512"
     },
+    "Microsoft.EntityFrameworkCore.Sqlite/6.0.36": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NWlTJgKQRrZcdN+vph/PSZ1e3a9LDvBgiO/WQLfMWwWEv0XdixMRh6hWaKI+QpqdVCtwzZPQovEBzhJBdgIasA==",
+      "path": "microsoft.entityframeworkcore.sqlite/6.0.36",
+      "hashPath": "microsoft.entityframeworkcore.sqlite.6.0.36.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite.Core/6.0.36": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LQjAvbbFD673QABvnJXmGERqEg8NCEimSTPm17jaUVwG38V+rppXZqPnXoKhfV8XrOD7yneJ3+/1vA+cqtk7PQ==",
+      "path": "microsoft.entityframeworkcore.sqlite.core/6.0.36",
+      "hashPath": "microsoft.entityframeworkcore.sqlite.core.6.0.36.nupkg.sha512"
+    },
     "Microsoft.EntityFrameworkCore.SqlServer/6.0.36": {
       "type": "package",
       "serviceable": true,
@@ -2352,6 +2585,13 @@
       "sha512": "sha512-gWUfUZ2ZDvwiVCxsOMComAhG43xstNWWVjV2takUZYRuDSJjO9Q5/b3tfOSkl5mcVwZAL3RZviRj5ZilxHghlw==",
       "path": "microsoft.extensions.dependencyinjection/6.0.2",
       "hashPath": "microsoft.extensions.dependencyinjection.6.0.2.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyModel/6.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-HS5YsudCGSVoCVdsYJ5FAO9vx0z04qSAXgVzpDJSQ1/w/X9q8hrQVGU2p+Yfui+2KcXLL+Zjc0SX3yJWtBmYiw==",
+      "path": "microsoft.extensions.dependencymodel/6.0.2",
+      "hashPath": "microsoft.extensions.dependencymodel.6.0.2.nupkg.sha512"
     },
     "Microsoft.Extensions.Identity.Core/6.0.36": {
       "type": "package",
@@ -2577,6 +2817,34 @@
       "path": "nuget.versioning/6.9.1",
       "hashPath": "nuget.versioning.6.9.1.nupkg.sha512"
     },
+    "SQLitePCLRaw.bundle_e_sqlite3/2.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ilkvNhrTersLmIVAcDwwPqfhUFCg19Z1GVMvCSi3xk6Akq94f4qadLORQCq/T8+9JgMiPs+F/NECw5uauviaNw==",
+      "path": "sqlitepclraw.bundle_e_sqlite3/2.1.2",
+      "hashPath": "sqlitepclraw.bundle_e_sqlite3.2.1.2.nupkg.sha512"
+    },
+    "SQLitePCLRaw.core/2.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-A8EBepVqY2lnAp3a8jnhbgzF2tlj2S3HcJQGANTYg/TbYbKa8Z5cM1h74An/vy0svhfzT7tVY0sFmUglLgv+2g==",
+      "path": "sqlitepclraw.core/2.1.2",
+      "hashPath": "sqlitepclraw.core.2.1.2.nupkg.sha512"
+    },
+    "SQLitePCLRaw.lib.e_sqlite3/2.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zibGtku8M4Eea1R3ZCAxc86QbNvyEN17mAcQkvWKBuHvRpMiK2g5anG4R5Be7cWKSd1i6baYz8y4dMMAKcXKPg==",
+      "path": "sqlitepclraw.lib.e_sqlite3/2.1.2",
+      "hashPath": "sqlitepclraw.lib.e_sqlite3.2.1.2.nupkg.sha512"
+    },
+    "SQLitePCLRaw.provider.e_sqlite3/2.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lxCZarZdvAsMl2zw9bXHrXK6RxVhB4b23iTFhCOdHFhxfbsxLxWf+ocvswJwR/9Wh/E//ddMi+wJGqUKV7VwoA==",
+      "path": "sqlitepclraw.provider.e_sqlite3/2.1.2",
+      "hashPath": "sqlitepclraw.provider.e_sqlite3.2.1.2.nupkg.sha512"
+    },
     "System.Collections.Immutable/6.0.1": {
       "type": "package",
       "serviceable": true,
@@ -2688,6 +2956,20 @@
       "sha512": "sha512-dkOV6YYVBnYRa15/yv004eCGRBVADXw8qRbbNiCn/XpdJSUXkkUeIvdvFHkvnko4CdKMqG8yRHC4ox83LSlMsQ==",
       "path": "system.security.permissions/4.7.0",
       "hashPath": "system.security.permissions.4.7.0.nupkg.sha512"
+    },
+    "System.Text.Encodings.Web/6.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-E5M5AE2OUTlCrf4omZvzzziUJO9CofBl+lXHaN5IKePPJvHqYFYYpaDPgCpR4VwaFbEebfnjOxxEBtPtsqAxpQ==",
+      "path": "system.text.encodings.web/6.0.1",
+      "hashPath": "system.text.encodings.web.6.0.1.nupkg.sha512"
+    },
+    "System.Text.Json/6.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xqC1HIbJMBFhrpYs76oYP+NAskNVjc6v73HqLal7ECRDPIp4oRU5pPavkD//vNactCn9DA2aaald/I5N+uZ5/g==",
+      "path": "system.text.json/6.0.11",
+      "hashPath": "system.text.json.6.0.11.nupkg.sha512"
     },
     "System.Windows.Extensions/4.7.0": {
       "type": "package",

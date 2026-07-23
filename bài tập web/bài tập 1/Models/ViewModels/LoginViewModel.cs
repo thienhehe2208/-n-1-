@@ -16,6 +16,6 @@ namespace bài_tập_1.Models.ViewModels
         public bool RememberMe { get; set; }
 
         // Dùng để quay lại đúng trang trước đó sau khi đăng nhập (nếu có)
-        public string ReturnUrl { get; set; }
+        public string? ReturnUrl { get; set; }
     }
 }

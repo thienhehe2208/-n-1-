@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("bài tập 1")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f48ad80f2d71f0fb09c2b3ef4c6bd9a4fd85d137")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+914c4abc267a81709cf546e8f131a4e932a9fb38")]
 [assembly: System.Reflection.AssemblyProductAttribute("bài tập 1")]
 [assembly: System.Reflection.AssemblyTitleAttribute("bài tập 1")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
