@@ -50,6 +50,9 @@ namespace bài_tập_1.Migrations
 
                     b.HasIndex("MaSach");
 
+                    b.HasIndex("MaVach")
+                        .IsUnique();
+
                     b.ToTable("BanSao");
                 });
 
@@ -170,7 +173,8 @@ namespace bài_tập_1.Migrations
 
                     b.HasKey("MaDocGia");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("DocGia");
                 });
@@ -225,7 +229,8 @@ namespace bài_tập_1.Migrations
 
                     b.HasKey("MaNhanVien");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("NhanVien");
                 });

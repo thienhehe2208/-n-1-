@@ -1,10 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>bài_tập_1</RootNamespace>
+	  <UseAppHost>false</UseAppHost>
+    <UserSecretsId>f42de7ee-96a2-4602-b59e-64aa291ac5b7</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

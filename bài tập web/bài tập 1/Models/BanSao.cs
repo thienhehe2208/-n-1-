@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace bài_tập_1.Models
 {
+    [Index(nameof(MaVach), IsUnique = true)]
     public class BanSao
     {
         [Key]

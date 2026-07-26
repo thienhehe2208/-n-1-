@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace bài_tập_1.Models
 {
+    [Index(nameof(UserId), IsUnique = true)]
     public class NhanVien
     {
         [Key]

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using bài_tập_1.Data;
+using bài_tập_1.Models;
+using bài_tập_1.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using bài_tập_1.Data;
-using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
@@ -20,20 +17,30 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // Danh sách sách - ai cũng xem được, không cần đăng nhập
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q)
         {
-            var bài_tập_1Context = _context.Sach.Include(s => s.NhaXuatBan).Include(s => s.TheLoai);
-            return View(await bài_tập_1Context.ToListAsync());
+            var query = _context.Sach
+                .Include(s => s.NhaXuatBan)
+                .Include(s => s.TheLoai)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var keyword = q.Trim();
+                query = query.Where(s =>
+                    s.TenSach.Contains(keyword) ||
+                    s.ISBN.Contains(keyword));
+            }
+
+            ViewData["Search"] = q;
+            return View(await query.OrderBy(s => s.TenSach).ToListAsync());
         }
 
-        // Xem chi tiết 1 sách - ai cũng xem được
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Sach == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
             var sach = await _context.Sach
                 .Include(s => s.NhaXuatBan)
@@ -42,140 +49,255 @@ namespace bài_tập_1.Controllers
                     .ThenInclude(st => st.TacGia)
                 .Include(s => s.BanSaos)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.MaSach == id);
-            if (sach == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(s => s.MaSach == id);
 
-            return View(sach);
+            return sach == null ? NotFound() : View(sach);
         }
 
-        // Hiển thị form thêm sách - chỉ Admin/NhanVien
         [Authorize(Roles = "Admin,NhanVien")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["MaNXB"] = new SelectList(_context.Set<NhaXuatBan>(), "MaNXB", "TenNXB");
-            ViewData["MaTheLoai"] = new SelectList(_context.Set<TheLoai>(), "MaTheLoai", "TenTheLoai");
-            return View();
+            await LoadSelectionsAsync();
+            return View(new SachFormViewModel
+            {
+                NgonNgu = "Tiếng Việt"
+            });
         }
 
-        // Xử lý lưu sách mới - chỉ Admin/NhanVien
         [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaSach,TenSach,ISBN,GiaSach,MaTheLoai,MaNXB,NamXuatBan,SoTrang,NgonNgu,MoTa,AnhBia")] Sach sach)
+        public async Task<IActionResult> Create(SachFormViewModel model)
         {
-            if (ModelState.IsValid)
+            await ValidateAuthorsAsync(model);
+            if (!ModelState.IsValid)
             {
-                _context.Add(sach);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                await LoadSelectionsAsync(
+                    model.MaTheLoai,
+                    model.MaNXB,
+                    model.TacGiaIds);
+                return View(model);
             }
-            ViewData["MaNXB"] = new SelectList(_context.Set<NhaXuatBan>(), "MaNXB", "TenNXB", sach.MaNXB);
-            ViewData["MaTheLoai"] = new SelectList(_context.Set<TheLoai>(), "MaTheLoai", "TenTheLoai", sach.MaTheLoai);
-            return View(sach);
+
+            var sach = new Sach();
+            ApplyForm(sach, model);
+            foreach (var tacGiaId in model.TacGiaIds.Distinct())
+            {
+                sach.SachTacGias.Add(new SachTacGia
+                {
+                    MaTacGia = tacGiaId
+                });
+            }
+
+            _context.Sach.Add(sach);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã thêm sách và danh sách tác giả.";
+            return RedirectToAction(nameof(Index));
         }
 
-        // Hiển thị form sửa sách - chỉ Admin/NhanVien
         [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Sach == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
-            var sach = await _context.Sach.FindAsync(id);
+            var sach = await _context.Sach
+                .Include(s => s.SachTacGias)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.MaSach == id);
             if (sach == null)
-            {
                 return NotFound();
-            }
-            ViewData["MaNXB"] = new SelectList(_context.Set<NhaXuatBan>(), "MaNXB", "TenNXB", sach.MaNXB);
-            ViewData["MaTheLoai"] = new SelectList(_context.Set<TheLoai>(), "MaTheLoai", "TenTheLoai", sach.MaTheLoai);
-            return View(sach);
+
+            var model = new SachFormViewModel
+            {
+                MaSach = sach.MaSach,
+                TenSach = sach.TenSach,
+                ISBN = sach.ISBN,
+                GiaSach = sach.GiaSach,
+                MaTheLoai = sach.MaTheLoai,
+                MaNXB = sach.MaNXB,
+                NamXuatBan = sach.NamXuatBan,
+                SoTrang = sach.SoTrang,
+                NgonNgu = sach.NgonNgu,
+                MoTa = sach.MoTa,
+                AnhBia = sach.AnhBia,
+                TacGiaIds = sach.SachTacGias
+                    .Select(st => st.MaTacGia)
+                    .ToList()
+            };
+
+            await LoadSelectionsAsync(
+                model.MaTheLoai,
+                model.MaNXB,
+                model.TacGiaIds);
+            return View(model);
         }
 
-        // Xử lý cập nhật sách - chỉ Admin/NhanVien
         [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaSach,TenSach,ISBN,GiaSach,MaTheLoai,MaNXB,NamXuatBan,SoTrang,NgonNgu,MoTa,AnhBia")] Sach sach)
+        public async Task<IActionResult> Edit(
+            int id,
+            SachFormViewModel model)
         {
-            if (id != sach.MaSach)
-            {
+            if (id != model.MaSach)
                 return NotFound();
+
+            await ValidateAuthorsAsync(model);
+            if (!ModelState.IsValid)
+            {
+                await LoadSelectionsAsync(
+                    model.MaTheLoai,
+                    model.MaNXB,
+                    model.TacGiaIds);
+                return View(model);
             }
 
-            if (ModelState.IsValid)
+            var sach = await _context.Sach
+                .Include(s => s.SachTacGias)
+                .FirstOrDefaultAsync(s => s.MaSach == id);
+            if (sach == null)
+                return NotFound();
+
+            ApplyForm(sach, model);
+
+            var selectedIds = model.TacGiaIds.Distinct().ToHashSet();
+            var removed = sach.SachTacGias
+                .Where(st => !selectedIds.Contains(st.MaTacGia))
+                .ToList();
+            _context.SachTacGias.RemoveRange(removed);
+
+            var existingIds = sach.SachTacGias
+                .Select(st => st.MaTacGia)
+                .ToHashSet();
+            foreach (var tacGiaId in selectedIds.Except(existingIds))
             {
-                try
+                sach.SachTacGias.Add(new SachTacGia
                 {
-                    _context.Update(sach);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SachExists(sach.MaSach))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                    MaTacGia = tacGiaId
+                });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["Success"] =
+                    "Đã cập nhật sách và danh sách tác giả.";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaNXB"] = new SelectList(_context.Set<NhaXuatBan>(), "MaNXB", "TenNXB", sach.MaNXB);
-            ViewData["MaTheLoai"] = new SelectList(_context.Set<TheLoai>(), "MaTheLoai", "TenTheLoai", sach.MaTheLoai);
-            return View(sach);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.Sach.AnyAsync(s => s.MaSach == id))
+                    return NotFound();
+                throw;
+            }
         }
 
-        // Hiển thị xác nhận xóa sách - chỉ Admin/NhanVien
         [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Sach == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
             var sach = await _context.Sach
                 .Include(s => s.NhaXuatBan)
                 .Include(s => s.TheLoai)
-                .FirstOrDefaultAsync(m => m.MaSach == id);
-            if (sach == null)
-            {
-                return NotFound();
-            }
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.MaSach == id);
 
-            return View(sach);
+            return sach == null ? NotFound() : View(sach);
         }
 
-        // Xử lý xóa sách - chỉ Admin/NhanVien
         [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Sach == null)
-            {
-                return Problem("Entity set 'bài_tập_1Context.Sach'  is null.");
-            }
             var sach = await _context.Sach.FindAsync(id);
-            if (sach != null)
+            if (sach == null)
+                return NotFound();
+
+            try
             {
                 _context.Sach.Remove(sach);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa sách.";
+            }
+            catch (DbUpdateException)
+            {
+                TempData["Error"] =
+                    "Không thể xóa sách đang có bản sao, đặt trước hoặc lịch sử mượn.";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SachExists(int id)
+        private async Task LoadSelectionsAsync(
+            int? maTheLoai = null,
+            int? maNxb = null,
+            IEnumerable<int>? tacGiaIds = null)
         {
-            return (_context.Sach?.Any(e => e.MaSach == id)).GetValueOrDefault();
+            ViewData["MaTheLoai"] = new SelectList(
+                await _context.TheLoai
+                    .AsNoTracking()
+                    .OrderBy(t => t.TenTheLoai)
+                    .ToListAsync(),
+                "MaTheLoai",
+                "TenTheLoai",
+                maTheLoai);
+
+            ViewData["MaNXB"] = new SelectList(
+                await _context.NhaXuatBan
+                    .AsNoTracking()
+                    .OrderBy(n => n.TenNXB)
+                    .ToListAsync(),
+                "MaNXB",
+                "TenNXB",
+                maNxb);
+
+            ViewData["TacGiaIds"] = new MultiSelectList(
+                await _context.TacGia
+                    .AsNoTracking()
+                    .OrderBy(t => t.HoTen)
+                    .ToListAsync(),
+                "MaTacGia",
+                "HoTen",
+                tacGiaIds);
+        }
+
+        private async Task ValidateAuthorsAsync(SachFormViewModel model)
+        {
+            var selectedIds = model.TacGiaIds.Distinct().ToList();
+            if (selectedIds.Count == 0)
+            {
+                ModelState.AddModelError(
+                    nameof(model.TacGiaIds),
+                    "Vui lòng chọn ít nhất một tác giả.");
+                return;
+            }
+
+            var existingCount = await _context.TacGia
+                .CountAsync(t => selectedIds.Contains(t.MaTacGia));
+            if (existingCount != selectedIds.Count)
+            {
+                ModelState.AddModelError(
+                    nameof(model.TacGiaIds),
+                    "Danh sách tác giả không hợp lệ.");
+            }
+        }
+
+        private static void ApplyForm(Sach sach, SachFormViewModel model)
+        {
+            sach.TenSach = model.TenSach.Trim();
+            sach.ISBN = model.ISBN.Trim();
+            sach.GiaSach = model.GiaSach;
+            sach.MaTheLoai = model.MaTheLoai;
+            sach.MaNXB = model.MaNXB;
+            sach.NamXuatBan = model.NamXuatBan;
+            sach.SoTrang = model.SoTrang;
+            sach.NgonNgu = model.NgonNgu.Trim();
+            sach.MoTa = model.MoTa.Trim();
+            sach.AnhBia = model.AnhBia.Trim();
         }
     }
 }

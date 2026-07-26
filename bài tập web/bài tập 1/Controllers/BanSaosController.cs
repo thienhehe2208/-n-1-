@@ -61,6 +61,14 @@ namespace bài_tập_1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaBanSao,MaSach,MaVach,TinhTrang,ViTriKe")] BanSao banSao)
         {
+            banSao.MaVach = banSao.MaVach?.Trim() ?? string.Empty;
+            if (await _context.BanSao.AnyAsync(
+                    b => b.MaVach == banSao.MaVach))
+            {
+                ModelState.AddModelError(nameof(banSao.MaVach),
+                    "Mã vạch này đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(banSao);
@@ -96,6 +104,15 @@ namespace bài_tập_1.Controllers
             if (id != banSao.MaBanSao)
             {
                 return NotFound();
+            }
+
+            banSao.MaVach = banSao.MaVach?.Trim() ?? string.Empty;
+            if (await _context.BanSao.AnyAsync(
+                    b => b.MaVach == banSao.MaVach &&
+                         b.MaBanSao != id))
+            {
+                ModelState.AddModelError(nameof(banSao.MaVach),
+                    "Mã vạch này đã tồn tại.");
             }
 
             if (ModelState.IsValid)

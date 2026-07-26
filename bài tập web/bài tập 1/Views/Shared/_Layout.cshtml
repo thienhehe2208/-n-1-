@@ -88,8 +88,8 @@
                 <nav class="sidebar-navigation">
 
                     <a asp-controller="Dashboard"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "Dashboard" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "Dashboard" ? "active" : "")">
 
                         <i class="bi bi-house-door"></i>
                         <span>Trang chủ</span>
@@ -100,80 +100,80 @@
                     </div>
 
                     <a asp-controller="Saches"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "Saches" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "Saches" ? "active" : "")">
 
                         <i class="bi bi-book"></i>
                         <span>Sách</span>
                     </a>
 
                     <a asp-controller="DocGias"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "DocGias" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "DocGias" ? "active" : "")">
 
                         <i class="bi bi-people"></i>
                         <span>Độc giả</span>
                     </a>
 
                     <a asp-controller="PhieuMuons"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "PhieuMuons" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "PhieuMuons" ? "active" : "")">
 
                         <i class="bi bi-file-earmark-text"></i>
                         <span>Phiếu mượn</span>
                     </a>
 
                     <a asp-controller="ChiTietPhieuMuons"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "ChiTietPhieuMuons" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "ChiTietPhieuMuons" ? "active" : "")">
 
                         <i class="bi bi-arrow-return-left"></i>
                         <span>Chi tiết mượn trả</span>
                     </a>
 
                     <a asp-controller="BanSaos"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "BanSaos" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "BanSaos" ? "active" : "")">
 
                         <i class="bi bi-archive"></i>
                         <span>Kho sách</span>
                     </a>
 
                     <a asp-controller="TheLoais"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "TheLoais" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "TheLoais" ? "active" : "")">
 
                         <i class="bi bi-tags"></i>
                         <span>Thể loại</span>
                     </a>
 
                     <a asp-controller="NhaXuatBans"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "NhaXuatBans" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "NhaXuatBans" ? "active" : "")">
 
                         <i class="bi bi-building"></i>
                         <span>Nhà xuất bản</span>
                     </a>
 
                     <a asp-controller="TacGias"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "TacGias" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "TacGias" ? "active" : "")">
 
                         <i class="bi bi-person"></i>
                         <span>Tác giả</span>
                     </a>
 
                     <a asp-controller="DatTruocs"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "DatTruocs" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "DatTruocs" ? "active" : "")">
 
                         <i class="bi bi-bookmark-check"></i>
                         <span>Đặt trước</span>
                     </a>
 
                     <a asp-controller="PhieuPhats"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "PhieuPhats" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "PhieuPhats" ? "active" : "")">
 
                         <i class="bi bi-receipt"></i>
                         <span>Phiếu phạt</span>
@@ -183,17 +183,20 @@
                         HỆ THỐNG
                     </div>
 
-                    <a asp-controller="NhanViens"
-                       asp-action="Index"
-                       class="sidebar-item @(currentController == "NhanViens" ? "active" : "")">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="NhanViens"
+                               asp-action="Index"
+                               class="sidebar-item @(currentController == "NhanViens" ? "active" : "")">
 
-                        <i class="bi bi-person-gear"></i>
-                        <span>Nhân viên</span>
-                    </a>
+                            <i class="bi bi-person-gear"></i>
+                            <span>Nhân viên</span>
+                        </a>
+                    }
 
                     <a asp-controller="Profile"
-                       asp-action="IndexNhanVien"
-                       class="sidebar-item @(currentController == "Profile" ? "active" : "")">
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "Profile" ? "active" : "")">
 
                         <i class="bi bi-gear"></i>
                         <span>Cài đặt tài khoản</span>
@@ -286,8 +289,8 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="Profile"
-                                       asp-action="IndexNhanVien">
+                                           asp-controller="Profile"
+                                           asp-action="Index">
 
                                         <i class="bi bi-person-circle me-2"></i>
                                         Thông tin tài khoản
@@ -321,6 +324,7 @@
 
                 <!-- NỘI DUNG TỪ CÁC VIEW -->
                 <main class="admin-content">
+                    <partial name="_StatusMessages" />
                     @RenderBody()
                 </main>
 
@@ -338,8 +342,8 @@
             <div class="container-fluid d-flex align-items-center justify-content-between">
 
                 <a asp-controller="Home"
-                   asp-action="Index"
-                   class="reader-logo">
+                       asp-action="Index"
+                       class="reader-logo">
 
                     <i class="bi bi-book-half"></i>
 
@@ -352,13 +356,13 @@
                 <nav class="reader-navigation">
 
                     <a asp-controller="Home"
-                       asp-action="Index">
+                           asp-action="Index">
 
                         Trang chủ
                     </a>
 
                     <a asp-controller="Saches"
-                       asp-action="Index">
+                           asp-action="Index">
 
                         Sách
                     </a>
@@ -366,7 +370,7 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <a asp-controller="Profile"
-                           asp-action="Index">
+                               asp-action="Index">
 
                             Tài khoản
                         </a>
@@ -374,7 +378,7 @@
                         @if (User.IsInRole("DocGia"))
                         {
                             <a asp-controller="DatTruocs"
-                               asp-action="CuaToi">
+                                   asp-action="CuaToi">
 
                                 Đặt trước của tôi
                             </a>
@@ -397,14 +401,14 @@
                     else
                     {
                         <a asp-controller="Account"
-                           asp-action="Login">
+                               asp-action="Login">
 
                             Đăng nhập
                         </a>
 
                         <a asp-controller="Account"
-                           asp-action="Register"
-                           class="reader-register-button">
+                               asp-action="Register"
+                               class="reader-register-button">
 
                             Đăng ký
                         </a>
@@ -415,6 +419,7 @@
         </header>
 
         <main class="reader-main">
+            <partial name="_StatusMessages" />
             @RenderBody()
         </main>
     }

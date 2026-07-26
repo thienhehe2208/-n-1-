@@ -6,9 +6,22 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input name="q" value="@ViewData["Search"]"
+               class="form-control"
+               placeholder="Tìm theo tên sách hoặc ISBN" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+    {
+        <div class="col-auto">
+            <a asp-action="Create" class="btn btn-primary">Thêm sách</a>
+        </div>
+    }
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -81,14 +94,14 @@
                 </td>
                 <td>
                     <a asp-action="Details"
-                       asp-route-id="@item.MaSach"
-                       class="btn btn-sm btn-outline-primary">
+                           asp-route-id="@item.MaSach"
+                           class="btn btn-sm btn-outline-primary">
                         Xem chi tiết
                     </a>
                     <a asp-controller="DatTruocs"
-                       asp-action="Create"
-                       asp-route-maSach="@item.MaSach"
-                       class="btn btn-sm btn-success">
+                           asp-action="Create"
+                           asp-route-maSach="@item.MaSach"
+                           class="btn btn-sm btn-success">
                         <i class="bi bi-bookmark-check"></i>
                         Đặt trước
                     </a>

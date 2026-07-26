@@ -1,167 +1,326 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using bài_tập_1.Data;
+﻿using bài_tập_1.Data;
 using bài_tập_1.Models;
+using bài_tập_1.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace bài_tập_1.Controllers
 {
-    // Quản lý tài khoản nhân viên/admin - quyền cao nhất, chỉ Admin được vào
     [Authorize(Roles = "Admin")]
     public class NhanViensController : Controller
     {
         private readonly bài_tập_1Context _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public NhanViensController(bài_tập_1Context context)
+        public NhanViensController(
+            bài_tập_1Context context,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // Danh sách nhân viên
         public async Task<IActionResult> Index()
         {
-            var bài_tập_1Context = _context.NhanVien.Include(n => n.User);
-            return View(await bài_tập_1Context.ToListAsync());
+            var nhanViens = await _context.NhanVien
+                .Include(n => n.User)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(nhanViens);
         }
 
-        // Xem chi tiết 1 nhân viên
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.NhanVien == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
             var nhanVien = await _context.NhanVien
                 .Include(n => n.User)
-                .FirstOrDefaultAsync(m => m.MaNhanVien == id);
-            if (nhanVien == null)
-            {
-                return NotFound();
-            }
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.MaNhanVien == id);
 
-            return View(nhanVien);
+            return nhanVien == null ? NotFound() : View(nhanVien);
         }
 
-        // Hiển thị form thêm nhân viên
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+            return View(new CreateNhanVienViewModel
+            {
+                NgayVaoLam = DateTime.Today
+            });
         }
 
-        // Xử lý lưu nhân viên mới
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaNhanVien,UserId,HoTen,NgaySinh,GioiTinh,DiaChi,SoDienThoai,Email,ChucVu,NgayVaoLam")] NhanVien nhanVien)
+        public async Task<IActionResult> Create(CreateNhanVienViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var email = model.Email.Trim().ToLowerInvariant();
+            if (await _userManager.FindByEmailAsync(email) != null)
             {
-                _context.Add(nhanVien);
+                ModelState.AddModelError(nameof(model.Email),
+                    "Email này đã được sử dụng.");
+                return View(model);
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            var user = new IdentityUser
+            {
+                UserName = email,
+                Email = email,
+                PhoneNumber = model.SoDienThoai.Trim(),
+                EmailConfirmed = true
+            };
+
+            var createUserResult =
+                await _userManager.CreateAsync(user, model.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                AddIdentityErrors(createUserResult);
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+
+            var addRoleResult =
+                await _userManager.AddToRoleAsync(user, "NhanVien");
+
+            if (!addRoleResult.Succeeded)
+            {
+                AddIdentityErrors(addRoleResult);
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+
+            try
+            {
+                var nhanVien = new NhanVien
+                {
+                    UserId = user.Id,
+                    HoTen = model.HoTen.Trim(),
+                    NgaySinh = model.NgaySinh,
+                    GioiTinh = model.GioiTinh.Trim(),
+                    DiaChi = model.DiaChi.Trim(),
+                    SoDienThoai = model.SoDienThoai.Trim(),
+                    Email = email,
+                    ChucVu = model.ChucVu.Trim(),
+                    NgayVaoLam = model.NgayVaoLam
+                };
+
+                _context.NhanVien.Add(nhanVien);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                TempData["Success"] =
+                    "Đã tạo tài khoản và hồ sơ nhân viên.";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", nhanVien.UserId);
-            return View(nhanVien);
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(string.Empty,
+                    "Không thể lưu hồ sơ nhân viên. Vui lòng thử lại.");
+                return View(model);
+            }
         }
 
-        // Hiển thị form sửa nhân viên
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.NhanVien == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
-            var nhanVien = await _context.NhanVien.FindAsync(id);
+            var nhanVien = await _context.NhanVien
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.MaNhanVien == id);
+
             if (nhanVien == null)
-            {
                 return NotFound();
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", nhanVien.UserId);
-            return View(nhanVien);
+
+            return View(new EditNhanVienViewModel
+            {
+                MaNhanVien = nhanVien.MaNhanVien,
+                HoTen = nhanVien.HoTen,
+                NgaySinh = nhanVien.NgaySinh,
+                GioiTinh = nhanVien.GioiTinh,
+                DiaChi = nhanVien.DiaChi,
+                SoDienThoai = nhanVien.SoDienThoai,
+                Email = nhanVien.Email,
+                ChucVu = nhanVien.ChucVu,
+                NgayVaoLam = nhanVien.NgayVaoLam
+            });
         }
 
-        // Xử lý cập nhật nhân viên
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaNhanVien,UserId,HoTen,NgaySinh,GioiTinh,DiaChi,SoDienThoai,Email,ChucVu,NgayVaoLam")] NhanVien nhanVien)
+        public async Task<IActionResult> Edit(
+            int id,
+            EditNhanVienViewModel model)
         {
-            if (id != nhanVien.MaNhanVien)
-            {
+            if (id != model.MaNhanVien)
                 return NotFound();
-            }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(nhanVien);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!NhanVienExists(nhanVien.MaNhanVien))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", nhanVien.UserId);
-            return View(nhanVien);
-        }
-
-        // Hiển thị xác nhận xóa nhân viên
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.NhanVien == null)
-            {
-                return NotFound();
-            }
+            if (!ModelState.IsValid)
+                return View(model);
 
             var nhanVien = await _context.NhanVien
                 .Include(n => n.User)
-                .FirstOrDefaultAsync(m => m.MaNhanVien == id);
-            if (nhanVien == null)
-            {
+                .FirstOrDefaultAsync(n => n.MaNhanVien == id);
+
+            if (nhanVien == null || nhanVien.User == null)
                 return NotFound();
+
+            var email = model.Email.Trim().ToLowerInvariant();
+            var accountUsingEmail =
+                await _userManager.FindByEmailAsync(email);
+
+            if (accountUsingEmail != null &&
+                accountUsingEmail.Id != nhanVien.UserId)
+            {
+                ModelState.AddModelError(nameof(model.Email),
+                    "Email này đã được sử dụng.");
+                return View(model);
             }
 
-            return View(nhanVien);
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            var setEmailResult =
+                await _userManager.SetEmailAsync(nhanVien.User, email);
+            if (!setEmailResult.Succeeded)
+            {
+                AddIdentityErrors(setEmailResult);
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+
+            var setUserNameResult =
+                await _userManager.SetUserNameAsync(nhanVien.User, email);
+            if (!setUserNameResult.Succeeded)
+            {
+                AddIdentityErrors(setUserNameResult);
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+
+            var setPhoneResult = await _userManager.SetPhoneNumberAsync(
+                nhanVien.User,
+                model.SoDienThoai.Trim());
+            if (!setPhoneResult.Succeeded)
+            {
+                AddIdentityErrors(setPhoneResult);
+                await transaction.RollbackAsync();
+                return View(model);
+            }
+
+            nhanVien.HoTen = model.HoTen.Trim();
+            nhanVien.NgaySinh = model.NgaySinh;
+            nhanVien.GioiTinh = model.GioiTinh.Trim();
+            nhanVien.DiaChi = model.DiaChi.Trim();
+            nhanVien.SoDienThoai = model.SoDienThoai.Trim();
+            nhanVien.Email = email;
+            nhanVien.ChucVu = model.ChucVu.Trim();
+            nhanVien.NgayVaoLam = model.NgayVaoLam;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                TempData["Success"] =
+                    "Đã cập nhật tài khoản và hồ sơ nhân viên.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await transaction.RollbackAsync();
+                if (!await _context.NhanVien
+                        .AnyAsync(n => n.MaNhanVien == id))
+                    return NotFound();
+
+                ModelState.AddModelError(string.Empty,
+                    "Dữ liệu đã được thay đổi. Vui lòng tải lại trang.");
+                return View(model);
+            }
         }
 
-        // Xử lý xóa nhân viên
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var nhanVien = await _context.NhanVien
+                .Include(n => n.User)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.MaNhanVien == id);
+
+            return nhanVien == null ? NotFound() : View(nhanVien);
+        }
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.NhanVien == null)
+            var nhanVien = await _context.NhanVien
+                .Include(n => n.User)
+                .FirstOrDefaultAsync(n => n.MaNhanVien == id);
+
+            if (nhanVien == null)
+                return NotFound();
+
+            if (nhanVien.UserId == _userManager.GetUserId(User))
             {
-                return Problem("Entity set 'bài_tập_1Context.NhanVien'  is null.");
-            }
-            var nhanVien = await _context.NhanVien.FindAsync(id);
-            if (nhanVien != null)
-            {
-                _context.NhanVien.Remove(nhanVien);
+                TempData["Error"] =
+                    "Bạn không thể xóa tài khoản đang đăng nhập.";
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.SaveChangesAsync();
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var identityUser = nhanVien.User;
+                _context.NhanVien.Remove(nhanVien);
+                await _context.SaveChangesAsync();
+
+                if (identityUser != null)
+                {
+                    var deleteUserResult =
+                        await _userManager.DeleteAsync(identityUser);
+                    if (!deleteUserResult.Succeeded)
+                    {
+                        AddIdentityErrors(deleteUserResult);
+                        await transaction.RollbackAsync();
+                        TempData["Error"] =
+                            "Không thể xóa tài khoản đăng nhập của nhân viên.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
+                await transaction.CommitAsync();
+                TempData["Success"] =
+                    "Đã xóa hồ sơ và tài khoản nhân viên.";
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                TempData["Error"] =
+                    "Không thể xóa nhân viên đã phát sinh phiếu mượn.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool NhanVienExists(int id)
+        private void AddIdentityErrors(IdentityResult result)
         {
-            return (_context.NhanVien?.Any(e => e.MaNhanVien == id)).GetValueOrDefault();
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
         }
     }
 }

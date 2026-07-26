@@ -1,0 +1,63 @@
+﻿@model bài_tập_1.Models.ViewModels.SachFormViewModel
+
+<div class="row">
+    <div class="col-md-8 mb-3">
+        <label asp-for="TenSach" class="form-label"></label>
+        <input asp-for="TenSach" class="form-control" />
+        <span asp-validation-for="TenSach" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="ISBN" class="form-label"></label>
+        <input asp-for="ISBN" class="form-control" />
+        <span asp-validation-for="ISBN" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="MaTheLoai" class="form-label"></label>
+        <select asp-for="MaTheLoai" class="form-select"
+                asp-items="ViewBag.MaTheLoai"></select>
+        <span asp-validation-for="MaTheLoai" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="MaNXB" class="form-label"></label>
+        <select asp-for="MaNXB" class="form-select"
+                asp-items="ViewBag.MaNXB"></select>
+        <span asp-validation-for="MaNXB" class="text-danger"></span>
+    </div>
+    <div class="col-md-12 mb-3">
+        <label asp-for="TacGiaIds" class="form-label"></label>
+        <select asp-for="TacGiaIds" class="form-select"
+                asp-items="ViewBag.TacGiaIds" multiple size="6"></select>
+        <div class="form-text">
+            Giữ Ctrl để chọn nhiều tác giả.
+        </div>
+        <span asp-validation-for="TacGiaIds" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="GiaSach" class="form-label"></label>
+        <input asp-for="GiaSach" class="form-control" />
+        <span asp-validation-for="GiaSach" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="NamXuatBan" class="form-label"></label>
+        <input asp-for="NamXuatBan" class="form-control" />
+        <span asp-validation-for="NamXuatBan" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="SoTrang" class="form-label"></label>
+        <input asp-for="SoTrang" class="form-control" />
+        <span asp-validation-for="SoTrang" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="NgonNgu" class="form-label"></label>
+        <input asp-for="NgonNgu" class="form-control" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="AnhBia" class="form-label"></label>
+        <input asp-for="AnhBia" class="form-control"
+               placeholder="/images/books/ten-anh.jpg" />
+    </div>
+    <div class="col-md-12 mb-3">
+        <label asp-for="MoTa" class="form-label"></label>
+        <textarea asp-for="MoTa" class="form-control" rows="4"></textarea>
+    </div>
+</div>
