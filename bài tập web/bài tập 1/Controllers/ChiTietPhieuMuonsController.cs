@@ -23,10 +23,54 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách chi tiết phiếu mượn
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q, string? trangThai)
         {
-            var bài_tập_1Context = _context.ChiTietPhieuMuon.Include(c => c.BanSao).Include(c => c.PhieuMuon);
-            return View(await bài_tập_1Context.ToListAsync());
+            var homNay = DateTime.Today;
+            var query = _context.ChiTietPhieuMuon
+                .Include(c => c.BanSao).ThenInclude(b => b.Sach)
+                .Include(c => c.PhieuMuon).ThenInclude(p => p.DocGia)
+                .Include(c => c.PhieuPhat)
+                .AsNoTracking()
+                .AsQueryable();
+
+            ViewData["TongChiTiet"] = await query.CountAsync();
+            ViewData["DangMuon"] = await query.CountAsync(c => c.NgayTra == null);
+            ViewData["DaTra"] = await query.CountAsync(c => c.NgayTra != null);
+            ViewData["QuaHan"] = await query.CountAsync(c =>
+                c.NgayTra == null && c.PhieuMuon.NgayHenTra < homNay);
+            ViewData["CoSuCo"] = await query.CountAsync(c =>
+                c.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ||
+                c.TinhTrangKhiTra == TinhTrangKhiTra.Mat);
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var keyword = q.Trim();
+                var isId = int.TryParse(keyword.TrimStart('#'), out var id);
+                query = query.Where(c =>
+                    c.BanSao.MaVach.Contains(keyword) ||
+                    c.BanSao.Sach.TenSach.Contains(keyword) ||
+                    c.PhieuMuon.DocGia.HoTen.Contains(keyword) ||
+                    (isId && c.MaPhieuMuon == id));
+            }
+
+            query = trangThai switch
+            {
+                "borrowing" => query.Where(c => c.NgayTra == null),
+                "returned" => query.Where(c => c.NgayTra != null),
+                "overdue" => query.Where(c =>
+                    c.NgayTra == null && c.PhieuMuon.NgayHenTra < homNay),
+                "incident" => query.Where(c =>
+                    c.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ||
+                    c.TinhTrangKhiTra == TinhTrangKhiTra.Mat),
+                _ => query
+            };
+
+            ViewData["Search"] = q;
+            ViewData["Status"] = trangThai;
+            return View(await query
+                .OrderBy(c => c.NgayTra != null)
+                .ThenBy(c => c.PhieuMuon.NgayHenTra)
+                .ToListAsync());
         }
 
         // Xem chi tiết 1 dòng

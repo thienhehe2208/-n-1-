@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bài_tập_1.Data;
 
@@ -11,9 +12,10 @@ using bài_tập_1.Data;
 namespace bài_tập_1.Migrations
 {
     [DbContext(typeof(bài_tập_1Context))]
-    partial class bài_tập_1ContextModelSnapshot : ModelSnapshot
+    [Migration("20260729003555_AddYeuThich")]
+    partial class AddYeuThich
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,46 +268,6 @@ namespace bài_tập_1.Migrations
                     b.HasKey("MaNXB");
 
                     b.ToTable("NhaXuatBan");
-                });
-
-            modelBuilder.Entity("bài_tập_1.Models.PhanHoi", b =>
-                {
-                    b.Property<int>("MaPhanHoi")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaPhanHoi"), 1L, 1);
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("HoTen")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("NgayGui")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NoiDung")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("UserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("MaPhanHoi");
-
-                    b.ToTable("PhanHoi");
                 });
 
             modelBuilder.Entity("bài_tập_1.Models.PhieuMuon", b =>

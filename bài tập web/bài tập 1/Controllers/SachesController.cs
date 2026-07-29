@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace bài_tập_1.Controllers
 {
@@ -22,6 +23,7 @@ namespace bài_tập_1.Controllers
             var query = _context.Sach
                 .Include(s => s.NhaXuatBan)
                 .Include(s => s.TheLoai)
+                .Include(s => s.BanSaos)
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -34,6 +36,14 @@ namespace bài_tập_1.Controllers
             }
 
             ViewData["Search"] = q;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["FavoriteIds"] = string.IsNullOrWhiteSpace(userId)
+                ? new HashSet<int>()
+                : (await _context.YeuThich
+                    .Where(y => y.DocGia.UserId == userId)
+                    .Select(y => y.MaSach)
+                    .ToListAsync())
+                    .ToHashSet();
             return View(await query.OrderBy(s => s.TenSach).ToListAsync());
         }
 

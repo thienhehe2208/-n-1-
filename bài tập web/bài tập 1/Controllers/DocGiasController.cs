@@ -22,12 +22,46 @@ namespace bài_tập_1.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q, string? trangThai)
         {
-            return View(await _context.DocGia
+            var baseQuery = _context.DocGia
                 .Include(d => d.User)
                 .AsNoTracking()
-                .ToListAsync());
+                .AsQueryable();
+
+            ViewData["TongDocGia"] = await baseQuery.CountAsync();
+            ViewData["DangHoatDong"] = await baseQuery.CountAsync(
+                d => d.TrangThai == TrangThaiDocGia.HoatDong);
+            ViewData["BiKhoa"] = await baseQuery.CountAsync(
+                d => d.TrangThai == TrangThaiDocGia.Khoa);
+            ViewData["SapHetHan"] = await baseQuery.CountAsync(d =>
+                d.NgayHetHanThe >= DateTime.Today &&
+                d.NgayHetHanThe <= DateTime.Today.AddDays(30));
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var keyword = q.Trim();
+                baseQuery = baseQuery.Where(d =>
+                    d.HoTen.Contains(keyword) ||
+                    d.Email.Contains(keyword) ||
+                    d.SoDienThoai.Contains(keyword));
+            }
+
+            baseQuery = trangThai switch
+            {
+                "active" => baseQuery.Where(d =>
+                    d.TrangThai == TrangThaiDocGia.HoatDong),
+                "locked" => baseQuery.Where(d =>
+                    d.TrangThai == TrangThaiDocGia.Khoa),
+                "expiring" => baseQuery.Where(d =>
+                    d.NgayHetHanThe >= DateTime.Today &&
+                    d.NgayHetHanThe <= DateTime.Today.AddDays(30)),
+                _ => baseQuery
+            };
+
+            ViewData["Search"] = q;
+            ViewData["Status"] = trangThai;
+            return View(await baseQuery.OrderBy(d => d.HoTen).ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)

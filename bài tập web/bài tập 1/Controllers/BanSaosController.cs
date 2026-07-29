@@ -24,10 +24,34 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách bản sao
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q, string? tinhTrang)
         {
-            var bài_tập_1Context = _context.BanSao.Include(b => b.Sach);
-            return View(await bài_tập_1Context.ToListAsync());
+            var source = _context.BanSao.AsNoTracking();
+            ViewData["TongBanSao"] = await source.CountAsync();
+            ViewData["SanCo"] = await source.CountAsync(b => b.TinhTrang == TinhTrangBanSao.SanCo);
+            ViewData["DangMuon"] = await source.CountAsync(b => b.TinhTrang == TinhTrangBanSao.DangMuon);
+            ViewData["HuHong"] = await source.CountAsync(b => b.TinhTrang == TinhTrangBanSao.HuHong);
+            ViewData["ThanhLy"] = await source.CountAsync(b => b.TinhTrang == TinhTrangBanSao.ThanhLy);
+
+            var query = source.Include(b => b.Sach).AsQueryable();
+            q = q?.Trim();
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                query = query.Where(b => b.MaVach.Contains(q) || b.Sach.TenSach.Contains(q) || b.ViTriKe.Contains(q));
+            }
+
+            query = tinhTrang switch
+            {
+                "available" => query.Where(b => b.TinhTrang == TinhTrangBanSao.SanCo),
+                "borrowed" => query.Where(b => b.TinhTrang == TinhTrangBanSao.DangMuon),
+                "damaged" => query.Where(b => b.TinhTrang == TinhTrangBanSao.HuHong),
+                "liquidated" => query.Where(b => b.TinhTrang == TinhTrangBanSao.ThanhLy),
+                _ => query
+            };
+
+            ViewData["TuKhoa"] = q;
+            ViewData["TinhTrang"] = tinhTrang;
+            return View(await query.OrderBy(b => b.Sach.TenSach).ThenBy(b => b.MaVach).ToListAsync());
         }
 
         // Xem chi tiết 1 bản sao

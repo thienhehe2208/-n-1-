@@ -1,0 +1,113 @@
+@{
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+    var currentEmail = User.Identity?.IsAuthenticated == true
+        ? User.Identity.Name ?? ""
+        : "";
+}
+
+<div class="modal fade reader-support-modal" id="feedbackModal" tabindex="-1"
+     aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="support-modal-header">
+                <span class="support-modal-icon feedback-icon"><i class="bi bi-chat-square-heart"></i></span>
+                <div>
+                    <span class="support-modal-eyebrow">LẮNG NGHE BẠN ĐỌC</span>
+                    <h2 id="feedbackModalLabel">Gửi phản hồi</h2>
+                    <p>Ý kiến của bạn giúp thư viện phục vụ tốt hơn mỗi ngày.</p>
+                </div>
+                <button type="button" class="support-modal-close" data-bs-dismiss="modal"
+                        aria-label="Đóng">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form asp-controller="PhanHois" asp-action="Create" method="post"
+                  class="support-feedback-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                <div class="support-form-row">
+                    <div class="support-form-field">
+                        <label for="feedbackName">Họ và tên <span>*</span></label>
+                        <div class="support-input-wrap">
+                            <i class="bi bi-person"></i>
+                            <input id="feedbackName" name="HoTen" maxlength="100"
+                                   autocomplete="name" placeholder="Nhập họ và tên" required />
+                        </div>
+                    </div>
+                    <div class="support-form-field">
+                        <label for="feedbackEmail">Email <span>*</span></label>
+                        <div class="support-input-wrap">
+                            <i class="bi bi-envelope"></i>
+                            <input id="feedbackEmail" name="Email" type="email" maxlength="150"
+                                   value="@currentEmail" autocomplete="email"
+                                   placeholder="email@example.com" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="support-form-field">
+                    <label for="feedbackContent">Nội dung phản hồi <span>*</span></label>
+                    <textarea id="feedbackContent" name="NoiDung" minlength="10" maxlength="2000"
+                              rows="5" placeholder="Hãy chia sẻ góp ý hoặc vấn đề bạn đang gặp..." required></textarea>
+                    <div class="support-character-count"><span id="feedbackCharCount">0</span>/2000</div>
+                </div>
+                <div class="support-privacy-note">
+                    <i class="bi bi-shield-check"></i>
+                    Thông tin của bạn chỉ được sử dụng để xử lý phản hồi.
+                </div>
+                <div class="support-modal-actions">
+                    <button type="button" class="support-secondary-button" data-bs-dismiss="modal">Để sau</button>
+                    <button type="submit" class="support-primary-button">
+                        <i class="bi bi-send"></i> Gửi phản hồi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade reader-support-modal zalo-modal" id="zaloChatModal" tabindex="-1"
+     aria-labelledby="zaloChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <button type="button" class="support-modal-close" data-bs-dismiss="modal"
+                    aria-label="Đóng">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="zalo-modal-body">
+                <span class="zalo-brand-mark">Zalo</span>
+                <h2 id="zaloChatModalLabel">Chat với thư viện</h2>
+                <p>Mở Zalo và quét mã QR để bắt đầu trò chuyện với bộ phận hỗ trợ.</p>
+                <div class="zalo-qr-frame">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&amp;data=https%3A%2F%2Fzalo.me%2F0357349545"
+                         alt="Mã QR Zalo hỗ trợ thư viện" width="220" height="220" />
+                    <span class="zalo-qr-logo">Zalo</span>
+                </div>
+                <div class="zalo-online-status"><span></span> Hỗ trợ trực tuyến · 7:30–17:00</div>
+                <small>Đưa camera điện thoại vào mã QR để quét</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const content = document.getElementById('feedbackContent');
+        const counter = document.getElementById('feedbackCharCount');
+        if (content && counter) {
+            content.addEventListener('input', function () {
+                counter.textContent = content.value.length.toString();
+            });
+        }
+
+        @if (TempData["OpenFeedbackModal"] is true)
+        {
+                <text>
+                    const feedbackModal = document.getElementById('feedbackModal');
+                    if (feedbackModal && window.bootstrap) {
+                        bootstrap.Modal.getOrCreateInstance(feedbackModal).show();
+                    }
+                </text>
+        }
+    });
+</script>

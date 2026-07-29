@@ -122,11 +122,11 @@ namespace bài_tập_1.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 var roles = await _userManager.GetRolesAsync(user);
 
+                if (roles.Contains("Admin") || roles.Contains("NhanVien"))
+                    return RedirectToAction("Index", "Dashboard");
+
                 if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     return Redirect(model.ReturnUrl);
-
-                if (roles.Contains("Admin") || roles.Contains("NhanVien"))
-                    return RedirectToAction("Index", "Dashboard"); // sửa lại đúng tên Controller Dashboard của bạn
 
                 return RedirectToAction("Index", "Home");
             }

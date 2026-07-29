@@ -1,0 +1,87 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string Active(string name) => controller == name ? "active" : "";
+}
+
+<aside class="reader-sidebar" aria-label="Menu chính">
+    <nav class="reader-sidebar-menu">
+        <a asp-controller="Home" asp-action="Index" class="reader-menu-item @Active("Home")">
+            <span class="reader-menu-icon"><i class="bi bi-house-door"></i></span>
+            <span>Trang chủ</span>
+        </a>
+        <a asp-controller="Saches" asp-action="Index" class="reader-menu-item @Active("Saches")">
+            <span class="reader-menu-icon"><i class="bi bi-search"></i></span>
+            <span>Tìm kiếm sách</span>
+        </a>
+        <a asp-controller="TheLoais" asp-action="Index" class="reader-menu-item @Active("TheLoais")">
+            <span class="reader-menu-icon"><i class="bi bi-journals"></i></span>
+            <span>Danh mục sách</span>
+        </a>
+        <a asp-controller="Home" asp-action="Index" asp-fragment="sach-moi" class="reader-menu-item">
+            <span class="reader-menu-icon"><i class="bi bi-book"></i></span>
+            <span>Sách mới</span>
+        </a>
+        <a asp-controller="YeuThichs" asp-action="Index" class="reader-menu-item @Active("YeuThichs")">
+            <span class="reader-menu-icon"><i class="bi bi-heart"></i></span>
+            <span>Yêu thích</span>
+        </a>
+        <a asp-controller="Profile" asp-action="LichSuMuon" class="reader-menu-item @(controller == "Profile" && action == "LichSuMuon" ? "active" : "")">
+            <span class="reader-menu-icon"><i class="bi bi-clock-history"></i></span>
+            <span>Lịch sử mượn</span>
+        </a>
+        <button type="button" class="reader-menu-item reader-support-action"
+                data-bs-toggle="modal" data-bs-target="#feedbackModal">
+            <span class="reader-menu-icon"><i class="bi bi-chat-square-text"></i></span>
+            <span>Gửi phản hồi</span>
+        </button>
+        <button type="button" class="reader-menu-item reader-support-action"
+                data-bs-toggle="modal" data-bs-target="#zaloChatModal">
+            <span class="reader-menu-icon"><i class="bi bi-headset"></i></span>
+            <span>Chat trực tuyến</span>
+            <span class="reader-online-dot" aria-label="Đang trực tuyến"></span>
+        </button>
+    </nav>
+
+    <div class="reader-sidebar-section">
+        <h3 class="reader-sidebar-title">Tài khoản của tôi</h3>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Profile" asp-action="Index" class="reader-menu-item @Active("Profile")">
+                <span class="reader-menu-icon"><i class="bi bi-person"></i></span>
+                <span>Thông tin cá nhân</span>
+            </a>
+            <a asp-controller="Profile" asp-action="LichSuMuon" class="reader-menu-item">
+                <span class="reader-menu-icon"><i class="bi bi-journal-bookmark"></i></span>
+                <span>Sách đang mượn</span>
+            </a>
+            @if (User.IsInRole("DocGia"))
+            {
+                <a asp-controller="DatTruocs" asp-action="CuaToi" class="reader-menu-item @Active("DatTruocs")">
+                    <span class="reader-menu-icon"><i class="bi bi-bookmark-check"></i></span>
+                    <span>Đặt chỗ sách</span>
+                </a>
+            }
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="reader-menu-item @Active("Account")">
+                <span class="reader-menu-icon"><i class="bi bi-box-arrow-in-right"></i></span>
+                <span>Đăng nhập</span>
+            </a>
+            <a asp-controller="Account" asp-action="Register" class="reader-menu-item">
+                <span class="reader-menu-icon"><i class="bi bi-person-plus"></i></span>
+                <span>Đăng ký tài khoản</span>
+            </a>
+        }
+    </div>
+
+    <div class="reader-support-card">
+        <span class="reader-support-icon"><i class="bi bi-headset"></i></span>
+        <div>
+            <strong>Hỗ trợ bạn đọc</strong>
+            <p><i class="bi bi-telephone"></i> 0357.349.545</p>
+            <p><i class="bi bi-clock"></i> 7:30 - 17:00</p>
+        </div>
+    </div>
+</aside>

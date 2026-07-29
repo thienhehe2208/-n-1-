@@ -43,5 +43,6 @@ namespace bài_tập_1.Models
         // Navigation
         public ICollection<DatTruoc> DatTruocs { get; set; } = new List<DatTruoc>();
         public ICollection<PhieuMuon> PhieuMuons { get; set; } = new List<PhieuMuon>();
+        public ICollection<YeuThich> YeuThichs { get; set; } = new List<YeuThich>();
     }
 }

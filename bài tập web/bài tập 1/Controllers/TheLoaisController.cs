@@ -23,9 +23,11 @@ namespace bài_tập_1.Controllers
         // Danh sách thể loại - ai cũng xem được
         public async Task<IActionResult> Index()
         {
-            return _context.TheLoai != null ?
-                        View(await _context.TheLoai.ToListAsync()) :
-                        Problem("Entity set 'bài_tập_1Context.TheLoai'  is null.");
+            return View(await _context.TheLoai
+                .Include(t => t.DanhSachSach)
+                .AsNoTracking()
+                .OrderBy(t => t.TenTheLoai)
+                .ToListAsync());
         }
 
         // Xem chi tiết 1 thể loại - ai cũng xem được

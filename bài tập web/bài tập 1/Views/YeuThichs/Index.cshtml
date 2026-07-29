@@ -1,0 +1,70 @@
+@model IEnumerable<bài_tập_1.Models.YeuThich>
+@{
+    ViewData["Title"] = "Sách yêu thích";
+}
+
+<section class="favorite-page">
+    <header class="favorite-hero">
+        <div class="favorite-hero-copy">
+            <span class="favorite-kicker"><i class="bi bi-heart-fill"></i> BỘ SƯU TẬP CỦA BẠN</span>
+            <h1>Những cuốn sách bạn yêu thích</h1>
+            <p>Lưu lại những tựa sách đáng đọc để dễ dàng quay lại bất cứ lúc nào.</p>
+        </div>
+        <div class="favorite-hero-count"><span><i class="bi bi-bookmark-heart-fill"></i></span><div><strong>@Model.Count()</strong><small>Cuốn sách đã lưu</small></div></div>
+        <div class="favorite-hero-art" aria-hidden="true"><i class="bi bi-heart-fill"></i><i class="bi bi-heart-fill"></i><i class="bi bi-heart-fill"></i></div>
+    </header>
+
+    @if (Model.Any())
+    {
+        <div class="favorite-toolbar">
+            <div><strong>Bộ sưu tập của tôi</strong><span>Sắp xếp theo thời gian thêm gần nhất</span></div>
+            <a asp-controller="Saches" asp-action="Index"><i class="bi bi-plus-lg"></i> Khám phá thêm sách</a>
+        </div>
+        <div class="favorite-grid">
+            @foreach (var favorite in Model)
+            {
+                var sach = favorite.Sach;
+                var soBanSanCo = sach.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
+                <article class="favorite-card">
+                    <div class="favorite-cover">
+                        <span class="favorite-cover-placeholder"><i class="bi bi-book"></i></span>
+                        @if (!string.IsNullOrWhiteSpace(sach.AnhBia))
+                        {
+                            <img src="@sach.AnhBia" alt="Bìa sách @sach.TenSach" loading="lazy" onerror="this.style.display='none'" />
+                        }
+                        <span class="favorite-category">@sach.TheLoai.TenTheLoai</span>
+                        <form asp-action="Toggle" method="post" class="favorite-remove-form">
+                            <input type="hidden" name="maSach" value="@sach.MaSach" />
+                            <button type="submit" aria-label="Xóa khỏi yêu thích" title="Xóa khỏi yêu thích"><i class="bi bi-heart-fill"></i></button>
+                        </form>
+                    </div>
+                    <div class="favorite-card-body">
+                        <div class="favorite-saved-date"><i class="bi bi-check2-circle"></i> Đã lưu @favorite.NgayThem.ToString("dd/MM/yyyy")</div>
+                        <h2><a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach">@sach.TenSach</a></h2>
+                        <p class="favorite-publisher"><i class="bi bi-building"></i> @sach.NhaXuatBan.TenNXB</p>
+                        <p class="favorite-description">@(string.IsNullOrWhiteSpace(sach.MoTa) ? "Thông tin mô tả đang được cập nhật." : sach.MoTa)</p>
+                        <div class="favorite-book-meta">
+                            <span><i class="bi bi-calendar3"></i> @(sach.NamXuatBan?.ToString() ?? "Chưa rõ")</span>
+                            <span><i class="bi bi-file-earmark-text"></i> @(sach.SoTrang?.ToString() ?? "--") trang</span>
+                            <span class="@(soBanSanCo > 0 ? "available" : "unavailable")"><i class="bi bi-circle-fill"></i> @(soBanSanCo > 0 ? $"Còn {soBanSanCo} bản" : "Tạm hết")</span>
+                        </div>
+                        <div class="favorite-card-actions">
+                            <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach" class="favorite-detail-link"><i class="bi bi-eye"></i> Xem chi tiết</a>
+                            <a asp-controller="DatTruocs" asp-action="Create" asp-route-maSach="@sach.MaSach" class="favorite-reserve-link"><i class="bi bi-bookmark-plus"></i> Đặt sách</a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="favorite-empty">
+            <div class="favorite-empty-icon"><i class="bi bi-heart"></i><span><i class="bi bi-stars"></i></span></div>
+            <span class="favorite-kicker">BỘ SƯU TẬP ĐANG TRỐNG</span>
+            <h2>Bạn chưa lưu cuốn sách nào</h2>
+            <p>Hãy khám phá kho sách và nhấn biểu tượng trái tim để tạo bộ sưu tập riêng.</p>
+            <a asp-controller="Saches" asp-action="Index"><i class="bi bi-search"></i> Khám phá kho sách</a>
+        </div>
+    }
+</section>

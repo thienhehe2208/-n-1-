@@ -1,117 +1,192 @@
 ﻿@model IEnumerable<bài_tập_1.Models.Sach>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Kho sách";
+    var tuKhoa = ViewData["Search"]?.ToString();
+    var favoriteIds = ViewData["FavoriteIds"] as HashSet<int> ?? new HashSet<int>();
 }
 
-<h1>Index</h1>
+<section class="catalog-page">
+    <div class="catalog-search-hero">
+        <div class="catalog-search-intro">
+            <span class="catalog-search-kicker">
+                <i class="bi bi-stars"></i>
+                THƯ VIỆN TRỰC TUYẾN
+            </span>
+            <h1>Tìm cuốn sách<br />dành cho bạn</h1>
+            <p>Khám phá kho tri thức và tra cứu nhanh theo tên sách hoặc mã ISBN.</p>
+            <div class="catalog-search-benefits" aria-label="Tiện ích tìm kiếm">
+                <span><i class="bi bi-lightning-charge-fill"></i> Tra cứu nhanh</span>
+                <span><i class="bi bi-check-circle-fill"></i> Kiểm tra sách có sẵn</span>
+            </div>
+        </div>
 
-<form asp-action="Index" method="get" class="row g-2 mb-3">
-    <div class="col-md-5">
-        <input name="q" value="@ViewData["Search"]"
-               class="form-control"
-               placeholder="Tìm theo tên sách hoặc ISBN" />
+        <form asp-action="Index" method="get" class="catalog-search-form" role="search">
+            <label for="catalog-search-input">Bạn muốn tìm sách gì?</label>
+            <div class="catalog-search-field">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input id="catalog-search-input"
+                       type="search"
+                       name="q"
+                       value="@tuKhoa"
+                       placeholder="Tên sách hoặc mã ISBN..."
+                       autocomplete="off" />
+                @if (!string.IsNullOrWhiteSpace(tuKhoa))
+                {
+                    <a asp-action="Index" class="catalog-search-clear" aria-label="Xóa từ khóa" title="Xóa từ khóa">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                }
+            </div>
+            <button type="submit" class="catalog-search-submit">
+                <i class="bi bi-search"></i>
+                <span>Tìm kiếm sách</span>
+            </button>
+            <small>Ví dụ: Đắc nhân tâm, 978604...</small>
+        </form>
     </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+
+    <div class="catalog-result-toolbar">
+        <div class="catalog-result-title">
+            <span class="catalog-result-icon"><i class="bi bi-grid"></i></span>
+            <div>
+                <h2>@(string.IsNullOrWhiteSpace(tuKhoa) ? "Kho sách thư viện" : "Kết quả tìm kiếm")</h2>
+                <p class="book-search-summary" aria-live="polite">
+                    @if (!string.IsNullOrWhiteSpace(tuKhoa))
+                    {
+                        <span>Tìm thấy <strong>@Model.Count()</strong> cuốn sách cho “@tuKhoa”</span>
+                    }
+                    else
+                    {
+                        <span>Hiện có <strong>@Model.Count()</strong> cuốn sách để bạn khám phá</span>
+                    }
+                </p>
+            </div>
+        </div>
+        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+        {
+            <a asp-action="Create" class="book-add-button">
+                <i class="bi bi-plus-lg"></i>
+                <span>Thêm sách mới</span>
+            </a>
+        }
     </div>
-    @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+
+    @if (Model.Any())
     {
-        <div class="col-auto">
-            <a asp-action="Create" class="btn btn-primary">Thêm sách</a>
+        <div class="catalog-grid">
+            @foreach (var item in Model)
+            {
+                var soBanSanCo = item.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
+                var coTheMuon = soBanSanCo > 0;
+                var daYeuThich = favoriteIds.Contains(item.MaSach);
+
+                <article class="catalog-card">
+                    @if (!User.IsInRole("Admin") && !User.IsInRole("NhanVien"))
+                    {
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="YeuThichs" asp-action="Toggle" method="post" class="catalog-favorite-form">
+                                <input type="hidden" name="maSach" value="@item.MaSach" />
+                                <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                <button type="submit" class="catalog-heart-button @(daYeuThich ? "is-favorite" : "")" aria-label="@(daYeuThich ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích")">
+                                    <i class="bi @(daYeuThich ? "bi-heart-fill" : "bi-heart")"></i>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="catalog-favorite-form"><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="catalog-heart-button" aria-label="Đăng nhập để yêu thích"><i class="bi bi-heart"></i></a></div>
+                        }
+                    }
+                    <a asp-action="Details"
+                       asp-route-id="@item.MaSach"
+                       class="catalog-cover"
+                       aria-label="Xem chi tiết @item.TenSach">
+                        <span class="catalog-cover-placeholder" aria-hidden="true">
+                            <i class="bi bi-book"></i>
+                        </span>
+                        @if (!string.IsNullOrWhiteSpace(item.AnhBia))
+                        {
+                            <img src="@item.AnhBia"
+                                 alt="Bìa sách @item.TenSach"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'" />
+                        }
+                        <span class="catalog-category">@item.TheLoai.TenTheLoai</span>
+                        <span class="catalog-availability @(coTheMuon ? "is-available" : "is-unavailable")">
+                            <i class="bi @(coTheMuon ? "bi-check-circle-fill" : "bi-clock-fill")"></i>
+                            @(coTheMuon ? $"Còn {soBanSanCo} bản" : "Tạm hết")
+                        </span>
+                    </a>
+
+                    <div class="catalog-card-body">
+                        <div class="catalog-meta">
+                            <span><i class="bi bi-calendar3"></i> @(item.NamXuatBan?.ToString() ?? "Chưa rõ")</span>
+                            <span><i class="bi bi-file-earmark-text"></i> @(item.SoTrang?.ToString() ?? "--") trang</span>
+                        </div>
+
+                        <h2>
+                            <a asp-action="Details" asp-route-id="@item.MaSach">@item.TenSach</a>
+                        </h2>
+
+                        <p class="catalog-publisher">
+                            <i class="bi bi-building"></i>
+                            <span>@item.NhaXuatBan.TenNXB</span>
+                        </p>
+
+                        <p class="catalog-description">
+                            @(string.IsNullOrWhiteSpace(item.MoTa)
+                                ? "Thông tin mô tả đang được cập nhật."
+                                : item.MoTa)
+                        </p>
+
+                        <div class="catalog-card-footer">
+                            <div class="catalog-price">
+                                <small>Giá tham khảo</small>
+                                <strong>@item.GiaSach.ToString("N0") <span>đ</span></strong>
+                            </div>
+                            <div class="catalog-actions">
+                                <a asp-action="Details"
+                                   asp-route-id="@item.MaSach"
+                                   class="catalog-detail-button"
+                                   aria-label="Xem chi tiết @item.TenSach"
+                                   title="Xem chi tiết">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-controller="DatTruocs"
+                                   asp-action="Create"
+                                   asp-route-maSach="@item.MaSach"
+                                   class="catalog-reserve-button">
+                                    <i class="bi bi-bookmark-plus"></i>
+                                    <span>Đặt sách</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+                        {
+                            <div class="catalog-admin-actions">
+                                <a asp-action="Edit" asp-route-id="@item.MaSach">
+                                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.MaSach" class="is-danger">
+                                    <i class="bi bi-trash3"></i> Xóa
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </article>
+            }
         </div>
     }
-</form>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenSach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ISBN)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GiaSach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TheLoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NhaXuatBan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NamXuatBan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoTrang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgonNgu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AnhBia)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TenSach)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ISBN)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.GiaSach)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TheLoai.TenTheLoai)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NhaXuatBan.TenNXB)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NamXuatBan)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SoTrang)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NgonNgu)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MoTa)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AnhBia)
-                </td>
-                <td>
-                    <a asp-action="Details"
-                           asp-route-id="@item.MaSach"
-                           class="btn btn-sm btn-outline-primary">
-                        Xem chi tiết
-                    </a>
-                    <a asp-controller="DatTruocs"
-                           asp-action="Create"
-                           asp-route-maSach="@item.MaSach"
-                           class="btn btn-sm btn-success">
-                        <i class="bi bi-bookmark-check"></i>
-                        Đặt trước
-                    </a>
-                    @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.MaSach" class="btn btn-sm btn-outline-warning">Sửa</a>
-                        <a asp-action="Delete" asp-route-id="@item.MaSach" class="btn btn-sm btn-outline-danger">Xóa</a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    else
+    {
+        <div class="catalog-empty">
+            <span><i class="bi bi-search"></i></span>
+            <h2>Chưa tìm thấy sách phù hợp</h2>
+            <p>Thử kiểm tra lại từ khóa hoặc tìm bằng mã ISBN khác.</p>
+            <a asp-action="Index">Xem tất cả sách</a>
+        </div>
+    }
+</section>

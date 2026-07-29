@@ -1,89 +1,154 @@
-﻿@model IEnumerable<bài_tập_1.Models.DocGia>
+@model IEnumerable<bài_tập_1.Models.DocGia>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý độc giả";
+    var keyword = ViewData["Search"]?.ToString();
+    var selectedStatus = ViewData["Status"]?.ToString() ?? "";
+    var tongDocGia = (int?)ViewData["TongDocGia"] ?? 0;
+    var dangHoatDong = (int?)ViewData["DangHoatDong"] ?? 0;
+    var biKhoa = (int?)ViewData["BiKhoa"] ?? 0;
+    var sapHetHan = (int?)ViewData["SapHetHan"] ?? 0;
 }
 
-<h1>Index</h1>
+<section class="reader-admin-page">
+    <header class="reader-admin-hero">
+        <div>
+            <span class="reader-admin-kicker"><i class="bi bi-people-fill"></i> QUẢN LÝ BẠN ĐỌC</span>
+            <h2>Danh sách độc giả</h2>
+            <p>Quản lý hồ sơ, trạng thái tài khoản và thời hạn thẻ thư viện.</p>
+        </div>
+        <a asp-action="Create" class="reader-admin-create">
+            <i class="bi bi-person-plus"></i><span>Thêm độc giả</span>
+        </a>
+    </header>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HoTen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgaySinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GioiTinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiaChi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayDangKy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayHetHanThe)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgaySinh)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GioiTinh)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DiaChi)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayDangKy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayHetHanThe)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaDocGia">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaDocGia">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaDocGia">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="reader-admin-stats">
+        <article class="reader-admin-stat stat-total">
+            <span><i class="bi bi-people"></i></span>
+            <div><small>Tổng độc giả</small><strong>@tongDocGia.ToString("N0")</strong></div>
+        </article>
+        <article class="reader-admin-stat stat-active">
+            <span><i class="bi bi-person-check"></i></span>
+            <div><small>Đang hoạt động</small><strong>@dangHoatDong.ToString("N0")</strong></div>
+        </article>
+        <article class="reader-admin-stat stat-expiring">
+            <span><i class="bi bi-calendar2-week"></i></span>
+            <div><small>Sắp hết hạn thẻ</small><strong>@sapHetHan.ToString("N0")</strong></div>
+        </article>
+        <article class="reader-admin-stat stat-locked">
+            <span><i class="bi bi-person-lock"></i></span>
+            <div><small>Tài khoản bị khóa</small><strong>@biKhoa.ToString("N0")</strong></div>
+        </article>
+    </div>
+
+    <section class="reader-directory-panel">
+        <div class="reader-directory-toolbar">
+            <form asp-action="Index" method="get" class="reader-directory-search">
+                <div class="reader-directory-searchbox">
+                    <i class="bi bi-search"></i>
+                    <input type="search" name="q" value="@keyword"
+                           placeholder="Tìm tên, email hoặc số điện thoại..." autocomplete="off" />
+                    <input type="hidden" name="trangThai" value="@selectedStatus" />
+                    @if (!string.IsNullOrWhiteSpace(keyword))
+                    {
+                        <a asp-action="Index" asp-route-trangThai="@selectedStatus"
+                           aria-label="Xóa từ khóa"><i class="bi bi-x-lg"></i></a>
+                    }
+                </div>
+                <button type="submit"><i class="bi bi-search"></i> Tìm kiếm</button>
+            </form>
+            <nav class="reader-status-tabs" aria-label="Lọc trạng thái độc giả">
+                <a asp-action="Index" asp-route-q="@keyword"
+                   class="@(string.IsNullOrEmpty(selectedStatus) ? "active" : "")">Tất cả</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="active"
+                   class="@(selectedStatus == "active" ? "active" : "")">Hoạt động</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="expiring"
+                   class="@(selectedStatus == "expiring" ? "active" : "")">Sắp hết hạn</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="locked"
+                   class="@(selectedStatus == "locked" ? "active" : "")">Bị khóa</a>
+            </nav>
+        </div>
+
+        <div class="reader-directory-summary">
+            <div>
+                <h3>Hồ sơ độc giả</h3>
+                <p>Hiển thị <strong>@Model.Count()</strong> kết quả@(string.IsNullOrWhiteSpace(keyword) ? "" : $" cho “{keyword}”")</p>
+            </div>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="reader-directory-table-wrap">
+                <table class="reader-directory-table">
+                    <thead>
+                        <tr>
+                            <th>Độc giả</th>
+                            <th>Liên hệ</th>
+                            <th>Ngày đăng ký</th>
+                            <th>Hạn thẻ</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var ten = string.IsNullOrWhiteSpace(item.HoTen) ? "Chưa cập nhật" : item.HoTen.Trim();
+                            var initials = ten == "Chưa cập nhật"
+                                ? "DG"
+                                : string.Concat(ten.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                    .TakeLast(2).Select(part => char.ToUpperInvariant(part[0])));
+                            var active = item.TrangThai == TrangThaiDocGia.HoatDong;
+                            var expired = item.NgayHetHanThe.Date < DateTime.Today;
+                            var expiring = !expired && item.NgayHetHanThe.Date <= DateTime.Today.AddDays(30);
+                            <tr>
+                                <td>
+                                    <div class="reader-person-cell">
+                                        <span class="reader-avatar">@initials</span>
+                                        <div>
+                                            <strong>@ten</strong>
+                                            <small>DG-@item.MaDocGia.ToString("D5")</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="reader-contact-cell">
+                                        <span><i class="bi bi-envelope"></i> @(string.IsNullOrWhiteSpace(item.Email) ? "Chưa có email" : item.Email)</span>
+                                        <small><i class="bi bi-telephone"></i> @(string.IsNullOrWhiteSpace(item.SoDienThoai) ? "Chưa có SĐT" : item.SoDienThoai)</small>
+                                    </div>
+                                </td>
+                                <td>@item.NgayDangKy.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="reader-expiry-date @(expired ? "expired" : expiring ? "expiring" : "")">
+                                        @item.NgayHetHanThe.ToString("dd/MM/yyyy")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="reader-account-status @(active ? "active" : "locked")">
+                                        <i></i> @(active ? "Hoạt động" : "Bị khóa")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="reader-row-actions">
+                                        <a asp-action="Details" asp-route-id="@item.MaDocGia" title="Xem chi tiết"><i class="bi bi-eye"></i></a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaDocGia" title="Chỉnh sửa"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaDocGia" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="reader-directory-empty">
+                <span><i class="bi bi-person-x"></i></span>
+                <h3>Không tìm thấy độc giả</h3>
+                <p>Hãy thử từ khóa khác hoặc thay đổi bộ lọc trạng thái.</p>
+                <a asp-action="Index">Xem toàn bộ độc giả</a>
+            </div>
+        }
+    </section>
+</section>

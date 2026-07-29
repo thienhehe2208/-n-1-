@@ -1,83 +1,50 @@
-﻿@model IEnumerable<bài_tập_1.Models.NhanVien>
+﻿@model bài_tập_1.Models.NhanVien
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Thông tin cá nhân";
+    var ten = string.IsNullOrWhiteSpace(Model.HoTen) ? "Nhân viên" : Model.HoTen.Trim();
+    var parts = ten.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = parts.Length > 1 ? $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant() : ten[..Math.Min(2, ten.Length)].ToUpperInvariant();
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HoTen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgaySinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GioiTinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiaChi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChucVu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayVaoLam)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgaySinh)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GioiTinh)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DiaChi)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ChucVu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayVaoLam)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaNhanVien">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaNhanVien">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaNhanVien">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<section class="profile-page">
+    <header class="profile-cover">
+        <div class="profile-cover-pattern" aria-hidden="true"></div>
+        <div class="profile-identity">
+            <div class="profile-avatar">@initials</div>
+            <div><span class="profile-kicker">HỒ SƠ NHÂN VIÊN</span><h1>@ten</h1><p><i class="bi bi-envelope"></i> @Model.Email</p></div>
+        </div>
+        <div class="profile-header-actions">
+            <span class="profile-status is-active"><i class="bi bi-check-circle-fill"></i> Tài khoản hoạt động</span>
+            <a asp-action="Edit" class="profile-edit-button"><i class="bi bi-pencil-square"></i> Chỉnh sửa hồ sơ</a>
+        </div>
+    </header>
+    <div class="profile-layout">
+        <div class="profile-main-column">
+            <article class="profile-panel">
+                <div class="profile-panel-heading"><span><i class="bi bi-person-vcard"></i></span><div><h2>Thông tin cá nhân</h2><p>Thông tin nhân viên trong hệ thống thư viện.</p></div></div>
+                <div class="profile-info-grid">
+                    <div class="profile-field"><span>Họ và tên</span><strong>@ten</strong></div>
+                    <div class="profile-field"><span>Mã nhân viên</span><strong>NV-@Model.MaNhanVien.ToString("D5")</strong></div>
+                    <div class="profile-field"><span>Ngày sinh</span><strong>@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</strong></div>
+                    <div class="profile-field"><span>Giới tính</span><strong>@(string.IsNullOrWhiteSpace(Model.GioiTinh) ? "Chưa cập nhật" : Model.GioiTinh)</strong></div>
+                    <div class="profile-field"><span>Chức vụ</span><strong>@Model.ChucVu</strong></div>
+                    <div class="profile-field"><span>Ngày vào làm</span><strong>@Model.NgayVaoLam.ToString("dd/MM/yyyy")</strong></div>
+                    <div class="profile-field profile-field-wide"><span>Địa chỉ</span><strong>@(string.IsNullOrWhiteSpace(Model.DiaChi) ? "Chưa cập nhật" : Model.DiaChi)</strong></div>
+                </div>
+            </article>
+            <article class="profile-panel">
+                <div class="profile-panel-heading"><span><i class="bi bi-shield-lock"></i></span><div><h2>Tài khoản và bảo mật</h2><p>Thông tin đăng nhập được bảo vệ bởi ASP.NET Identity.</p></div></div>
+                <div class="profile-security-list">
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-envelope-at"></i></span><div><small>Email đăng nhập</small><strong>@Model.Email</strong></div><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đã xác minh</span></div>
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-key"></i></span><div><small>Mật khẩu</small><strong class="profile-password">●●●●●●●●●●</strong></div><span class="profile-security-note"><i class="bi bi-lock"></i> Được mã hóa an toàn</span></div>
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-telephone"></i></span><div><small>Số điện thoại</small><strong>@(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "Chưa cập nhật" : Model.SoDienThoai)</strong></div></div>
+                </div>
+            </article>
+        </div>
+        <aside class="profile-side-column">
+            <article class="profile-membership-card"><span class="profile-membership-icon"><i class="bi bi-person-badge"></i></span><span class="profile-kicker">THẺ NHÂN VIÊN</span><h2>@ten</h2><code>NV-@Model.MaNhanVien.ToString("D5")</code><div class="profile-membership-dates"><div><small>Chức vụ</small><strong>@Model.ChucVu</strong></div><div><small>Ngày vào làm</small><strong>@Model.NgayVaoLam.ToString("dd/MM/yyyy")</strong></div></div></article>
+            <div class="profile-privacy-note"><i class="bi bi-shield-check"></i><p><strong>Quyền riêng tư của bạn</strong><span>Mật khẩu không bao giờ được hiển thị hoặc gửi về trình duyệt.</span></p></div>
+        </aside>
+    </div>
+</section>

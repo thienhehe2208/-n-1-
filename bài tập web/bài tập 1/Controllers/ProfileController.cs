@@ -25,23 +25,62 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Challenge();
 
-            if (User.IsInRole("DocGia"))
-            {
-                var docGia = await _context.DocGia
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(d => d.UserId == userId);
-                return docGia == null
-                    ? NotFound()
-                    : View("IndexDocGia", docGia);
-            }
+            var docGia = await _context.DocGia
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+            if (docGia != null)
+                return View("IndexDocGia", docGia);
 
             var nhanVien = await _context.NhanVien
                 .AsNoTracking()
                 .FirstOrDefaultAsync(n => n.UserId == userId);
-            return nhanVien == null
-                ? NotFound()
-                : View("IndexNhanVien", nhanVien);
+            if (nhanVien != null)
+                return View("IndexNhanVien", nhanVien);
+
+            // Khôi phục các tài khoản cũ chưa có role/hồ sơ liên kết.
+            var identityUser = await _userManager.FindByIdAsync(userId);
+            if (identityUser == null)
+                return Challenge();
+
+            var email = identityUser.Email ?? identityUser.UserName ?? string.Empty;
+            docGia = new DocGia
+            {
+                UserId = identityUser.Id,
+                HoTen = email.Contains('@') ? email[..email.IndexOf('@')] : email,
+                NgaySinh = null,
+                GioiTinh = string.Empty,
+                DiaChi = string.Empty,
+                SoDienThoai = identityUser.PhoneNumber ?? string.Empty,
+                Email = email,
+                NgayDangKy = DateTime.Now,
+                NgayHetHanThe = DateTime.Now.AddYears(1),
+                TrangThai = TrangThaiDocGia.HoatDong
+            };
+
+            _context.DocGia.Add(docGia);
+            await _context.SaveChangesAsync();
+
+            if (!await _userManager.IsInRoleAsync(identityUser, "DocGia"))
+            {
+                var roleResult = await _userManager.AddToRoleAsync(
+                    identityUser,
+                    "DocGia");
+                if (!roleResult.Succeeded)
+                {
+                    var errors = string.Join(
+                        "; ",
+                        roleResult.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException(
+                        $"Không thể khôi phục role Độc giả: {errors}");
+                }
+            }
+
+            TempData["Success"] =
+                "Hồ sơ độc giả đã được khôi phục. Hãy cập nhật thông tin còn thiếu.";
+            return View("IndexDocGia", docGia);
         }
 
         public async Task<IActionResult> Edit()

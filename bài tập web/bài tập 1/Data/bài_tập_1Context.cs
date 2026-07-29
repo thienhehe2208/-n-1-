@@ -59,5 +59,9 @@ namespace bài_tập_1.Data
         public DbSet<bài_tập_1.Models.PhieuMuon> PhieuMuon { get; set; } = default!;
 
         public DbSet<bài_tập_1.Models.PhieuPhat> PhieuPhat { get; set; } = default!;
+
+        public DbSet<YeuThich> YeuThich { get; set; } = default!;
+
+        public DbSet<PhanHoi> PhanHoi { get; set; } = default!;
     }
 }

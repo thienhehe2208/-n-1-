@@ -25,23 +25,24 @@
 
     int viTriSachMoi = 0;
     int viTriSachDangMuon = 0;
+    var favoriteIds = ViewData["FavoriteIds"] as HashSet<int> ?? new HashSet<int>();
 }
 
 <!-- =========================
      BỐ CỤC TRANG ĐỘC GIẢ
 ========================= -->
 
-<div class="reader-page-layout">
+<div class="home-view">
 
     <!-- THANH MENU BÊN TRÁI -->
-    <aside class="reader-sidebar">
+    <aside class="home-sidebar-legacy">
 
         <!-- Menu chính -->
         <nav class="reader-sidebar-menu">
 
             <a asp-controller="Home"
-                   asp-action="Index"
-                   class="reader-menu-item active">
+               asp-action="Index"
+               class="reader-menu-item active">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-house-door"></i>
@@ -51,8 +52,8 @@
             </a>
 
             <a asp-controller="Saches"
-                   asp-action="Index"
-                   class="reader-menu-item">
+               asp-action="Index"
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-search"></i>
@@ -62,8 +63,8 @@
             </a>
 
             <a asp-controller="TheLoais"
-                   asp-action="Index"
-                   class="reader-menu-item">
+               asp-action="Index"
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-journals"></i>
@@ -73,8 +74,8 @@
             </a>
 
             <a asp-controller="Saches"
-                   asp-action="Index"
-                   class="reader-menu-item">
+               asp-action="Index"
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-book"></i>
@@ -84,7 +85,7 @@
             </a>
 
             <a href="#"
-                   class="reader-menu-item">
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-star"></i>
@@ -94,7 +95,7 @@
             </a>
 
             <a href="#"
-                   class="reader-menu-item">
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-pc-display"></i>
@@ -104,7 +105,7 @@
             </a>
 
             <a href="#"
-                   class="reader-menu-item">
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-heart"></i>
@@ -114,8 +115,8 @@
             </a>
 
             <a asp-controller="Profile"
-                   asp-action="Index"
-                   class="reader-menu-item">
+               asp-action="Index"
+               class="reader-menu-item">
 
                 <span class="reader-menu-icon">
                     <i class="bi bi-clock-history"></i>
@@ -135,8 +136,8 @@
             @if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 <a asp-area="Identity"
-                       asp-page="/Account/Manage/Index"
-                       class="reader-menu-item">
+                   asp-page="/Account/Manage/Index"
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-person"></i>
@@ -146,8 +147,8 @@
                 </a>
 
                 <a asp-controller="Profile"
-                       asp-action="Index"
-                       class="reader-menu-item">
+                   asp-action="Index"
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-journal-bookmark"></i>
@@ -157,8 +158,8 @@
                 </a>
 
                 <a asp-controller="Profile"
-                       asp-action="Index"
-                       class="reader-menu-item">
+                   asp-action="Index"
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-calendar-check"></i>
@@ -168,7 +169,7 @@
                 </a>
 
                 <a href="#"
-                       class="reader-menu-item">
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-cash-coin"></i>
@@ -178,8 +179,8 @@
                 </a>
 
                 <a asp-controller="DatTruocs"
-                       asp-action="CuaToi"
-                       class="reader-menu-item">
+                   asp-action="CuaToi"
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-bookmark-check"></i>
@@ -191,8 +192,8 @@
             else
             {
                 <a asp-area="Identity"
-                       asp-page="/Account/Login"
-                       class="reader-menu-item">
+                   asp-page="/Account/Login"
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-box-arrow-in-right"></i>
@@ -202,8 +203,8 @@
                 </a>
 
                 <a asp-area="Identity"
-                       asp-page="/Account/Register"
-                       class="reader-menu-item">
+                   asp-page="/Account/Register"
+                   class="reader-menu-item">
 
                     <span class="reader-menu-icon">
                         <i class="bi bi-person-plus"></i>
@@ -238,7 +239,7 @@
     </aside>
 
     <!-- PHẦN NỘI DUNG BÊN PHẢI -->
-    <main class="reader-page-content">
+    <div class="home-content">
 
        
         <section class="hero-banner">
@@ -268,8 +269,8 @@
 
 
                 <a asp-controller="Saches"
-                       asp-action="Index"
-                       class="hero-button">
+                   asp-action="Index"
+                   class="hero-button">
 
 
 
@@ -303,7 +304,7 @@
                 <!-- =========================
              SÁCH MỚI CẬP NHẬT
         ========================= -->
-                <section class="content-card">
+                <section class="content-card" id="sach-moi">
 
                     <div class="section-heading">
                         <div>
@@ -315,7 +316,7 @@
                         </div>
 
                         <a asp-controller="Saches"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             Xem tất cả
                             <i class="bi bi-arrow-right"></i>
@@ -342,11 +343,28 @@
 
                                 <article class="book-card">
 
+                                    @if (!User.IsInRole("Admin") && !User.IsInRole("NhanVien"))
+                                    {
+                                        var daYeuThich = favoriteIds.Contains(sach.MaSach);
+                                        @if (User.Identity?.IsAuthenticated == true)
+                                        {
+                                            <form asp-controller="YeuThichs" asp-action="Toggle" method="post" class="home-favorite-form">
+                                                <input type="hidden" name="maSach" value="@sach.MaSach" />
+                                                <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString + "#sach-moi")" />
+                                                <button type="submit" class="catalog-heart-button @(daYeuThich ? "is-favorite" : "")" aria-label="@(daYeuThich ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích")"><i class="bi @(daYeuThich ? "bi-heart-fill" : "bi-heart")"></i></button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <div class="home-favorite-form"><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@(Context.Request.Path + "#sach-moi")" class="catalog-heart-button" aria-label="Đăng nhập để yêu thích"><i class="bi bi-heart"></i></a></div>
+                                        }
+                                    }
+
                                     <!-- ẢNH BÌA SÁCH -->
                                     <a asp-controller="Saches"
-                                           asp-action="Details"
-                                           asp-route-id="@sach.MaSach"
-                                           class="book-image-link">
+                                       asp-action="Details"
+                                       asp-route-id="@sach.MaSach"
+                                       class="book-image-link">
 
                                         <span class="book-new-label">
                                             Mới
@@ -363,9 +381,9 @@
                                     <div class="book-content">
 
                                         <a asp-controller="Saches"
-                                               asp-action="Details"
-                                               asp-route-id="@sach.MaSach"
-                                               class="book-title">
+                                           asp-action="Details"
+                                           asp-route-id="@sach.MaSach"
+                                           class="book-title">
 
                                             @sach.TenSach
                                         </a>
@@ -393,18 +411,18 @@
                                         <div class="book-actions">
 
                                             <a asp-controller="Saches"
-                                                   asp-action="Details"
-                                                   asp-route-id="@sach.MaSach"
-                                                   class="book-detail-button">
+                                               asp-action="Details"
+                                               asp-route-id="@sach.MaSach"
+                                               class="book-detail-button">
 
                                                 <i class="bi bi-eye"></i>
                                                 Xem chi tiết
                                             </a>
 
                                             <a asp-controller="DatTruocs"
-                                                   asp-action="Create"
-                                                   asp-route-maSach="@sach.MaSach"
-                                                   class="book-reserve-button">
+                                               asp-action="Create"
+                                               asp-route-maSach="@sach.MaSach"
+                                               class="book-reserve-button">
 
                                                 <i class="bi bi-bookmark-check"></i>
                                                 Đặt trước
@@ -448,7 +466,7 @@
                         </div>
 
                         <a asp-controller="Profile"
-                               asp-action="Index">
+                           asp-action="Index">
 
                             Xem tất cả
                         </a>
@@ -467,9 +485,9 @@
                                 <article class="borrowed-item">
 
                                     <a asp-controller="Saches"
-                                           asp-action="Details"
-                                           asp-route-id="@sach.MaSach"
-                                           class="borrowed-image-link">
+                                       asp-action="Details"
+                                       asp-route-id="@sach.MaSach"
+                                       class="borrowed-image-link">
 
                                         <img src="@anhDangMuon"
                                              alt="Ảnh bìa @sach.TenSach"
@@ -480,8 +498,8 @@
                                     <div class="borrowed-details">
 
                                         <a asp-controller="Saches"
-                                               asp-action="Details"
-                                               asp-route-id="@sach.MaSach">
+                                           asp-action="Details"
+                                           asp-route-id="@sach.MaSach">
 
                                             <strong>
                                                 @sach.TenSach
@@ -630,6 +648,7 @@
             </aside>
         </div>
 
-    </main>
+    </div>
 </div>
 
+ 

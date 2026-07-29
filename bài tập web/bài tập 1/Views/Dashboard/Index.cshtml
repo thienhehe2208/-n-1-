@@ -1,78 +1,207 @@
 @model bài_tập_1.Models.ViewModels.DashboardViewModel
 
 @{
-    ViewData["Title"] = "Bảng điều khiển";
+    ViewData["Title"] = "Tổng quan hệ thống";
+    var tyLeQuaHan = Model.SoPhieuDangMuon > 0
+        ? Math.Min(100, (int)Math.Round(Model.SoPhieuQuaHan * 100d / Model.SoPhieuDangMuon))
+        : 0;
 }
 
-<h2>Bảng điều khiển</h2>
+<section class="dashboard-page">
+    <header class="dashboard-welcome">
+        <div>
+            <span class="dashboard-kicker"><i class="bi bi-grid-1x2-fill"></i> TRUNG TÂM ĐIỀU HÀNH</span>
+            <h2>Chào mừng trở lại!</h2>
+            <p>Theo dõi tình hình thư viện và xử lý các công việc quan trọng trong ngày.</p>
+        </div>
+        <div class="dashboard-date">
+            <span><i class="bi bi-calendar3"></i></span>
+            <div>
+                <small>Hôm nay</small>
+                <strong>@DateTime.Now.ToString("dd/MM/yyyy")</strong>
+            </div>
+        </div>
+    </header>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-2">
-        <div class="card text-center p-3">
-            <h6>Tổng số sách</h6>
-            <h3>@Model.TongSoSach</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-center p-3">
-            <h6>Tổng số bản sao</h6>
-            <h3>@Model.TongSoBanSao</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-center p-3">
-            <h6>Độc giả hoạt động</h6>
-            <h3>@Model.TongSoDocGiaHoatDong</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-center p-3">
-            <h6>Đang mượn</h6>
-            <h3>@Model.SoPhieuDangMuon</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-center p-3 border-danger">
-            <h6>Quá hạn</h6>
-            <h3 class="text-danger">@Model.SoPhieuQuaHan</h3>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-center p-3 border-warning">
-            <h6>Tiền phạt chưa thu</h6>
-            <h3 class="text-warning">@Model.TongTienPhatChuaThu.ToString("N0") đ</h3>
-        </div>
-    </div>
-</div>
+    <div class="dashboard-stat-grid">
+        <a asp-controller="Saches" asp-action="Index" class="dashboard-stat-card stat-blue"
+           aria-label="Mở danh sách sách">
+            <div class="dashboard-stat-top">
+                <span class="dashboard-stat-icon"><i class="bi bi-book"></i></span>
+                <span class="dashboard-stat-label">Tổng đầu sách</span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.TongSoSach.ToString("N0")</strong>
+            <p><i class="bi bi-collection"></i> Danh mục đang quản lý</p>
+            <span class="dashboard-stat-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
 
-<h4>Phiếu mượn quá hạn cần xử lý</h4>
-@if (!Model.PhieuQuaHanGanNhat.Any())
-{
-    <p>Không có phiếu mượn nào quá hạn.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Mã phiếu</th>
-                <th>Độc giả</th>
-                <th>Ngày mượn</th>
-                <th>Hẹn trả</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var p in Model.PhieuQuaHanGanNhat)
+        <a asp-controller="BanSaos" asp-action="Index" class="dashboard-stat-card stat-cyan"
+           aria-label="Mở danh sách bản sao sách">
+            <div class="dashboard-stat-top">
+                <span class="dashboard-stat-icon"><i class="bi bi-archive"></i></span>
+                <span class="dashboard-stat-label">Tổng bản sao</span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.TongSoBanSao.ToString("N0")</strong>
+            <p><i class="bi bi-box-seam"></i> Trong toàn bộ kho sách</p>
+            <span class="dashboard-stat-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="DocGias" asp-action="Index" class="dashboard-stat-card stat-violet"
+           aria-label="Mở danh sách độc giả">
+            <div class="dashboard-stat-top">
+                <span class="dashboard-stat-icon"><i class="bi bi-people"></i></span>
+                <span class="dashboard-stat-label">Độc giả hoạt động</span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.TongSoDocGiaHoatDong.ToString("N0")</strong>
+            <p><i class="bi bi-person-check"></i> Tài khoản đang sử dụng</p>
+            <span class="dashboard-stat-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="PhieuMuons" asp-action="Index" class="dashboard-stat-card stat-green"
+           aria-label="Mở danh sách phiếu mượn">
+            <div class="dashboard-stat-top">
+                <span class="dashboard-stat-icon"><i class="bi bi-arrow-left-right"></i></span>
+                <span class="dashboard-stat-label">Đang mượn</span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.SoPhieuDangMuon.ToString("N0")</strong>
+            <p><i class="bi bi-clock"></i> Phiếu chưa hoàn tất</p>
+            <span class="dashboard-stat-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="PhieuMuons" asp-action="Index" class="dashboard-stat-card stat-red"
+           aria-label="Mở danh sách phiếu mượn để xử lý quá hạn">
+            <div class="dashboard-stat-top">
+                <span class="dashboard-stat-icon"><i class="bi bi-exclamation-triangle"></i></span>
+                <span class="dashboard-stat-label">Phiếu quá hạn</span>
+            </div>
+            <strong class="dashboard-stat-value">@Model.SoPhieuQuaHan.ToString("N0")</strong>
+            <p><i class="bi bi-graph-up"></i> @tyLeQuaHan% phiếu đang mượn</p>
+            <span class="dashboard-stat-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+
+        <a asp-controller="PhieuPhats" asp-action="Index" class="dashboard-stat-card stat-amber"
+           aria-label="Mở danh sách phiếu phạt">
+            <div class="dashboard-stat-top">
+                <span class="dashboard-stat-icon"><i class="bi bi-cash-stack"></i></span>
+                <span class="dashboard-stat-label">Phạt chưa thu</span>
+            </div>
+            <strong class="dashboard-stat-value dashboard-money">@Model.TongTienPhatChuaThu.ToString("N0") <small>đ</small></strong>
+            <p><i class="bi bi-receipt"></i> Khoản cần đối soát</p>
+            <span class="dashboard-stat-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+    </div>
+
+    <div class="dashboard-main-grid">
+        <section class="dashboard-panel dashboard-overdue-panel">
+            <div class="dashboard-panel-header">
+                <div>
+                    <span class="dashboard-panel-eyebrow">CẦN XỬ LÝ</span>
+                    <h3>Phiếu mượn quá hạn</h3>
+                    <p>Danh sách ưu tiên theo hạn trả sớm nhất.</p>
+                </div>
+                <a asp-controller="PhieuMuons" asp-action="Index" class="dashboard-view-all">
+                    Xem tất cả <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            @if (!Model.PhieuQuaHanGanNhat.Any())
             {
-                <tr>
-                    <td>@p.MaPhieuMuon</td>
-                    <td>@p.DocGia?.HoTen</td>
-                    <td>@p.NgayMuon.ToString("dd/MM/yyyy")</td>
-                    <td class="text-danger">@p.NgayHenTra.ToString("dd/MM/yyyy")</td>
-                    <td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@p.MaPhieuMuon" class="btn btn-sm btn-outline-primary">Xem</a></td>
-                </tr>
+                <div class="dashboard-empty-state">
+                    <span><i class="bi bi-check2-circle"></i></span>
+                    <h4>Không có phiếu quá hạn</h4>
+                    <p>Tất cả phiếu mượn hiện đang trong thời hạn.</p>
+                </div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div class="dashboard-table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Phiếu mượn</th>
+                                <th>Độc giả</th>
+                                <th>Ngày mượn</th>
+                                <th>Hạn trả</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var phieu in Model.PhieuQuaHanGanNhat)
+                            {
+                                var soNgayQuaHan = Math.Max(1, (DateTime.Today - phieu.NgayHenTra.Date).Days);
+                                <tr>
+                                    <td><span class="dashboard-loan-code">#PM@phieu.MaPhieuMuon.ToString("D4")</span></td>
+                                    <td>
+                                        <div class="dashboard-reader-cell">
+                                            <span>@(string.IsNullOrWhiteSpace(phieu.DocGia?.HoTen) ? "?" : phieu.DocGia.HoTen[..1].ToUpper())</span>
+                                            <strong>@(phieu.DocGia?.HoTen ?? "Chưa xác định")</strong>
+                                        </div>
+                                    </td>
+                                    <td>@phieu.NgayMuon.ToString("dd/MM/yyyy")</td>
+                                    <td><strong class="dashboard-due-date">@phieu.NgayHenTra.ToString("dd/MM/yyyy")</strong></td>
+                                    <td><span class="dashboard-overdue-badge">Quá @soNgayQuaHan ngày</span></td>
+                                    <td>
+                                        <a asp-controller="PhieuMuons" asp-action="Details"
+                                           asp-route-id="@phieu.MaPhieuMuon" class="dashboard-row-action"
+                                           aria-label="Xem phiếu @phieu.MaPhieuMuon">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <aside class="dashboard-side-column">
+            <section class="dashboard-panel dashboard-quick-panel">
+                <div class="dashboard-panel-header compact">
+                    <div>
+                        <span class="dashboard-panel-eyebrow">TRUY CẬP NHANH</span>
+                        <h3>Thao tác thường dùng</h3>
+                    </div>
+                </div>
+                <div class="dashboard-quick-grid">
+                    <a asp-controller="PhieuMuons" asp-action="Create" class="quick-action action-blue">
+                        <span><i class="bi bi-journal-plus"></i></span>
+                        <div><strong>Tạo phiếu mượn</strong><small>Ghi nhận lượt mượn mới</small></div>
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                    <a asp-controller="Saches" asp-action="Create" class="quick-action action-violet">
+                        <span><i class="bi bi-book-half"></i></span>
+                        <div><strong>Thêm sách</strong><small>Cập nhật kho thư viện</small></div>
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                    <a asp-controller="DocGias" asp-action="Create" class="quick-action action-green">
+                        <span><i class="bi bi-person-plus"></i></span>
+                        <div><strong>Thêm độc giả</strong><small>Tạo hồ sơ bạn đọc</small></div>
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                    <a asp-controller="PhieuPhats" asp-action="Index" class="quick-action action-amber">
+                        <span><i class="bi bi-receipt-cutoff"></i></span>
+                        <div><strong>Quản lý tiền phạt</strong><small>Kiểm tra khoản chưa thu</small></div>
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                </div>
+            </section>
+
+            <section class="dashboard-health-card">
+                <div class="dashboard-health-heading">
+                    <span><i class="bi bi-activity"></i></span>
+                    <div><strong>Tình trạng vận hành</strong><small>Cập nhật theo dữ liệu hiện tại</small></div>
+                </div>
+                <div class="dashboard-health-row">
+                    <div><span>Tỷ lệ phiếu quá hạn</span><strong>@tyLeQuaHan%</strong></div>
+                    <div class="dashboard-progress"><span style="width: @tyLeQuaHan%"></span></div>
+                </div>
+                <p class="@(tyLeQuaHan > 20 ? "health-warning" : "health-good")">
+                    <i class="bi @(tyLeQuaHan > 20 ? "bi-exclamation-circle" : "bi-check-circle")"></i>
+                    @(tyLeQuaHan > 20 ? "Cần ưu tiên xử lý các phiếu quá hạn." : "Hoạt động mượn trả đang trong mức ổn định.")
+                </p>
+            </section>
+        </aside>
+    </div>
+</section>

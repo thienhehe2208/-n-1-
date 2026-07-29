@@ -1,41 +1,108 @@
 ﻿@model IEnumerable<bài_tập_1.Models.TheLoai>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh mục sách";
+    var icons = new[]
+    {
+        "bi-feather", "bi-globe-asia-australia", "bi-cpu", "bi-graph-up-arrow",
+        "bi-lightbulb", "bi-stars", "bi-bank", "bi-mortarboard",
+        "bi-balloon-heart", "bi-translate"
+    };
+    var themes = new[]
+    {
+        "violet", "blue", "cyan", "orange", "rose",
+        "emerald", "amber", "indigo", "pink", "teal"
+    };
+    var index = 0;
 }
 
-<h1>Index</h1>
+<section class="category-page">
+    <header class="category-hero">
+        <div class="category-hero-copy">
+            <span class="category-eyebrow">
+                <i class="bi bi-grid-1x2-fill"></i>
+                KHÁM PHÁ THEO CHỦ ĐỀ
+            </span>
+            <h1>Danh mục sách</h1>
+            <p>Chọn chủ đề bạn quan tâm và khám phá kho tri thức được sắp xếp khoa học.</p>
+        </div>
+        <div class="category-hero-stat">
+            <span><i class="bi bi-collection"></i></span>
+            <div>
+                <strong>@Model.Count()</strong>
+                <small>Danh mục hiện có</small>
+            </div>
+        </div>
+        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+        {
+            <a asp-action="Create" class="category-create-button">
+                <i class="bi bi-plus-lg"></i>
+                <span>Thêm danh mục</span>
+            </a>
+        }
+    </header>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenTheLoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenTheLoai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MoTa)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaTheLoai">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaTheLoai">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaTheLoai">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    @if (Model.Any())
+    {
+        <div class="category-grid">
+            @foreach (var item in Model)
+            {
+                var theme = themes[index % themes.Length];
+                var icon = icons[index % icons.Length];
+
+                <article class="category-card category-theme-@theme">
+                    <div class="category-card-decoration" aria-hidden="true"></div>
+                    <div class="category-card-top">
+                        <span class="category-icon"><i class="bi @icon"></i></span>
+                        <span class="category-book-count">
+                            <strong>@item.DanhSachSach.Count</strong> cuốn sách
+                        </span>
+                    </div>
+
+                    <div class="category-card-content">
+                        <h2>@item.TenTheLoai</h2>
+                        <p>@(string.IsNullOrWhiteSpace(item.MoTa) ? "Mô tả danh mục đang được cập nhật." : item.MoTa)</p>
+                    </div>
+
+                    <div class="category-card-footer">
+                        <a asp-action="Details"
+                           asp-route-id="@item.MaTheLoai"
+                           class="category-explore-link">
+                            Khám phá danh mục
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+                        {
+                            <div class="category-admin-menu">
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.MaTheLoai"
+                                   aria-label="Chỉnh sửa @item.TenTheLoai"
+                                   title="Chỉnh sửa">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.MaTheLoai"
+                                   class="is-danger"
+                                   aria-label="Xóa @item.TenTheLoai"
+                                   title="Xóa">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </article>
+
+                index++;
+            }
+        </div>
+    }
+    else
+    {
+        <div class="category-empty">
+            <i class="bi bi-grid"></i>
+            <h2>Chưa có danh mục</h2>
+            <p>Hãy tạo danh mục đầu tiên để sắp xếp kho sách.</p>
+        </div>
+    }
+</section>

@@ -4,6 +4,7 @@ using bài_tập_1.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace bài_tập_1.Controllers
 {
@@ -22,6 +23,11 @@ namespace bài_tập_1.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Admin/Nhân viên luôn sử dụng Dashboard làm trang chủ.
+            // Guard này cũng xử lý trường hợp truy cập trực tiếp URL gốc "/".
+            if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
+                return RedirectToAction("Index", "Dashboard");
+
             var model = new TrangChuViewModel
             {
                 SachMoi = await _context.Sach
@@ -45,6 +51,15 @@ namespace bài_tập_1.Controllers
             };
 
             ApplyCategoryPresentation(model.TheLoaiPhoBien);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["FavoriteIds"] = string.IsNullOrWhiteSpace(userId)
+                ? new HashSet<int>()
+                : (await _context.YeuThich
+                    .Where(y => y.DocGia.UserId == userId)
+                    .Select(y => y.MaSach)
+                    .ToListAsync())
+                    .ToHashSet();
 
             if (User.IsInRole("DocGia"))
             {

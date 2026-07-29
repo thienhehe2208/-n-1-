@@ -2,38 +2,49 @@
 
 @{
     ViewData["Title"] = "Thông tin cá nhân";
+    var ten = string.IsNullOrWhiteSpace(Model.HoTen) ? "Nhân viên" : Model.HoTen.Trim();
+    var parts = ten.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = parts.Length > 1 ? $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant() : ten[..Math.Min(2, ten.Length)].ToUpperInvariant();
 }
 
-<h2>Thông tin cá nhân</h2>
-
-<div class="row">
-    <div class="col-md-6">
-        <dl class="row">
-            <dt class="col-sm-4">Họ tên</dt>
-            <dd class="col-sm-8">@Model.HoTen</dd>
-
-            <dt class="col-sm-4">Ngày sinh</dt>
-            <dd class="col-sm-8">@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</dd>
-
-            <dt class="col-sm-4">Giới tính</dt>
-            <dd class="col-sm-8">@Model.GioiTinh</dd>
-
-            <dt class="col-sm-4">Địa chỉ</dt>
-            <dd class="col-sm-8">@Model.DiaChi</dd>
-
-            <dt class="col-sm-4">Số điện thoại</dt>
-            <dd class="col-sm-8">@Model.SoDienThoai</dd>
-
-            <dt class="col-sm-4">Email</dt>
-            <dd class="col-sm-8">@Model.Email</dd>
-
-            <dt class="col-sm-4">Chức vụ</dt>
-            <dd class="col-sm-8">@Model.ChucVu</dd>
-
-            <dt class="col-sm-4">Ngày vào làm</dt>
-            <dd class="col-sm-8">@Model.NgayVaoLam.ToString("dd/MM/yyyy")</dd>
-        </dl>
-
-        <a asp-action="Edit" class="btn btn-primary">Sửa thông tin</a>
+<section class="profile-page">
+    <header class="profile-cover">
+        <div class="profile-cover-pattern" aria-hidden="true"></div>
+        <div class="profile-identity">
+            <div class="profile-avatar">@initials</div>
+            <div><span class="profile-kicker">HỒ SƠ NHÂN VIÊN</span><h1>@ten</h1><p><i class="bi bi-envelope"></i> @Model.Email</p></div>
+        </div>
+        <div class="profile-header-actions">
+            <span class="profile-status is-active"><i class="bi bi-check-circle-fill"></i> Tài khoản hoạt động</span>
+            <a asp-action="Edit" class="profile-edit-button"><i class="bi bi-pencil-square"></i> Chỉnh sửa hồ sơ</a>
+        </div>
+    </header>
+    <div class="profile-layout">
+        <div class="profile-main-column">
+            <article class="profile-panel">
+                <div class="profile-panel-heading"><span><i class="bi bi-person-vcard"></i></span><div><h2>Thông tin cá nhân</h2><p>Thông tin nhân viên trong hệ thống thư viện.</p></div></div>
+                <div class="profile-info-grid">
+                    <div class="profile-field"><span>Họ và tên</span><strong>@ten</strong></div>
+                    <div class="profile-field"><span>Mã nhân viên</span><strong>NV-@Model.MaNhanVien.ToString("D5")</strong></div>
+                    <div class="profile-field"><span>Ngày sinh</span><strong>@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</strong></div>
+                    <div class="profile-field"><span>Giới tính</span><strong>@(string.IsNullOrWhiteSpace(Model.GioiTinh) ? "Chưa cập nhật" : Model.GioiTinh)</strong></div>
+                    <div class="profile-field"><span>Chức vụ</span><strong>@Model.ChucVu</strong></div>
+                    <div class="profile-field"><span>Ngày vào làm</span><strong>@Model.NgayVaoLam.ToString("dd/MM/yyyy")</strong></div>
+                    <div class="profile-field profile-field-wide"><span>Địa chỉ</span><strong>@(string.IsNullOrWhiteSpace(Model.DiaChi) ? "Chưa cập nhật" : Model.DiaChi)</strong></div>
+                </div>
+            </article>
+            <article class="profile-panel">
+                <div class="profile-panel-heading"><span><i class="bi bi-shield-lock"></i></span><div><h2>Tài khoản và bảo mật</h2><p>Thông tin đăng nhập được bảo vệ bởi ASP.NET Identity.</p></div></div>
+                <div class="profile-security-list">
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-envelope-at"></i></span><div><small>Email đăng nhập</small><strong>@Model.Email</strong></div><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đã xác minh</span></div>
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-key"></i></span><div><small>Mật khẩu</small><strong class="profile-password">●●●●●●●●●●</strong></div><span class="profile-security-note"><i class="bi bi-lock"></i> Được mã hóa an toàn</span></div>
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-telephone"></i></span><div><small>Số điện thoại</small><strong>@(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "Chưa cập nhật" : Model.SoDienThoai)</strong></div></div>
+                </div>
+            </article>
+        </div>
+        <aside class="profile-side-column">
+            <article class="profile-membership-card"><span class="profile-membership-icon"><i class="bi bi-person-badge"></i></span><span class="profile-kicker">THẺ NHÂN VIÊN</span><h2>@ten</h2><code>NV-@Model.MaNhanVien.ToString("D5")</code><div class="profile-membership-dates"><div><small>Chức vụ</small><strong>@Model.ChucVu</strong></div><div><small>Ngày vào làm</small><strong>@Model.NgayVaoLam.ToString("dd/MM/yyyy")</strong></div></div></article>
+            <div class="profile-privacy-note"><i class="bi bi-shield-check"></i><p><strong>Quyền riêng tư của bạn</strong><span>Mật khẩu không bao giờ được hiển thị hoặc gửi về trình duyệt.</span></p></div>
+        </aside>
     </div>
-</div>
+</section>

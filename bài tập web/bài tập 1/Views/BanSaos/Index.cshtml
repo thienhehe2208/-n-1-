@@ -1,53 +1,60 @@
-﻿@model IEnumerable<bài_tập_1.Models.BanSao>
-
+@model IEnumerable<bài_tập_1.Models.BanSao>
+@using bài_tập_1.Models
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý kho sách";
+    var currentStatus = ViewData["TinhTrang"]?.ToString() ?? "";
+    var keyword = ViewData["TuKhoa"]?.ToString() ?? "";
 }
 
-<h1>Index</h1>
+<div class="inventory-page">
+    <section class="inventory-hero">
+        <div><span class="inventory-kicker"><i class="bi bi-box-seam"></i> QUẢN LÝ TÀI NGUYÊN</span><h1>Kho sách &amp; bản sao</h1><p>Theo dõi mã vạch, vị trí kệ và tình trạng của từng cuốn sách trong thư viện.</p></div>
+        <a asp-action="Create" class="inventory-create"><i class="bi bi-plus-lg"></i> Thêm bản sao</a>
+    </section>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Sach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaVach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TinhTrang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ViTriKe)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sach.TenSach)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaVach)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TinhTrang)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ViTriKe)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaBanSao">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaBanSao">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaBanSao">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <section class="inventory-stats">
+        <article class="inventory-stat stat-total"><i class="bi bi-collection"></i><div><span>Tổng bản sao</span><strong>@ViewData["TongBanSao"]</strong></div></article>
+        <article class="inventory-stat stat-ready"><i class="bi bi-check-circle"></i><div><span>Sẵn có</span><strong>@ViewData["SanCo"]</strong></div></article>
+        <article class="inventory-stat stat-loan"><i class="bi bi-arrow-left-right"></i><div><span>Đang mượn</span><strong>@ViewData["DangMuon"]</strong></div></article>
+        <article class="inventory-stat stat-damaged"><i class="bi bi-tools"></i><div><span>Hư hỏng</span><strong>@ViewData["HuHong"]</strong></div></article>
+        <article class="inventory-stat stat-retired"><i class="bi bi-archive"></i><div><span>Thanh lý</span><strong>@ViewData["ThanhLy"]</strong></div></article>
+    </section>
+
+    <section class="inventory-panel">
+        <div class="inventory-panel-head">
+            <div><span>DANH SÁCH KHO</span><h2>Quản lý bản sao</h2><p>Hiển thị <strong>@Model.Count()</strong> bản sao phù hợp</p></div>
+            <form asp-action="Index" method="get" class="inventory-search"><input type="hidden" name="tinhTrang" value="@currentStatus" /><i class="bi bi-search"></i><input name="q" value="@keyword" placeholder="Mã vạch, tên sách hoặc vị trí kệ..." /><button type="submit">Tìm kiếm</button></form>
+        </div>
+        <nav class="inventory-tabs" aria-label="Lọc tình trạng bản sao">
+            <a class="@(string.IsNullOrEmpty(currentStatus) ? "active" : "")" asp-action="Index" asp-route-q="@keyword">Tất cả</a>
+            <a class="@(currentStatus == "available" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="available">Sẵn có</a>
+            <a class="@(currentStatus == "borrowed" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="borrowed">Đang mượn</a>
+            <a class="@(currentStatus == "damaged" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="damaged">Hư hỏng</a>
+            <a class="@(currentStatus == "liquidated" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="liquidated">Thanh lý</a>
+        </nav>
+        <div class="inventory-table-wrap">
+            <table class="inventory-table">
+                <thead><tr><th>Bản sao</th><th>Sách</th><th>Mã vạch</th><th>Vị trí kệ</th><th>Tình trạng</th><th class="inventory-actions-title">Thao tác</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var statusClass = item.TinhTrang switch { TinhTrangBanSao.SanCo => "available", TinhTrangBanSao.DangMuon => "borrowed", TinhTrangBanSao.HuHong => "damaged", _ => "liquidated" };
+                        var statusText = item.TinhTrang switch { TinhTrangBanSao.SanCo => "Sẵn có", TinhTrangBanSao.DangMuon => "Đang mượn", TinhTrangBanSao.HuHong => "Hư hỏng", _ => "Đã thanh lý" };
+                        <tr>
+                            <td><span class="inventory-id">BS-@item.MaBanSao.ToString("D5")</span></td>
+                            <td><div class="inventory-book"><span><i class="bi bi-book"></i></span><div><strong>@item.Sach?.TenSach</strong><small>Mã sách: #@item.MaSach</small></div></div></td>
+                            <td><code>@item.MaVach</code></td>
+                            <td><span class="inventory-shelf"><i class="bi bi-geo-alt"></i> @(string.IsNullOrWhiteSpace(item.ViTriKe) ? "Chưa xếp kệ" : item.ViTriKe)</span></td>
+                            <td><span class="inventory-status @statusClass"><i></i>@statusText</span></td>
+                            <td><div class="inventory-actions"><a asp-action="Details" asp-route-id="@item.MaBanSao" title="Xem chi tiết"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@item.MaBanSao" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a><a class="delete" asp-action="Delete" asp-route-id="@item.MaBanSao" title="Xóa"><i class="bi bi-trash3"></i></a></div></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.Any())
+            {
+                <div class="inventory-empty"><i class="bi bi-inboxes"></i><h3>Không tìm thấy bản sao</h3><p>Hãy thử thay đổi từ khóa hoặc bộ lọc tình trạng.</p><a asp-action="Index">Xóa bộ lọc</a></div>
+            }
+        </div>
+    </section>
+</div>

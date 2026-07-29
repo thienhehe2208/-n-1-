@@ -1,59 +1,150 @@
-﻿@model IEnumerable<bài_tập_1.Models.PhieuMuon>
+@model IEnumerable<bài_tập_1.Models.PhieuMuon>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý phiếu mượn";
+    var keyword = ViewData["Search"]?.ToString();
+    var selectedStatus = ViewData["Status"]?.ToString() ?? "";
+    var tongPhieu = (int?)ViewData["TongPhieu"] ?? 0;
+    var dangMuon = (int?)ViewData["DangMuon"] ?? 0;
+    var daTra = (int?)ViewData["DaTra"] ?? 0;
+    var quaHan = (int?)ViewData["QuaHan"] ?? 0;
 }
 
-<h1>Index</h1>
+<section class="loan-admin-page">
+    <header class="loan-admin-hero">
+        <div>
+            <span class="loan-admin-kicker"><i class="bi bi-journal-text"></i> NGHIỆP VỤ MƯỢN TRẢ</span>
+            <h2>Quản lý phiếu mượn</h2>
+            <p>Theo dõi thời hạn, tình trạng và toàn bộ giao dịch mượn sách.</p>
+        </div>
+        <a asp-action="Create" class="loan-admin-create">
+            <i class="bi bi-journal-plus"></i><span>Tạo phiếu mượn</span>
+        </a>
+    </header>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DocGia)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NhanVien)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayMuon)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayHenTra)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DocGia.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NhanVien.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayMuon)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayHenTra)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaPhieuMuon">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaPhieuMuon">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaPhieuMuon">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="loan-stat-grid">
+        <article class="loan-stat-card stat-all">
+            <span><i class="bi bi-files"></i></span>
+            <div><small>Tổng phiếu</small><strong>@tongPhieu.ToString("N0")</strong></div>
+        </article>
+        <article class="loan-stat-card stat-borrowing">
+            <span><i class="bi bi-book-half"></i></span>
+            <div><small>Đang mượn</small><strong>@dangMuon.ToString("N0")</strong></div>
+        </article>
+        <article class="loan-stat-card stat-returned">
+            <span><i class="bi bi-check2-circle"></i></span>
+            <div><small>Đã hoàn trả</small><strong>@daTra.ToString("N0")</strong></div>
+        </article>
+        <article class="loan-stat-card stat-overdue">
+            <span><i class="bi bi-exclamation-triangle"></i></span>
+            <div><small>Đang quá hạn</small><strong>@quaHan.ToString("N0")</strong></div>
+        </article>
+    </div>
+
+    <section class="loan-directory-panel">
+        <div class="loan-directory-toolbar">
+            <form asp-action="Index" method="get" class="loan-search-form">
+                <div class="loan-search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="search" name="q" value="@keyword"
+                           placeholder="Tìm mã phiếu, độc giả hoặc nhân viên..." autocomplete="off" />
+                    <input type="hidden" name="trangThai" value="@selectedStatus" />
+                    @if (!string.IsNullOrWhiteSpace(keyword))
+                    {
+                        <a asp-action="Index" asp-route-trangThai="@selectedStatus" aria-label="Xóa từ khóa">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    }
+                </div>
+                <button type="submit"><i class="bi bi-search"></i> Tìm kiếm</button>
+            </form>
+            <nav class="loan-filter-tabs" aria-label="Lọc phiếu mượn">
+                <a asp-action="Index" asp-route-q="@keyword" class="@(string.IsNullOrEmpty(selectedStatus) ? "active" : "")">Tất cả</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="borrowing" class="@(selectedStatus == "borrowing" ? "active" : "")">Đang mượn</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="returned" class="@(selectedStatus == "returned" ? "active" : "")">Đã trả</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="overdue" class="@(selectedStatus == "overdue" ? "active" : "")">Quá hạn</a>
+            </nav>
+        </div>
+
+        <div class="loan-list-heading">
+            <div><h3>Danh sách giao dịch</h3><p>Hiển thị <strong>@Model.Count()</strong> phiếu mượn</p></div>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="loan-table-wrap">
+                <table class="loan-admin-table">
+                    <thead>
+                        <tr>
+                            <th>Mã phiếu</th>
+                            <th>Độc giả</th>
+                            <th>Nhân viên xử lý</th>
+                            <th>Số sách</th>
+                            <th>Ngày mượn</th>
+                            <th>Hạn trả</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var isReturned = item.TrangThai == TrangThaiPhieuMuon.DaTra;
+                            var isOverdue = !isReturned && item.NgayHenTra.Date < DateTime.Today;
+                            var daysLeft = (item.NgayHenTra.Date - DateTime.Today).Days;
+                            var readerName = item.DocGia?.HoTen ?? "Chưa xác định";
+                            var initials = string.Concat(readerName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                .TakeLast(2).Select(part => char.ToUpperInvariant(part[0])));
+                            <tr class="@(isOverdue ? "is-overdue-row" : "")">
+                                <td><a asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="loan-code">#PM@item.MaPhieuMuon.ToString("D4")</a></td>
+                                <td>
+                                    <div class="loan-reader-cell">
+                                        <span>@(string.IsNullOrWhiteSpace(initials) ? "DG" : initials)</span>
+                                        <div><strong>@readerName</strong><small>DG-@item.MaDocGia.ToString("D5")</small></div>
+                                    </div>
+                                </td>
+                                <td><span class="loan-staff"><i class="bi bi-person-badge"></i> @(item.NhanVien?.HoTen ?? "Chưa xác định")</span></td>
+                                <td><span class="loan-book-count"><i class="bi bi-book"></i> @item.TongSoSach</span></td>
+                                <td>@item.NgayMuon.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <div class="loan-due-cell @(isOverdue ? "overdue" : "")">
+                                        <strong>@item.NgayHenTra.ToString("dd/MM/yyyy")</strong>
+                                        @if (isOverdue)
+                                        {
+                                            <small>Quá @Math.Abs(daysLeft) ngày</small>
+                                        }
+                                        else if (!isReturned && daysLeft <= 3)
+                                        {
+                                            <small>Sắp đến hạn</small>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="loan-status @(isReturned ? "returned" : isOverdue ? "overdue" : "borrowing")">
+                                        <i></i> @(isReturned ? "Đã trả" : isOverdue ? "Quá hạn" : "Đang mượn")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="loan-row-actions">
+                                        <a asp-action="Details" asp-route-id="@item.MaPhieuMuon" title="Xem chi tiết"><i class="bi bi-eye"></i></a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaPhieuMuon" title="Chỉnh sửa"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaPhieuMuon" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="loan-empty-state">
+                <span><i class="bi bi-journal-x"></i></span>
+                <h3>Không tìm thấy phiếu mượn</h3>
+                <p>Hãy thử từ khóa khác hoặc thay đổi bộ lọc trạng thái.</p>
+                <a asp-action="Index">Xem toàn bộ phiếu</a>
+            </div>
+        }
+    </section>
+</section>

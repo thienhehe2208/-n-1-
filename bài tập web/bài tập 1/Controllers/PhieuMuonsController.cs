@@ -23,10 +23,55 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách phiếu mượn
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q, string? trangThai)
         {
-            var bài_tập_1Context = _context.PhieuMuon.Include(p => p.DocGia).Include(p => p.NhanVien);
-            return View(await bài_tập_1Context.ToListAsync());
+            var homNay = DateTime.Today;
+            var query = _context.PhieuMuon
+                .Include(p => p.DocGia)
+                .Include(p => p.NhanVien)
+                .Include(p => p.ChiTietPhieuMuons)
+                .AsNoTracking()
+                .AsQueryable();
+
+            ViewData["TongPhieu"] = await query.CountAsync();
+            ViewData["DangMuon"] = await query.CountAsync(p =>
+                p.TrangThai == TrangThaiPhieuMuon.DangMuon &&
+                p.NgayHenTra >= homNay);
+            ViewData["DaTra"] = await query.CountAsync(p =>
+                p.TrangThai == TrangThaiPhieuMuon.DaTra);
+            ViewData["QuaHan"] = await query.CountAsync(p =>
+                p.TrangThai != TrangThaiPhieuMuon.DaTra &&
+                p.NgayHenTra < homNay);
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var keyword = q.Trim();
+                var isId = int.TryParse(keyword.TrimStart('#'), out var maPhieu);
+                query = query.Where(p =>
+                    p.DocGia.HoTen.Contains(keyword) ||
+                    p.NhanVien.HoTen.Contains(keyword) ||
+                    (isId && p.MaPhieuMuon == maPhieu));
+            }
+
+            query = trangThai switch
+            {
+                "borrowing" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuMuon.DangMuon &&
+                    p.NgayHenTra >= homNay),
+                "returned" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuMuon.DaTra),
+                "overdue" => query.Where(p =>
+                    p.TrangThai != TrangThaiPhieuMuon.DaTra &&
+                    p.NgayHenTra < homNay),
+                _ => query
+            };
+
+            ViewData["Search"] = q;
+            ViewData["Status"] = trangThai;
+            return View(await query
+                .OrderByDescending(p => p.NgayMuon)
+                .ThenByDescending(p => p.MaPhieuMuon)
+                .ToListAsync());
         }
 
         // Xem chi tiết 1 phiếu mượn

@@ -1,59 +1,90 @@
-﻿@model IEnumerable<bài_tập_1.Models.ChiTietPhieuMuon>
+@model IEnumerable<bài_tập_1.Models.ChiTietPhieuMuon>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Chi tiết mượn trả";
+    var keyword = ViewData["Search"]?.ToString();
+    var status = ViewData["Status"]?.ToString() ?? "";
+    var total = (int?)ViewData["TongChiTiet"] ?? 0;
+    var borrowing = (int?)ViewData["DangMuon"] ?? 0;
+    var returned = (int?)ViewData["DaTra"] ?? 0;
+    var overdue = (int?)ViewData["QuaHan"] ?? 0;
+    var incidents = (int?)ViewData["CoSuCo"] ?? 0;
 }
 
-<h1>Index</h1>
+<section class="circulation-page">
+    <header class="circulation-hero">
+        <div>
+            <span class="circulation-kicker"><i class="bi bi-arrow-left-right"></i> KIỂM SOÁT LƯU THÔNG</span>
+            <h2>Chi tiết mượn trả</h2>
+            <p>Theo dõi từng cuốn sách trong phiếu, thời hạn và tình trạng khi hoàn trả.</p>
+        </div>
+        <a asp-action="Create" class="circulation-create"><i class="bi bi-plus-lg"></i> Thêm sách vào phiếu</a>
+    </header>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.PhieuMuon)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BanSao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayTra)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TinhTrangKhiTra)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhieuMuon.MaPhieuMuon)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BanSao.MaVach)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayTra)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TinhTrangKhiTra)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GhiChu)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaChiTiet">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaChiTiet">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaChiTiet">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="circulation-stats">
+        <article><span class="all"><i class="bi bi-collection"></i></span><div><small>Tổng lượt sách</small><strong>@total</strong></div></article>
+        <article><span class="borrowing"><i class="bi bi-book-half"></i></span><div><small>Đang được mượn</small><strong>@borrowing</strong></div></article>
+        <article><span class="returned"><i class="bi bi-check2-circle"></i></span><div><small>Đã hoàn trả</small><strong>@returned</strong></div></article>
+        <article><span class="overdue"><i class="bi bi-alarm"></i></span><div><small>Đang quá hạn</small><strong>@overdue</strong></div></article>
+        <article><span class="incident"><i class="bi bi-exclamation-diamond"></i></span><div><small>Hư hỏng / mất</small><strong>@incidents</strong></div></article>
+    </div>
+
+    <section class="circulation-panel">
+        <div class="circulation-toolbar">
+            <form asp-action="Index" method="get" class="circulation-search">
+                <div>
+                    <i class="bi bi-search"></i><input type="search" name="q" value="@keyword" placeholder="Tìm sách, mã vạch, độc giả, mã phiếu..." /><input type="hidden" name="trangThai" value="@status" />
+                    @if (!string.IsNullOrWhiteSpace(keyword))
+                    {
+                        <a asp-action="Index" asp-route-trangThai="@status"><i class="bi bi-x-lg"></i></a>
+                    }
+                </div>
+                <button type="submit">Tìm kiếm</button>
+            </form>
+            <nav class="circulation-tabs">
+                <a asp-action="Index" asp-route-q="@keyword" class="@(status == "" ? "active" : "")">Tất cả</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="borrowing" class="@(status == "borrowing" ? "active" : "")">Đang mượn</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="returned" class="@(status == "returned" ? "active" : "")">Đã trả</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="overdue" class="@(status == "overdue" ? "active" : "")">Quá hạn</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="incident" class="@(status == "incident" ? "active" : "")">Có sự cố</a>
+            </nav>
+        </div>
+        <div class="circulation-heading"><h3>Danh sách sách mượn</h3><p>Hiển thị <strong>@Model.Count()</strong> kết quả</p></div>
+
+        @if (Model.Any())
+        {
+            <div class="circulation-table-wrap">
+                <table class="circulation-table">
+                    <thead><tr><th>Phiếu mượn</th><th>Sách / bản sao</th><th>Độc giả</th><th>Hạn trả</th><th>Ngày trả</th><th>Tình trạng</th><th>Ghi chú</th><th>Thao tác</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var isReturned = item.NgayTra.HasValue;
+                            var dueDate = item.PhieuMuon.NgayHenTra;
+                            var isOverdue = !isReturned && dueDate.Date < DateTime.Today;
+                            var conditionClass = item.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ? "damaged" : item.TinhTrangKhiTra == TinhTrangKhiTra.Mat ? "lost" : "normal";
+                            var conditionText = !isReturned ? "Chưa trả" : item.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ? "Hư hỏng" : item.TinhTrangKhiTra == TinhTrangKhiTra.Mat ? "Bị mất" : "Bình thường";
+                            <tr class="@(isOverdue ? "overdue-row" : "")">
+                                <td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="circulation-code">#PM@item.MaPhieuMuon.ToString("D4")</a></td>
+                                <td><div class="circulation-book"><span><i class="bi bi-book"></i></span><div><strong>@(item.BanSao?.Sach?.TenSach ?? "Chưa xác định")</strong><small><i class="bi bi-upc-scan"></i> @item.BanSao?.MaVach</small></div></div></td>
+                                <td><div class="circulation-reader"><i class="bi bi-person"></i><span>@(item.PhieuMuon?.DocGia?.HoTen ?? "Chưa xác định")</span></div></td>
+                                <td><div class="circulation-due @(isOverdue ? "overdue" : "")"><strong>@dueDate.ToString("dd/MM/yyyy")</strong>@if (isOverdue) {
+                                    <small>Quá @Math.Max(1, (DateTime.Today - dueDate.Date).Days) ngày</small>
+                                }
+                            </div></td>
+                            <td>@(item.NgayTra?.ToString("dd/MM/yyyy") ?? "—")</td>
+                            <td><span class="circulation-condition @(!isReturned ? "pending" : conditionClass)"><i></i>@conditionText</span></td>
+                            <td><span class="circulation-note" title="@item.GhiChu">@(string.IsNullOrWhiteSpace(item.GhiChu) ? "—" : item.GhiChu)</span></td>
+                            <td><div class="circulation-actions"><a asp-action="Details" asp-route-id="@item.MaChiTiet" title="Chi tiết"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@item.MaChiTiet" class="return-action" title="Cập nhật / trả sách"><i class="bi bi-arrow-return-left"></i></a><a asp-action="Delete" asp-route-id="@item.MaChiTiet" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a></div></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+        else
+    {
+        <div class="circulation-empty"><span><i class="bi bi-inbox"></i></span><h3>Không có dữ liệu phù hợp</h3><p>Hãy thử thay đổi từ khóa hoặc bộ lọc.</p><a asp-action="Index">Xem toàn bộ</a></div>
+    }
+</section>
+</section>

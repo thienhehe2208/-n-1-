@@ -41,5 +41,6 @@ namespace bài_tập_1.Models
         public ICollection<SachTacGia> SachTacGias { get; set; } = new List<SachTacGia>();
         public ICollection<BanSao> BanSaos { get; set; } = new List<BanSao>();
         public ICollection<DatTruoc> DatTruocs { get; set; } = new List<DatTruoc>();
+        public ICollection<YeuThich> YeuThichs { get; set; } = new List<YeuThich>();
     }
 }
