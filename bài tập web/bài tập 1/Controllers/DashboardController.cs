@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
 using bài_tập_1.Models;
 using bài_tập_1.Models.ViewModels;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
@@ -12,14 +13,19 @@ namespace bài_tập_1.Controllers
     public class DashboardController : Controller
     {
         private readonly bài_tập_1Context _context;
+        private readonly PhieuMuonService _phieuMuonService;
 
-        public DashboardController(bài_tập_1Context context)
+        public DashboardController(
+            bài_tập_1Context context,
+            PhieuMuonService phieuMuonService)
         {
             _context = context;
+            _phieuMuonService = phieuMuonService;
         }
 
         public async Task<IActionResult> Index()
         {
+            await _phieuMuonService.CapNhatTrangThaiAsync();
             var homNay = DateTime.Now;
 
             var model = new DashboardViewModel
@@ -27,15 +33,16 @@ namespace bài_tập_1.Controllers
                 TongSoSach = await _context.Sach.CountAsync(),
                 TongSoBanSao = await _context.BanSao.CountAsync(),
                 TongSoDocGiaHoatDong = await _context.DocGia.CountAsync(d => d.TrangThai == TrangThaiDocGia.HoatDong),
-                SoPhieuDangMuon = await _context.PhieuMuon.CountAsync(p => p.TrangThai == TrangThaiPhieuMuon.DangMuon),
+                SoPhieuDangMuon = await _context.PhieuMuon.CountAsync(p =>
+                    p.TrangThai == TrangThaiPhieuMuon.DangMuon),
                 SoPhieuQuaHan = await _context.PhieuMuon.CountAsync(p =>
-                    p.TrangThai == TrangThaiPhieuMuon.DangMuon && p.NgayHenTra < homNay),
+                    p.TrangThai == TrangThaiPhieuMuon.QuaHan),
                 TongTienPhatChuaThu = await _context.PhieuPhat
                     .Where(p => p.TrangThai == TrangThaiPhieuPhat.ChuaDong)
                     .SumAsync(p => (decimal?)p.SoTien) ?? 0,
                 PhieuQuaHanGanNhat = await _context.PhieuMuon
                     .Include(p => p.DocGia)
-                    .Where(p => p.TrangThai == TrangThaiPhieuMuon.DangMuon && p.NgayHenTra < homNay)
+                    .Where(p => p.TrangThai == TrangThaiPhieuMuon.QuaHan)
                     .OrderBy(p => p.NgayHenTra)
                     .Take(5)
                     .ToListAsync()

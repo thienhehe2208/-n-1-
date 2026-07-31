@@ -17,7 +17,8 @@
             <span class="circulation-kicker"><i class="bi bi-arrow-left-right"></i> KIỂM SOÁT LƯU THÔNG</span>
             <h2>Chi tiết mượn trả</h2>
             <p>Theo dõi từng cuốn sách trong phiếu, thời hạn và tình trạng khi hoàn trả.</p>
-        </div>
+</div>
+
         <a asp-action="Create" class="circulation-create"><i class="bi bi-plus-lg"></i> Thêm sách vào phiếu</a>
     </header>
 
@@ -60,7 +61,7 @@
                         @foreach (var item in Model)
                         {
                             var isReturned = item.NgayTra.HasValue;
-                            var dueDate = item.PhieuMuon.NgayHenTra;
+                            var dueDate = item.PhieuMuon?.NgayHenTra ?? DateTime.Today;
                             var isOverdue = !isReturned && dueDate.Date < DateTime.Today;
                             var conditionClass = item.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ? "damaged" : item.TinhTrangKhiTra == TinhTrangKhiTra.Mat ? "lost" : "normal";
                             var conditionText = !isReturned ? "Chưa trả" : item.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ? "Hư hỏng" : item.TinhTrangKhiTra == TinhTrangKhiTra.Mat ? "Bị mất" : "Bình thường";
@@ -68,14 +69,20 @@
                                 <td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="circulation-code">#PM@item.MaPhieuMuon.ToString("D4")</a></td>
                                 <td><div class="circulation-book"><span><i class="bi bi-book"></i></span><div><strong>@(item.BanSao?.Sach?.TenSach ?? "Chưa xác định")</strong><small><i class="bi bi-upc-scan"></i> @item.BanSao?.MaVach</small></div></div></td>
                                 <td><div class="circulation-reader"><i class="bi bi-person"></i><span>@(item.PhieuMuon?.DocGia?.HoTen ?? "Chưa xác định")</span></div></td>
-                                <td><div class="circulation-due @(isOverdue ? "overdue" : "")"><strong>@dueDate.ToString("dd/MM/yyyy")</strong>@if (isOverdue) {
-                                    <small>Quá @Math.Max(1, (DateTime.Today - dueDate.Date).Days) ngày</small>
-                                }
-                            </div></td>
+                                <td>
+                                    <div class="circulation-due @(isOverdue ? "overdue" : "")">
+                                        <strong>@dueDate.ToString("dd/MM/yyyy")</strong>@if (isOverdue) {
+                                        <small>Quá @Math.Max(1, (DateTime.Today - dueDate.Date).Days) ngày</small>
+                                    }
+                                </div>
+                            </td>
                             <td>@(item.NgayTra?.ToString("dd/MM/yyyy") ?? "—")</td>
                             <td><span class="circulation-condition @(!isReturned ? "pending" : conditionClass)"><i></i>@conditionText</span></td>
                             <td><span class="circulation-note" title="@item.GhiChu">@(string.IsNullOrWhiteSpace(item.GhiChu) ? "—" : item.GhiChu)</span></td>
-                            <td><div class="circulation-actions"><a asp-action="Details" asp-route-id="@item.MaChiTiet" title="Chi tiết"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@item.MaChiTiet" class="return-action" title="Cập nhật / trả sách"><i class="bi bi-arrow-return-left"></i></a><a asp-action="Delete" asp-route-id="@item.MaChiTiet" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a></div></td>
+                            <td><div class="circulation-actions"><a asp-action="Details" asp-route-id="@item.MaChiTiet" title="Chi tiết"><i class="bi bi-eye"></i></a>@if (!item.NgayTra.HasValue) {
+                                <a asp-action="TraSach" asp-route-id="@item.MaChiTiet" class="return-action" title="Trả sách"><i class="bi bi-arrow-return-left"></i></a>
+                            }
+                            <a asp-action="Delete" asp-route-id="@item.MaChiTiet" class="danger" title="Hủy lượt mượn"><i class="bi bi-trash3"></i></a></div></td>
                         </tr>
                     }
                 </tbody>
@@ -87,4 +94,9 @@
         <div class="circulation-empty"><span><i class="bi bi-inbox"></i></span><h3>Không có dữ liệu phù hợp</h3><p>Hãy thử thay đổi từ khóa hoặc bộ lọc.</p><a asp-action="Index">Xem toàn bộ</a></div>
     }
 </section>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}
 </section>

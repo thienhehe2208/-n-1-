@@ -49,6 +49,7 @@
                         TrangThaiDatTruoc.DaCoSach => "Sẵn sàng nhận",
                         TrangThaiDatTruoc.HoanThanh => "Hoàn thành",
                         TrangThaiDatTruoc.DaHuy => "Đã hủy",
+                        TrangThaiDatTruoc.HetHan => "Hết hạn",
                         _ => item.TrangThai.ToString()
                     };
 
@@ -80,18 +81,30 @@
                                 <span><i class="bi bi-geo-alt"></i> Quầy lưu thông thư viện</span>
                                 <span>
                                     <i class="bi bi-hourglass-split"></i>
-                                    Hiệu lực đến @(item.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "khi có thông báo")
+                                    @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                                    {
+                                        <text>Đến nhận trước @item.HanNhanSach?.ToString("dd/MM/yyyy HH:mm")</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Hàng chờ đến @(item.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "khi có thông báo")</text>
+                                    }
                                 </span>
+                                @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                                {
+                                    <span><i class="bi bi-upc-scan"></i> Mã vạch được giữ: @item.BanSaoDuocGiu?.MaVach</span>
+                                }
                             </div>
 
                             <div class="my-reservation-actions">
                                 <a asp-action="Details"
-                                   asp-route-id="@item.MaDatTruoc"
-                                   class="btn btn-sm btn-outline-primary">
+                                       asp-route-id="@item.MaDatTruoc"
+                                       class="btn btn-sm btn-outline-primary">
                                     Xem chi tiết
                                 </a>
 
-                                @if (item.TrangThai == TrangThaiDatTruoc.DangCho)
+                                @if (item.TrangThai == TrangThaiDatTruoc.DangCho ||
+                                                                     item.TrangThai == TrangThaiDatTruoc.DaCoSach)
                                 {
                                     <form asp-action="Huy"
                                           asp-route-id="@item.MaDatTruoc"

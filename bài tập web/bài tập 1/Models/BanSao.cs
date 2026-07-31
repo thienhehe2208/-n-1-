@@ -24,5 +24,6 @@ namespace bài_tập_1.Models
 
         // Navigation
         public ICollection<ChiTietPhieuMuon> ChiTietPhieuMuons { get; set; } = new List<ChiTietPhieuMuon>();
+        public ICollection<DatTruoc> DatTruocsDuocGiu { get; set; } = new List<DatTruoc>();
     }
 }

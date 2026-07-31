@@ -49,7 +49,8 @@ namespace bài_tập_1.Controllers
                 UserName = email,
                 Email = email,
                 PhoneNumber = model.SoDienThoai.Trim(),
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                LockoutEnabled = true
             };
 
             var createUserResult = await _userManager.CreateAsync(user, model.Password);
@@ -115,7 +116,7 @@ namespace bài_tập_1.Controllers
                 return View(model);
 
             var result = await _signInManager.PasswordSignInAsync(
-                model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
@@ -131,7 +132,11 @@ namespace bài_tập_1.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng.");
+            ModelState.AddModelError(
+                string.Empty,
+                result.IsLockedOut
+                    ? "Tài khoản đang tạm thời bị khóa. Vui lòng thử lại sau hoặc liên hệ thư viện."
+                    : "Email hoặc mật khẩu không đúng.");
             return View(model);
         }
 

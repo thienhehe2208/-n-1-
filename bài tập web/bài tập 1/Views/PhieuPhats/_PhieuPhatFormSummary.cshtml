@@ -1,0 +1,31 @@
+﻿@model bài_tập_1.Models.ViewModels.PhieuPhatFormViewModel
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Phiếu mượn</dt>
+    <dd class="col-sm-9">#PM@Model.MaPhieuMuon.ToString("D4")</dd>
+
+    <dt class="col-sm-3">Độc giả</dt>
+    <dd class="col-sm-9">@Model.HoTenDocGia</dd>
+
+    <dt class="col-sm-3">Sách</dt>
+    <dd class="col-sm-9">
+        @Model.TenSach
+        <small class="text-muted">(@Model.MaVach)</small>
+    </dd>
+
+    <dt class="col-sm-3">Hạn trả</dt>
+    <dd class="col-sm-9">@Model.NgayHenTra.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Ngày trả</dt>
+    <dd class="col-sm-9">
+        @(Model.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")
+    </dd>
+
+    <dt class="col-sm-3">Số ngày trễ</dt>
+    <dd class="col-sm-9">@Model.SoNgayTre ngày</dd>
+
+    <dt class="col-sm-3">Tình trạng trả</dt>
+    <dd class="col-sm-9">
+        @(Model.TinhTrangKhiTra?.ToString() ?? "Chưa xác định")
+    </dd>
+</dl>

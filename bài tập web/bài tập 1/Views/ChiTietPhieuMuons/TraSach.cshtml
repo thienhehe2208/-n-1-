@@ -1,0 +1,84 @@
+﻿@model bài_tập_1.Models.ViewModels.TraSachViewModel
+
+@{
+    ViewData["Title"] = "Trả sách";
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">Ghi nhận trả sách</h2>
+
+        <dl class="row">
+            <dt class="col-sm-3">Phiếu mượn</dt>
+            <dd class="col-sm-9">#PM@Model.MaPhieuMuon.ToString("D4")</dd>
+
+            <dt class="col-sm-3">Độc giả</dt>
+            <dd class="col-sm-9">@Model.HoTenDocGia</dd>
+
+            <dt class="col-sm-3">Sách</dt>
+            <dd class="col-sm-9">@Model.TenSach</dd>
+
+            <dt class="col-sm-3">Mã vạch</dt>
+            <dd class="col-sm-9">@Model.MaVach</dd>
+
+            <dt class="col-sm-3">Ngày mượn</dt>
+            <dd class="col-sm-9">@Model.NgayMuon.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Hạn trả</dt>
+            <dd class="col-sm-9">@Model.NgayHenTra.ToString("dd/MM/yyyy")</dd>
+        </dl>
+
+        <form asp-action="TraSach"
+              asp-route-id="@Model.MaChiTiet"
+              method="post">
+            <input asp-for="MaChiTiet" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="NgayTra" class="form-label"></label>
+                <input asp-for="NgayTra" class="form-control" />
+                <span asp-validation-for="NgayTra"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TinhTrangKhiTra"
+                       class="form-label"></label>
+                <select asp-for="TinhTrangKhiTra"
+                        asp-items="Html.GetEnumSelectList<TinhTrangKhiTra>()"
+                        class="form-select">
+                    <option value="">-- Chọn tình trạng --</option>
+                </select>
+                <span asp-validation-for="TinhTrangKhiTra"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="GhiChu" class="form-label"></label>
+                <textarea asp-for="GhiChu"
+                          class="form-control"
+                          rows="3"></textarea>
+                <span asp-validation-for="GhiChu"
+                      class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                Xác nhận trả sách
+            </button>
+            <a asp-controller="PhieuMuons"
+                   asp-action="Details"
+                   asp-route-id="@Model.MaPhieuMuon"
+                   class="btn btn-outline-secondary">
+                Hủy
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

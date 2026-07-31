@@ -36,7 +36,7 @@ namespace bài_tập_1.Models.ViewModels
         [Display(Name = "Trạng thái")]
         public TrangThaiDocGia TrangThai { get; set; } = TrangThaiDocGia.HoatDong;
 
-        [Required, StringLength(100, MinimumLength = 6)]
+        [Required, StringLength(100, MinimumLength = 8)]
         [DataType(DataType.Password)]
         [Display(Name = "Mật khẩu")]
         public string Password { get; set; } = string.Empty;

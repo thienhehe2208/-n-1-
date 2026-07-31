@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
@@ -12,13 +13,16 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ThongBaoService _thongBaoService;
 
         public HomeController(
             bài_tập_1Context context,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            ThongBaoService thongBaoService)
         {
             _context = context;
             _userManager = userManager;
+            _thongBaoService = thongBaoService;
         }
 
         public async Task<IActionResult> Index()
@@ -69,6 +73,16 @@ namespace bài_tập_1.Controllers
             return View(model);
         }
 
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult Terms()
+        {
+            return View();
+        }
+
         private async Task LoadReaderDataAsync(TrangChuViewModel model)
         {
             var userId = _userManager.GetUserId(User);
@@ -78,6 +92,8 @@ namespace bài_tập_1.Controllers
 
             if (docGia == null)
                 return;
+
+            await _thongBaoService.DongBoChoDocGiaAsync(docGia.MaDocGia);
 
             var borrowedItems = await _context.ChiTietPhieuMuon
                 .Include(ct => ct.PhieuMuon)
@@ -104,40 +120,19 @@ namespace bài_tập_1.Controllers
                 };
             }).ToList();
 
-            model.ThongBao = borrowedItems
-                .Where(ct => ct.PhieuMuon.NgayHenTra.Date <=
-                             DateTime.Today.AddDays(7))
-                .Select(ct =>
-                {
-                    var days = (ct.PhieuMuon.NgayHenTra.Date -
-                                DateTime.Today).Days;
-                    return new ThongBaoItem
-                    {
-                        NoiDung = days < 0
-                            ? $"Sách “{ct.BanSao.Sach.TenSach}” đã quá hạn {-days} ngày."
-                            : $"Sách “{ct.BanSao.Sach.TenSach}” còn {days} ngày đến hạn trả.",
-                        NgayThongBao = DateTime.Today,
-                        Loai = days < 0 ? "danger" : "warning"
-                    };
-                })
-                .ToList();
-
-            var reservationsReady = await _context.DatTruoc
-                .Include(d => d.Sach)
+            model.ThongBao = await _context.ThongBao
                 .AsNoTracking()
-                .Where(d =>
-                    d.MaDocGia == docGia.MaDocGia &&
-                    d.TrangThai == TrangThaiDatTruoc.DaCoSach)
-                .ToListAsync();
-
-            model.ThongBao.AddRange(reservationsReady.Select(d =>
-                new ThongBaoItem
+                .Where(t => t.MaDocGia == docGia.MaDocGia)
+                .OrderBy(t => t.DaDoc)
+                .ThenByDescending(t => t.NgayTao)
+                .Take(5)
+                .Select(t => new ThongBaoItem
                 {
-                    NoiDung =
-                        $"Sách “{d.Sach.TenSach}” đã sẵn sàng để nhận.",
-                    NgayThongBao = DateTime.Today,
-                    Loai = "success"
-                }));
+                    NoiDung = t.NoiDung,
+                    NgayThongBao = t.NgayTao,
+                    Loai = t.Loai
+                })
+                .ToListAsync();
         }
 
         private static void ApplyCategoryPresentation(

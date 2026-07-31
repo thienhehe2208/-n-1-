@@ -22,6 +22,7 @@
         TrangThaiDatTruoc.DaCoSach => "Sách đã sẵn sàng",
         TrangThaiDatTruoc.HoanThanh => "Đã hoàn thành",
         TrangThaiDatTruoc.DaHuy => "Đã hủy",
+        TrangThaiDatTruoc.HetHan => "Đã hết hạn",
         _ => Model.TrangThai.ToString()
     };
 }
@@ -65,8 +66,8 @@
                         <h2>@Model.Sach.TenSach</h2>
                         <p>@(Model.Sach.NhaXuatBan?.TenNXB ?? "Chưa cập nhật nhà xuất bản")</p>
                         <a asp-controller="Saches"
-                           asp-action="Details"
-                           asp-route-id="@Model.MaSach">
+                               asp-action="Details"
+                               asp-route-id="@Model.MaSach">
                             Xem lại chi tiết sách
                         </a>
                     </div>
@@ -89,9 +90,27 @@
                         <dd>@Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</dd>
                     </div>
                     <div>
-                        <dt>Hiệu lực đến</dt>
-                        <dd>@(Model.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "Theo thông báo")</dd>
+                        <dt>@(Model.TrangThai == TrangThaiDatTruoc.DaCoSach ? "Nhận sách trước" : "Hàng chờ đến")</dt>
+                        <dd>
+                            @(Model.TrangThai == TrangThaiDatTruoc.DaCoSach
+                                ? Model.HanNhanSach?.ToString("dd/MM/yyyy HH:mm")
+                                : Model.NgayHetHanDat?.ToString("dd/MM/yyyy"))
+                        </dd>
                     </div>
+                    @if (Model.TrangThai == TrangThaiDatTruoc.DangCho)
+                    {
+                        <div>
+                            <dt>Vị trí hàng đợi</dt>
+                            <dd>Số @ViewData["ViTriHangDoi"]</dd>
+                        </div>
+                    }
+                    @if (Model.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                    {
+                        <div>
+                            <dt>Bản sao đang giữ</dt>
+                            <dd>@Model.BanSaoDuocGiu?.MaVach</dd>
+                        </div>
+                    }
                     <div>
                         <dt>Điểm nhận</dt>
                         <dd>Quầy lưu thông thư viện</dd>
@@ -132,12 +151,18 @@
             else
             {
                 <a asp-action="Index" class="btn btn-primary">Danh sách yêu cầu</a>
-                <a asp-action="Edit" asp-route-id="@Model.MaDatTruoc" class="btn btn-outline-warning">
-                    Cập nhật trạng thái
-                </a>
+                @if (Model.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                {
+                    <form asp-action="XacNhanNhanSach" asp-route-id="@Model.MaDatTruoc" method="post"
+                          onsubmit="return confirm('Xác nhận độc giả đã nhận sách và lập phiếu mượn?');">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-success">Xác nhận nhận sách</button>
+                    </form>
+                }
             }
 
-            @if (Model.TrangThai == TrangThaiDatTruoc.DangCho)
+            @if (Model.TrangThai == TrangThaiDatTruoc.DangCho ||
+                             Model.TrangThai == TrangThaiDatTruoc.DaCoSach)
             {
                 <form asp-action="Huy" asp-route-id="@Model.MaDatTruoc" method="post"
                       onsubmit="return confirm('Bạn chắc chắn muốn hủy yêu cầu này?');">

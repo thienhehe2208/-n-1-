@@ -1,0 +1,35 @@
+@model bài_tập_1.Models.ViewModels.PaginationViewModel
+
+@if (Model.TotalPages > 1)
+{
+    string PageUrl(int page)
+    {
+        var request = ViewContext.HttpContext.Request;
+        var values = request.Query
+            .Where(item => !string.Equals(item.Key, "page", StringComparison.OrdinalIgnoreCase))
+            .SelectMany(item => item.Value.Select(value =>
+                new KeyValuePair<string, string?>(item.Key, value)))
+            .ToList();
+        values.Add(new KeyValuePair<string, string?>("page", page.ToString()));
+        return request.Path + QueryString.Create(values);
+    }
+
+    <nav aria-label="Phân trang" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
+                <a class="page-link" href="@(Model.HasPrevious ? PageUrl(Model.Page - 1) : "#")">Trước</a>
+            </li>
+            @for (var pageNumber = Math.Max(1, Model.Page - 2);
+                  pageNumber <= Math.Min(Model.TotalPages, Model.Page + 2);
+                  pageNumber++)
+            {
+                <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+                    <a class="page-link" href="@PageUrl(pageNumber)">@pageNumber</a>
+                </li>
+            }
+            <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                <a class="page-link" href="@(Model.HasNext ? PageUrl(Model.Page + 1) : "#")">Sau</a>
+            </li>
+        </ul>
+    </nav>
+}

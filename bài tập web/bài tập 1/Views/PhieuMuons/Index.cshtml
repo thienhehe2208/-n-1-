@@ -16,7 +16,8 @@
             <span class="loan-admin-kicker"><i class="bi bi-journal-text"></i> NGHIỆP VỤ MƯỢN TRẢ</span>
             <h2>Quản lý phiếu mượn</h2>
             <p>Theo dõi thời hạn, tình trạng và toàn bộ giao dịch mượn sách.</p>
-        </div>
+</div>
+
         <a asp-action="Create" class="loan-admin-create">
             <i class="bi bi-journal-plus"></i><span>Tạo phiếu mượn</span>
         </a>
@@ -148,3 +149,8 @@
         }
     </section>
 </section>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

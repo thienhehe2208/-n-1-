@@ -1,0 +1,54 @@
+@model IEnumerable<bài_tập_1.Models.PhanHoi>
+
+@{
+    ViewData["Title"] = "Phản hồi bạn đọc";
+    var search = ViewData["Search"]?.ToString();
+    var status = ViewData["Status"]?.ToString();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Phản hồi bạn đọc</h1>
+        <p class="text-muted mb-0">Có @ViewData["Moi"] phản hồi mới cần xử lý.</p>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input class="form-control" name="q" value="@search" placeholder="Tìm theo tên, email hoặc nội dung..." />
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" name="trangThai">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Mới" selected="@(status == "Mới")">Mới</option>
+            <option value="Đang xử lý" selected="@(status == "Đang xử lý")">Đang xử lý</option>
+            <option value="Đã xử lý" selected="@(status == "Đã xử lý")">Đã xử lý</option>
+        </select>
+    </div>
+    <div class="col-md-3"><button class="btn btn-primary w-100" type="submit">Lọc phản hồi</button></div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Người gửi</th><th>Nội dung</th><th>Ngày gửi</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.HoTen</strong><br /><small>@item.Email</small></td>
+                        <td>@(item.NoiDung.Length > 100 ? item.NoiDung[..100] + "…" : item.NoiDung)</td>
+                        <td>@item.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><span class="badge bg-secondary">@item.TrangThai</span></td>
+                        <td><a asp-action="Details" asp-route-id="@item.MaPhanHoi" class="btn btn-sm btn-outline-primary">Xem</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

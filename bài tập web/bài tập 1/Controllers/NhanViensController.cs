@@ -22,11 +22,16 @@ namespace bài_tập_1.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var nhanViens = await _context.NhanVien
+            var query = _context.NhanVien
                 .Include(n => n.User)
-                .AsNoTracking()
+                .AsNoTracking();
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            var nhanViens = await query.OrderBy(n => n.HoTen)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
                 .ToListAsync();
 
             return View(nhanViens);

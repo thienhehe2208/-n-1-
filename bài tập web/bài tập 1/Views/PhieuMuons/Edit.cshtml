@@ -1,54 +1,52 @@
-﻿@model bài_tập_1.Models.PhieuMuon
+﻿@model bài_tập_1.Models.ViewModels.CapNhatHanTraViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Cập nhật hạn trả";
 }
 
-<h1>Edit</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">
+            Cập nhật hạn trả phiếu #PM@Model.MaPhieuMuon.ToString("D4")
+        </h2>
 
-<h4>PhieuMuon</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaPhieuMuon" />
-            <div class="form-group">
-                <label asp-for="MaDocGia" class="control-label"></label>
-                <select asp-for="MaDocGia" class="form-control" asp-items="ViewBag.MaDocGia"></select>
-                <span asp-validation-for="MaDocGia" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaNhanVien" class="control-label"></label>
-                <select asp-for="MaNhanVien" class="form-control" asp-items="ViewBag.MaNhanVien"></select>
-                <span asp-validation-for="MaNhanVien" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayMuon" class="control-label"></label>
-                <input asp-for="NgayMuon" class="form-control" />
-                <span asp-validation-for="NgayMuon" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayHenTra" class="control-label"></label>
+        <dl class="row">
+            <dt class="col-sm-3">Độc giả</dt>
+            <dd class="col-sm-9">@Model.HoTenDocGia</dd>
+
+            <dt class="col-sm-3">Ngày mượn</dt>
+            <dd class="col-sm-9">@Model.NgayMuon.ToString("dd/MM/yyyy")</dd>
+        </dl>
+
+        <form asp-action="Edit"
+              asp-route-id="@Model.MaPhieuMuon"
+              method="post">
+            <input asp-for="MaPhieuMuon" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="NgayHenTra" class="form-label"></label>
                 <input asp-for="NgayHenTra" class="form-control" />
-                <span asp-validation-for="NgayHenTra" class="text-danger"></span>
+                <span asp-validation-for="NgayHenTra"
+                      class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <select asp-for="TrangThai" class="form-control"></select>
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Lưu hạn trả
+            </button>
+            <a asp-action="Details"
+                   asp-route-id="@Model.MaPhieuMuon"
+                   class="btn btn-outline-secondary">
+                Hủy
+            </a>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

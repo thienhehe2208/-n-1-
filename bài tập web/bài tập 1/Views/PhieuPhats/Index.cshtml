@@ -1,59 +1,169 @@
 ﻿@model IEnumerable<bài_tập_1.Models.PhieuPhat>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý phiếu phạt";
+    var keyword = ViewData["Search"]?.ToString();
+    var status = ViewData["Status"]?.ToString() ?? "";
+    var total = (int?)ViewData["TongPhieuPhat"] ?? 0;
+    var unpaid = (int?)ViewData["ChuaDong"] ?? 0;
+    var paid = (int?)ViewData["DaDong"] ?? 0;
+    var debt = (decimal?)ViewData["TongNo"] ?? 0;
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>Quản lý phiếu phạt</h2>
+        <p class="text-muted mb-0">
+            Theo dõi các khoản phạt trả trễ, hư hỏng và mất sách.
+        </p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        Lập phiếu phạt
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ChiTietPhieuMuon)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoTien)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LyDo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayLap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ChiTietPhieuMuon.MaChiTiet)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoTien)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LyDo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayLap)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaPhieuPhat">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaPhieuPhat">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaPhieuPhat">Delete</a>
-            </td>
-        </tr>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card card-body">
+            <small>Tổng phiếu</small>
+            <strong class="fs-4">@total</strong>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-body">
+            <small>Chưa đóng</small>
+            <strong class="fs-4 text-danger">@unpaid</strong>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-body">
+            <small>Đã đóng</small>
+            <strong class="fs-4 text-success">@paid</strong>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-body">
+            <small>Tổng tiền chưa thu</small>
+            <strong class="fs-4">@debt.ToString("N0") đ</strong>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 mb-3">
+            <div class="col-md-7">
+                <input type="search"
+                       name="q"
+                       value="@keyword"
+                       class="form-control"
+                       placeholder="Tên độc giả, sách, mã vạch hoặc mã phiếu..." />
+            </div>
+            <div class="col-md-3">
+                <select name="trangThai" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="unpaid"
+                            selected="@(status == "unpaid" ? "selected" : null)">Chưa đóng</option>
+                    <option value="paid"
+                            selected="@(status == "paid" ? "selected" : null)">Đã đóng</option>
+                    <option value="cancelled"
+                            selected="@(status == "cancelled" ? "selected" : null)">Đã hủy</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Lọc
+                </button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Mã phiếu</th>
+                        <th>Độc giả</th>
+                        <th>Sách</th>
+                        <th>Lý do</th>
+                        <th>Số tiền</th>
+                        <th>Ngày lập</th>
+                        <th>Trạng thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var reason = item.LyDo switch
+                        {
+                            LyDoPhat.TraTre => "Trả trễ",
+                            LyDoPhat.HuHong => "Hư hỏng",
+                            LyDoPhat.MatSach => "Mất sách",
+                            _ => item.LyDo.ToString()
+                        };
+                        var statusText = item.TrangThai switch
+                        {
+                            TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
+                            TrangThaiPhieuPhat.DaDong => "Đã đóng",
+                            TrangThaiPhieuPhat.DaHuy => "Đã hủy",
+                            _ => item.TrangThai.ToString()
+                        };
+                        var badge = item.TrangThai switch
+                        {
+                            TrangThaiPhieuPhat.ChuaDong => "bg-danger",
+                            TrangThaiPhieuPhat.DaDong => "bg-success",
+                            _ => "bg-secondary"
+                        };
+
+                        <tr>
+                            <td>#PP@item.MaPhieuPhat.ToString("D4")</td>
+                            <td>
+                                @item.ChiTietPhieuMuon.PhieuMuon.DocGia.HoTen
+                            </td>
+                            <td>
+                                @item.ChiTietPhieuMuon.BanSao.Sach.TenSach
+                                <small class="d-block text-muted">
+                                    @item.ChiTietPhieuMuon.BanSao.MaVach
+                                </small>
+                            </td>
+                            <td>@reason</td>
+                            <td>@item.SoTien.ToString("N0") đ</td>
+                            <td>@item.NgayLap.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="badge @badge">@statusText</span>
+                            </td>
+                            <td>
+                                <a asp-action="Details"
+                                       asp-route-id="@item.MaPhieuPhat"
+                                       class="btn btn-sm btn-outline-secondary">
+                                    Chi tiết
+                                </a>
+                                @if (item.TrangThai ==
+                                                                    TrangThaiPhieuPhat.ChuaDong)
+                                {
+                                    <a asp-action="Edit"
+                                           asp-route-id="@item.MaPhieuPhat"
+                                           class="btn btn-sm btn-outline-primary">
+                                        Sửa
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <p class="text-muted text-center mb-0">
+                Không có phiếu phạt phù hợp.
+            </p>
+        }
+    </div>
+</div>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
 }
-    </tbody>
-</table>

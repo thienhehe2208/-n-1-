@@ -1,51 +1,66 @@
-﻿@model bài_tập_1.Models.ChiTietPhieuMuon
+﻿@model bài_tập_1.Models.ViewModels.ThemSachVaoPhieuViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm sách vào phiếu";
 }
 
-<h1>Create</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">Thêm sách vào phiếu mượn</h2>
+        <p class="text-muted">
+            Danh sách chỉ hiển thị phiếu còn hiệu lực và bản sao đang sẵn có.
+        </p>
 
-<h4>ChiTietPhieuMuon</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaPhieuMuon" class="control-label"></label>
-                <select asp-for="MaPhieuMuon" class ="form-control" asp-items="ViewBag.MaPhieuMuon"></select>
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="MaPhieuMuon" class="form-label"></label>
+                <select asp-for="MaPhieuMuon"
+                        asp-items="ViewBag.MaPhieuMuon"
+                        class="form-select">
+                    <option value="">-- Chọn phiếu mượn --</option>
+                </select>
+                <span asp-validation-for="MaPhieuMuon"
+                      class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="MaBanSao" class="control-label"></label>
-                <select asp-for="MaBanSao" class ="form-control" asp-items="ViewBag.MaBanSao"></select>
+
+            <div class="mb-3">
+                <label asp-for="MaBanSao" class="form-label"></label>
+                <select asp-for="MaBanSao"
+                        asp-items="ViewBag.MaBanSao"
+                        class="form-select">
+                    <option value="">-- Chọn sách và mã vạch --</option>
+                </select>
+                <span asp-validation-for="MaBanSao"
+                      class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="NgayTra" class="control-label"></label>
-                <input asp-for="NgayTra" class="form-control" />
-                <span asp-validation-for="NgayTra" class="text-danger"></span>
+
+            <div class="mb-3">
+                <label asp-for="GhiChu" class="form-label"></label>
+                <textarea asp-for="GhiChu"
+                          class="form-control"
+                          rows="3"></textarea>
+                <span asp-validation-for="GhiChu"
+                      class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TinhTrangKhiTra" class="control-label"></label>
-                <input asp-for="TinhTrangKhiTra" class="form-control" />
-                <span asp-validation-for="TinhTrangKhiTra" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GhiChu" class="control-label"></label>
-                <input asp-for="GhiChu" class="form-control" />
-                <span asp-validation-for="GhiChu" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Thêm sách
+            </button>
+            <a asp-controller="PhieuMuons"
+                   asp-action="Details"
+                   asp-route-id="@Model.MaPhieuMuon"
+                   class="btn btn-outline-secondary">
+                Quay lại phiếu
+            </a>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

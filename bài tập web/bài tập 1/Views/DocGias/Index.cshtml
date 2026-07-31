@@ -16,7 +16,8 @@
             <span class="reader-admin-kicker"><i class="bi bi-people-fill"></i> QUẢN LÝ BẠN ĐỌC</span>
             <h2>Danh sách độc giả</h2>
             <p>Quản lý hồ sơ, trạng thái tài khoản và thời hạn thẻ thư viện.</p>
-        </div>
+</div>
+
         <a asp-action="Create" class="reader-admin-create">
             <i class="bi bi-person-plus"></i><span>Thêm độc giả</span>
         </a>
@@ -152,3 +153,8 @@
         }
     </section>
 </section>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

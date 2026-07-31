@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
 using bài_tập_1.Models;
+using bài_tập_1.Models.ViewModels;
 
 namespace bài_tập_1.Controllers
 {
@@ -21,12 +22,16 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách thể loại - ai cũng xem được
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _context.TheLoai
+            var query = _context.TheLoai
                 .Include(t => t.DanhSachSach)
-                .AsNoTracking()
-                .OrderBy(t => t.TenTheLoai)
+                .AsNoTracking();
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            return View(await query.OrderBy(t => t.TenTheLoai)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
                 .ToListAsync());
         }
 

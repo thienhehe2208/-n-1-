@@ -40,7 +40,7 @@ namespace bài_tập_1.Models.ViewModels
         public DateTime NgayVaoLam { get; set; } = DateTime.Today;
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu.")]
-        [StringLength(100, MinimumLength = 6,
+        [StringLength(100, MinimumLength = 8,
             ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự.")]
         [DataType(DataType.Password)]
         [Display(Name = "Mật khẩu")]

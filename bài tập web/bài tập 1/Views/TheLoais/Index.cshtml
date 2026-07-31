@@ -106,3 +106,8 @@
         </div>
     }
 </section>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

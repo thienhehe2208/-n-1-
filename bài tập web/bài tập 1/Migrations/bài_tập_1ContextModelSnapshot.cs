@@ -83,7 +83,10 @@ namespace bài_tập_1.Migrations
 
                     b.HasKey("MaChiTiet");
 
-                    b.HasIndex("MaBanSao");
+                    b.HasIndex("MaBanSao")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ChiTietPhieuMuon_MaBanSao_DangMuon")
+                        .HasFilter("[NgayTra] IS NULL");
 
                     b.HasIndex("MaPhieuMuon");
 
@@ -98,6 +101,12 @@ namespace bài_tập_1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaDatTruoc"), 1L, 1);
 
+                    b.Property<DateTime?>("HanNhanSach")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("MaBanSaoDuocGiu")
+                        .HasColumnType("int");
+
                     b.Property<int>("MaDocGia")
                         .HasColumnType("int");
 
@@ -110,10 +119,18 @@ namespace bài_tập_1.Migrations
                     b.Property<DateTime?>("NgayHetHanDat")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("NgaySanSang")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("TrangThai")
                         .HasColumnType("int");
 
                     b.HasKey("MaDatTruoc");
+
+                    b.HasIndex("MaBanSaoDuocGiu")
+                        .IsUnique()
+                        .HasDatabaseName("UX_DatTruoc_BanSaoDangGiu")
+                        .HasFilter("[MaBanSaoDuocGiu] IS NOT NULL AND [TrangThai] = 1");
 
                     b.HasIndex("MaDocGia");
 
@@ -322,11 +339,17 @@ namespace bài_tập_1.Migrations
                     b.Property<int>("MaNhanVien")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("NgayGiaHanGanNhat")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("NgayHenTra")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("NgayMuon")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("SoLanGiaHan")
+                        .HasColumnType("int");
 
                     b.Property<int>("TrangThai")
                         .HasColumnType("int");
@@ -501,6 +524,56 @@ namespace bài_tập_1.Migrations
                     b.HasKey("MaTheLoai");
 
                     b.ToTable("TheLoai");
+                });
+
+            modelBuilder.Entity("bài_tập_1.Models.ThongBao", b =>
+                {
+                    b.Property<int>("MaThongBao")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaThongBao"), 1L, 1);
+
+                    b.Property<bool>("DaDoc")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LienKet")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Loai")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("MaDocGia")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MaSuKien")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("NgayTao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NoiDung")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("TieuDe")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("MaThongBao");
+
+                    b.HasIndex("MaDocGia", "MaSuKien")
+                        .IsUnique();
+
+                    b.ToTable("ThongBao");
                 });
 
             modelBuilder.Entity("bài_tập_1.Models.YeuThich", b =>
@@ -760,6 +833,11 @@ namespace bài_tập_1.Migrations
 
             modelBuilder.Entity("bài_tập_1.Models.DatTruoc", b =>
                 {
+                    b.HasOne("bài_tập_1.Models.BanSao", "BanSaoDuocGiu")
+                        .WithMany("DatTruocsDuocGiu")
+                        .HasForeignKey("MaBanSaoDuocGiu")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("bài_tập_1.Models.DocGia", "DocGia")
                         .WithMany("DatTruocs")
                         .HasForeignKey("MaDocGia")
@@ -771,6 +849,8 @@ namespace bài_tập_1.Migrations
                         .HasForeignKey("MaSach")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BanSaoDuocGiu");
 
                     b.Navigation("DocGia");
 
@@ -867,6 +947,17 @@ namespace bài_tập_1.Migrations
                     b.Navigation("TacGia");
                 });
 
+            modelBuilder.Entity("bài_tập_1.Models.ThongBao", b =>
+                {
+                    b.HasOne("bài_tập_1.Models.DocGia", "DocGia")
+                        .WithMany()
+                        .HasForeignKey("MaDocGia")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DocGia");
+                });
+
             modelBuilder.Entity("bài_tập_1.Models.YeuThich", b =>
                 {
                     b.HasOne("bài_tập_1.Models.DocGia", "DocGia")
@@ -940,6 +1031,8 @@ namespace bài_tập_1.Migrations
             modelBuilder.Entity("bài_tập_1.Models.BanSao", b =>
                 {
                     b.Navigation("ChiTietPhieuMuons");
+
+                    b.Navigation("DatTruocsDuocGiu");
                 });
 
             modelBuilder.Entity("bài_tập_1.Models.ChiTietPhieuMuon", b =>

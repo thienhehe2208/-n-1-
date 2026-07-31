@@ -1,48 +1,87 @@
 ﻿@model bài_tập_1.Models.PhieuPhat
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết phiếu phạt";
+    var reason = Model.LyDo switch
+    {
+        LyDoPhat.TraTre => "Trả sách trễ hạn",
+        LyDoPhat.HuHong => "Làm hư hỏng sách",
+        LyDoPhat.MatSach => "Làm mất sách",
+        _ => Model.LyDo.ToString()
+    };
+    var status = Model.TrangThai switch
+    {
+        TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
+        TrangThaiPhieuPhat.DaDong => "Đã đóng",
+        TrangThaiPhieuPhat.DaHuy => "Đã hủy",
+        _ => Model.TrangThai.ToString()
+    };
 }
 
-<h1>Details</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h2>Phiếu phạt #PP@Model.MaPhieuPhat.ToString("D4")</h2>
+                <p class="text-muted">@status</p>
+            </div>
+            <strong class="fs-3 text-danger">
+                @Model.SoTien.ToString("N0") đ
+            </strong>
+        </div>
 
-<div>
-    <h4>PhieuPhat</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ChiTietPhieuMuon)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ChiTietPhieuMuon.MaChiTiet)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoTien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoTien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LyDo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LyDo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayLap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayLap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaPhieuPhat">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <dl class="row">
+            <dt class="col-sm-3">Độc giả</dt>
+            <dd class="col-sm-9">
+                @Model.ChiTietPhieuMuon.PhieuMuon.DocGia.HoTen
+            </dd>
+
+            <dt class="col-sm-3">Sách</dt>
+            <dd class="col-sm-9">
+                @Model.ChiTietPhieuMuon.BanSao.Sach.TenSach
+                (@Model.ChiTietPhieuMuon.BanSao.MaVach)
+            </dd>
+
+            <dt class="col-sm-3">Lý do</dt>
+            <dd class="col-sm-9">@reason</dd>
+
+            <dt class="col-sm-3">Ngày lập</dt>
+            <dd class="col-sm-9">
+                @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
+            </dd>
+        </dl>
+
+        @if (Model.TrangThai == TrangThaiPhieuPhat.ChuaDong)
+        {
+            <div class="d-flex gap-2">
+                <form asp-action="ThanhToan"
+                      asp-route-id="@Model.MaPhieuPhat"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">
+                        Xác nhận đã thanh toán
+                    </button>
+                </form>
+
+                <a asp-action="Edit"
+                       asp-route-id="@Model.MaPhieuPhat"
+                       class="btn btn-outline-primary">
+                    Sửa
+                </a>
+
+                <form asp-action="Huy"
+                      asp-route-id="@Model.MaPhieuPhat"
+                      method="post"
+                      onsubmit="return confirm('Bạn có chắc muốn hủy phiếu phạt?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger">
+                        Hủy phiếu
+                    </button>
+                </form>
+            </div>
+        }
+
+        <a asp-action="Index"
+           class="btn btn-link mt-3">Quay lại danh sách</a>
+    </div>
 </div>

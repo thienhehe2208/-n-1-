@@ -21,7 +21,7 @@ namespace bài_tập_1.Models.ViewModels
         public string SoDienThoai { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
@@ -30,5 +30,10 @@ namespace bài_tập_1.Models.ViewModels
         [Display(Name = "Xác nhận mật khẩu")]
         [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Range(typeof(bool), "true", "true",
+            ErrorMessage = "Bạn cần đồng ý với điều khoản sử dụng và chính sách bảo mật")]
+        [Display(Name = "Đồng ý điều khoản")]
+        public bool AcceptTerms { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
 using bài_tập_1.Models;
+using bài_tập_1.Models.ViewModels;
 
 namespace bài_tập_1.Controllers
 {
@@ -21,11 +22,15 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách NXB - ai cũng xem được
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return _context.NhaXuatBan != null ?
-                        View(await _context.NhaXuatBan.ToListAsync()) :
-                        Problem("Entity set 'bài_tập_1Context.NhaXuatBan'  is null.");
+            var query = _context.NhaXuatBan.AsNoTracking();
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            return View(await query.OrderBy(n => n.TenNXB)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync());
         }
 
         // Xem chi tiết 1 NXB - ai cũng xem được

@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Data;
+using bài_tập_1.Data;
+using bài_tập_1.Models;
+using bài_tập_1.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using bài_tập_1.Data;
-using bài_tập_1.Models;
 
 namespace bài_tập_1.Controllers
 {
-    // Lập/quản lý phiếu phạt do nhân viên xử lý khi độc giả trả trễ/mất/hỏng sách
     [Authorize(Roles = "Admin,NhanVien")]
     public class PhieuPhatsController : Controller
     {
@@ -22,146 +19,533 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        // Danh sách phiếu phạt
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? q,
+            string? trangThai,
+            int page = 1)
         {
-            var bài_tập_1Context = _context.PhieuPhat.Include(p => p.ChiTietPhieuMuon);
-            return View(await bài_tập_1Context.ToListAsync());
+            var query = _context.PhieuPhat
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.BanSao)
+                        .ThenInclude(b => b.Sach)
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.PhieuMuon)
+                        .ThenInclude(pm => pm.DocGia)
+                .AsNoTracking()
+                .AsQueryable();
+
+            ViewData["TongPhieuPhat"] = await query.CountAsync();
+            ViewData["ChuaDong"] = await query.CountAsync(p =>
+                p.TrangThai == TrangThaiPhieuPhat.ChuaDong);
+            ViewData["DaDong"] = await query.CountAsync(p =>
+                p.TrangThai == TrangThaiPhieuPhat.DaDong);
+            ViewData["TongNo"] = await query
+                .Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.ChuaDong)
+                .SumAsync(p => (decimal?)p.SoTien) ?? 0;
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var keyword = q.Trim();
+                var isId = int.TryParse(
+                    keyword.TrimStart('#'),
+                    out var id);
+
+                query = query.Where(p =>
+                    p.ChiTietPhieuMuon.PhieuMuon.DocGia.HoTen
+                        .Contains(keyword) ||
+                    p.ChiTietPhieuMuon.BanSao.Sach.TenSach
+                        .Contains(keyword) ||
+                    p.ChiTietPhieuMuon.BanSao.MaVach
+                        .Contains(keyword) ||
+                    (isId && p.MaPhieuPhat == id));
+            }
+
+            query = trangThai switch
+            {
+                "unpaid" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.ChuaDong),
+                "paid" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.DaDong),
+                "cancelled" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.DaHuy),
+                _ => query
+            };
+
+            ViewData["Search"] = q;
+            ViewData["Status"] = trangThai;
+
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            return View(await query
+                .OrderBy(p =>
+                    p.TrangThai != TrangThaiPhieuPhat.ChuaDong)
+                .ThenByDescending(p => p.NgayLap)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync());
         }
 
-        // Xem chi tiết 1 phiếu phạt
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.PhieuPhat == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
 
-            var phieuPhat = await _context.PhieuPhat
-                .Include(p => p.ChiTietPhieuMuon)
-                .FirstOrDefaultAsync(m => m.MaPhieuPhat == id);
-            if (phieuPhat == null)
-            {
-                return NotFound();
-            }
-
-            return View(phieuPhat);
+            var phieuPhat = await LoadPhieuPhatAsync(id.Value);
+            return phieuPhat == null
+                ? NotFound()
+                : View(phieuPhat);
         }
 
-        // Hiển thị form lập phiếu phạt
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? maChiTiet)
         {
-            ViewData["MaChiTiet"] = new SelectList(_context.ChiTietPhieuMuon, "MaChiTiet", "MaChiTiet");
-            return View();
+            await LoadEligibleDetailsAsync(maChiTiet);
+
+            if (!maChiTiet.HasValue)
+                return View(new PhieuPhatFormViewModel());
+
+            var chiTiet = await LoadChiTietAsync(maChiTiet.Value);
+            if (chiTiet == null)
+                return NotFound();
+
+            var reasons = GetApplicableReasons(chiTiet);
+            if (chiTiet.PhieuPhat != null || reasons.Count == 0)
+            {
+                TempData["Error"] =
+                    "Lượt mượn này không đủ điều kiện lập phiếu phạt " +
+                    "hoặc đã có phiếu phạt.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var model = new PhieuPhatFormViewModel
+            {
+                MaChiTiet = chiTiet.MaChiTiet,
+                LyDo = reasons[0]
+            };
+            CopyDisplayData(model, chiTiet);
+            LoadReasonOptions(reasons, model.LyDo);
+
+            return View(model);
         }
 
-        // Xử lý lưu phiếu phạt mới
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaPhieuPhat,MaChiTiet,SoTien,LyDo,NgayLap,TrangThai")] PhieuPhat phieuPhat)
+        public async Task<IActionResult> Create(
+            PhieuPhatFormViewModel model)
         {
-            if (ModelState.IsValid)
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable);
+
+            var chiTiet = await LoadChiTietForUpdateAsync(
+                model.MaChiTiet);
+
+            ValidateFineRequest(model, chiTiet);
+
+            if (!ModelState.IsValid)
             {
-                _context.Add(phieuPhat);
+                await transaction.RollbackAsync();
+                await PrepareInvalidModelAsync(model, chiTiet);
+                return View(model);
+            }
+
+            _context.PhieuPhat.Add(new PhieuPhat
+            {
+                MaChiTiet = chiTiet!.MaChiTiet,
+                SoTien = model.SoTien,
+                LyDo = model.LyDo!.Value,
+                NgayLap = DateTime.Now,
+                TrangThai = TrangThaiPhieuPhat.ChuaDong
+            });
+
+            try
+            {
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                await transaction.CommitAsync();
             }
-            ViewData["MaChiTiet"] = new SelectList(_context.ChiTietPhieuMuon, "MaChiTiet", "MaChiTiet", phieuPhat.MaChiTiet);
-            return View(phieuPhat);
-        }
-
-        // Hiển thị form sửa phiếu phạt
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.PhieuPhat == null)
+            catch (DbUpdateException)
             {
-                return NotFound();
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Không thể lập phiếu phạt. " +
+                    "Lượt mượn này có thể đã được lập phiếu phạt.");
+                await PrepareInvalidModelAsync(model, chiTiet);
+                return View(model);
             }
 
-            var phieuPhat = await _context.PhieuPhat.FindAsync(id);
-            if (phieuPhat == null)
-            {
-                return NotFound();
-            }
-            ViewData["MaChiTiet"] = new SelectList(_context.ChiTietPhieuMuon, "MaChiTiet", "MaChiTiet", phieuPhat.MaChiTiet);
-            return View(phieuPhat);
-        }
-
-        // Xử lý cập nhật phiếu phạt
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaPhieuPhat,MaChiTiet,SoTien,LyDo,NgayLap,TrangThai")] PhieuPhat phieuPhat)
-        {
-            if (id != phieuPhat.MaPhieuPhat)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(phieuPhat);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PhieuPhatExists(phieuPhat.MaPhieuPhat))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["MaChiTiet"] = new SelectList(_context.ChiTietPhieuMuon, "MaChiTiet", "MaChiTiet", phieuPhat.MaChiTiet);
-            return View(phieuPhat);
-        }
-
-        // Hiển thị xác nhận xóa phiếu phạt
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.PhieuPhat == null)
-            {
-                return NotFound();
-            }
-
-            var phieuPhat = await _context.PhieuPhat
-                .Include(p => p.ChiTietPhieuMuon)
-                .FirstOrDefaultAsync(m => m.MaPhieuPhat == id);
-            if (phieuPhat == null)
-            {
-                return NotFound();
-            }
-
-            return View(phieuPhat);
-        }
-
-        // Xử lý xóa phiếu phạt
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.PhieuPhat == null)
-            {
-                return Problem("Entity set 'bài_tập_1Context.PhieuPhat'  is null.");
-            }
-            var phieuPhat = await _context.PhieuPhat.FindAsync(id);
-            if (phieuPhat != null)
-            {
-                _context.PhieuPhat.Remove(phieuPhat);
-            }
-
-            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã lập phiếu phạt.";
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PhieuPhatExists(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            return (_context.PhieuPhat?.Any(e => e.MaPhieuPhat == id)).GetValueOrDefault();
+            if (id == null)
+                return NotFound();
+
+            var phieuPhat = await LoadPhieuPhatAsync(id.Value);
+            if (phieuPhat == null)
+                return NotFound();
+
+            if (phieuPhat.TrangThai !=
+                TrangThaiPhieuPhat.ChuaDong)
+            {
+                TempData["Error"] =
+                    "Chỉ phiếu chưa đóng mới được chỉnh sửa.";
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id });
+            }
+
+            var reasons = GetApplicableReasons(
+                phieuPhat.ChiTietPhieuMuon);
+            var model = new PhieuPhatFormViewModel
+            {
+                MaPhieuPhat = phieuPhat.MaPhieuPhat,
+                MaChiTiet = phieuPhat.MaChiTiet,
+                SoTien = phieuPhat.SoTien,
+                LyDo = phieuPhat.LyDo
+            };
+
+            CopyDisplayData(model, phieuPhat.ChiTietPhieuMuon);
+            LoadReasonOptions(reasons, model.LyDo);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            PhieuPhatFormViewModel model)
+        {
+            if (id != model.MaPhieuPhat)
+                return NotFound();
+
+            var phieuPhat = await _context.PhieuPhat
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.BanSao)
+                        .ThenInclude(b => b.Sach)
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.PhieuMuon)
+                        .ThenInclude(pm => pm.DocGia)
+                .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
+
+            if (phieuPhat == null)
+                return NotFound();
+
+            if (phieuPhat.TrangThai !=
+                TrangThaiPhieuPhat.ChuaDong)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Chỉ phiếu chưa đóng mới được chỉnh sửa.");
+            }
+
+            if (model.MaChiTiet != phieuPhat.MaChiTiet)
+                return BadRequest();
+
+            var reasons = GetApplicableReasons(
+                phieuPhat.ChiTietPhieuMuon);
+            if (!model.LyDo.HasValue ||
+                !reasons.Contains(model.LyDo.Value))
+            {
+                ModelState.AddModelError(
+                    nameof(model.LyDo),
+                    "Lý do phạt không phù hợp với lượt trả sách.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                CopyDisplayData(
+                    model,
+                    phieuPhat.ChiTietPhieuMuon);
+                LoadReasonOptions(reasons, model.LyDo);
+                return View(model);
+            }
+
+            phieuPhat.SoTien = model.SoTien;
+            phieuPhat.LyDo = model.LyDo!.Value;
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã cập nhật phiếu phạt.";
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = phieuPhat.MaPhieuPhat });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ThanhToan(int id)
+        {
+            var phieuPhat = await _context.PhieuPhat
+                .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
+
+            if (phieuPhat == null)
+                return NotFound();
+
+            if (phieuPhat.TrangThai !=
+                TrangThaiPhieuPhat.ChuaDong)
+            {
+                TempData["Error"] =
+                    "Phiếu phạt không ở trạng thái chưa đóng.";
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id });
+            }
+
+            phieuPhat.TrangThai = TrangThaiPhieuPhat.DaDong;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Đã xác nhận độc giả thanh toán phiếu phạt.";
+            return RedirectToAction(
+                nameof(Details),
+                new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Huy(int id)
+        {
+            var phieuPhat = await _context.PhieuPhat
+                .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
+
+            if (phieuPhat == null)
+                return NotFound();
+
+            if (phieuPhat.TrangThai !=
+                TrangThaiPhieuPhat.ChuaDong)
+            {
+                TempData["Error"] =
+                    "Chỉ phiếu chưa đóng mới có thể hủy.";
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id });
+            }
+
+            phieuPhat.TrangThai = TrangThaiPhieuPhat.DaHuy;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Đã hủy phiếu phạt. Lịch sử vẫn được giữ lại.";
+            return RedirectToAction(
+                nameof(Details),
+                new { id });
+        }
+
+        private async Task<PhieuPhat?> LoadPhieuPhatAsync(int id)
+        {
+            return await _context.PhieuPhat
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.BanSao)
+                        .ThenInclude(b => b.Sach)
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.PhieuMuon)
+                        .ThenInclude(pm => pm.DocGia)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
+        }
+
+        private async Task<ChiTietPhieuMuon?> LoadChiTietAsync(int id)
+        {
+            return await _context.ChiTietPhieuMuon
+                .Include(c => c.BanSao)
+                    .ThenInclude(b => b.Sach)
+                .Include(c => c.PhieuMuon)
+                    .ThenInclude(p => p.DocGia)
+                .Include(c => c.PhieuPhat)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.MaChiTiet == id);
+        }
+
+        private async Task<ChiTietPhieuMuon?>
+            LoadChiTietForUpdateAsync(int id)
+        {
+            return await _context.ChiTietPhieuMuon
+                .Include(c => c.BanSao)
+                    .ThenInclude(b => b.Sach)
+                .Include(c => c.PhieuMuon)
+                    .ThenInclude(p => p.DocGia)
+                .Include(c => c.PhieuPhat)
+                .FirstOrDefaultAsync(c => c.MaChiTiet == id);
+        }
+
+        private void ValidateFineRequest(
+            PhieuPhatFormViewModel model,
+            ChiTietPhieuMuon? chiTiet)
+        {
+            if (chiTiet == null)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaChiTiet),
+                    "Không tìm thấy lượt mượn.");
+                return;
+            }
+
+            if (!chiTiet.NgayTra.HasValue)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaChiTiet),
+                    "Chỉ được lập phiếu phạt sau khi trả sách.");
+            }
+
+            if (chiTiet.PhieuPhat != null)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaChiTiet),
+                    "Lượt mượn này đã có phiếu phạt.");
+            }
+
+            var reasons = GetApplicableReasons(chiTiet);
+            if (reasons.Count == 0)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaChiTiet),
+                    "Lượt mượn không bị trễ, hỏng hoặc mất.");
+            }
+            else if (!model.LyDo.HasValue ||
+                     !reasons.Contains(model.LyDo.Value))
+            {
+                ModelState.AddModelError(
+                    nameof(model.LyDo),
+                    "Lý do phạt không phù hợp với lượt trả sách.");
+            }
+        }
+
+        private async Task PrepareInvalidModelAsync(
+            PhieuPhatFormViewModel model,
+            ChiTietPhieuMuon? chiTiet)
+        {
+            if (chiTiet != null)
+            {
+                CopyDisplayData(model, chiTiet);
+                LoadReasonOptions(
+                    GetApplicableReasons(chiTiet),
+                    model.LyDo);
+            }
+            else
+            {
+                LoadReasonOptions(
+                    Array.Empty<LyDoPhat>(),
+                    model.LyDo);
+            }
+
+            await LoadEligibleDetailsAsync(model.MaChiTiet);
+        }
+
+        private async Task LoadEligibleDetailsAsync(
+            int? selectedId = null)
+        {
+            var items = await _context.ChiTietPhieuMuon
+                .Where(c =>
+                    c.NgayTra != null &&
+                    c.PhieuPhat == null &&
+                    (c.NgayTra > c.PhieuMuon.NgayHenTra ||
+                     c.TinhTrangKhiTra ==
+                        TinhTrangKhiTra.HuHong ||
+                     c.TinhTrangKhiTra ==
+                        TinhTrangKhiTra.Mat))
+                .Include(c => c.BanSao)
+                    .ThenInclude(b => b.Sach)
+                .Include(c => c.PhieuMuon)
+                    .ThenInclude(p => p.DocGia)
+                .OrderByDescending(c => c.NgayTra)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var options = items.Select(c => new
+            {
+                c.MaChiTiet,
+                MoTa = "#CT" + c.MaChiTiet +
+                       " - " + c.PhieuMuon.DocGia.HoTen +
+                       " - " + c.BanSao.Sach.TenSach
+            });
+
+            ViewData["MaChiTiet"] = new SelectList(
+                options,
+                "MaChiTiet",
+                "MoTa",
+                selectedId);
+        }
+
+        private static List<LyDoPhat> GetApplicableReasons(
+            ChiTietPhieuMuon chiTiet)
+        {
+            var reasons = new List<LyDoPhat>();
+
+            if (chiTiet.NgayTra.HasValue &&
+                chiTiet.NgayTra.Value.Date >
+                    chiTiet.PhieuMuon.NgayHenTra.Date)
+            {
+                reasons.Add(LyDoPhat.TraTre);
+            }
+
+            if (chiTiet.TinhTrangKhiTra ==
+                TinhTrangKhiTra.HuHong)
+            {
+                reasons.Add(LyDoPhat.HuHong);
+            }
+
+            if (chiTiet.TinhTrangKhiTra ==
+                TinhTrangKhiTra.Mat)
+            {
+                reasons.Add(LyDoPhat.MatSach);
+            }
+
+            return reasons;
+        }
+
+        private void LoadReasonOptions(
+            IEnumerable<LyDoPhat> reasons,
+            LyDoPhat? selected)
+        {
+            var options = reasons
+                .Distinct()
+                .Select(reason => new
+                {
+                    Value = (int)reason,
+                    Text = GetReasonText(reason)
+                })
+                .ToList();
+
+            ViewData["LyDo"] = new SelectList(
+                options,
+                "Value",
+                "Text",
+                selected.HasValue ? (int)selected.Value : null);
+        }
+
+        private static void CopyDisplayData(
+            PhieuPhatFormViewModel model,
+            ChiTietPhieuMuon chiTiet)
+        {
+            model.MaPhieuMuon = chiTiet.MaPhieuMuon;
+            model.HoTenDocGia =
+                chiTiet.PhieuMuon.DocGia.HoTen;
+            model.TenSach = chiTiet.BanSao.Sach.TenSach;
+            model.MaVach = chiTiet.BanSao.MaVach;
+            model.NgayHenTra = chiTiet.PhieuMuon.NgayHenTra;
+            model.NgayTra = chiTiet.NgayTra;
+            model.TinhTrangKhiTra =
+                chiTiet.TinhTrangKhiTra;
+            model.SoNgayTre = chiTiet.NgayTra.HasValue
+                ? Math.Max(
+                    0,
+                    (chiTiet.NgayTra.Value.Date -
+                     chiTiet.PhieuMuon.NgayHenTra.Date).Days)
+                : 0;
+        }
+
+        private static string GetReasonText(LyDoPhat reason)
+        {
+            return reason switch
+            {
+                LyDoPhat.TraTre => "Trả sách trễ hạn",
+                LyDoPhat.MatSach => "Làm mất sách",
+                LyDoPhat.HuHong => "Làm hư hỏng sách",
+                _ => reason.ToString()
+            };
         }
     }
 }

@@ -22,7 +22,7 @@ namespace bài_tập_1.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string? q, string? trangThai)
+        public async Task<IActionResult> Index(string? q, string? trangThai, int page = 1)
         {
             var baseQuery = _context.DocGia
                 .Include(d => d.User)
@@ -61,7 +61,12 @@ namespace bài_tập_1.Controllers
 
             ViewData["Search"] = q;
             ViewData["Status"] = trangThai;
-            return View(await baseQuery.OrderBy(d => d.HoTen).ToListAsync());
+            var pagination = Pagination.Create(page, await baseQuery.CountAsync());
+            ViewData["Pagination"] = pagination;
+            return View(await baseQuery.OrderBy(d => d.HoTen)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -108,7 +113,11 @@ namespace bài_tập_1.Controllers
                 UserName = email,
                 Email = email,
                 PhoneNumber = model.SoDienThoai.Trim(),
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                LockoutEnabled = true,
+                LockoutEnd = model.TrangThai == TrangThaiDocGia.Khoa
+                    ? DateTimeOffset.MaxValue
+                    : null
             };
 
             var createResult =
@@ -224,14 +233,26 @@ namespace bài_tập_1.Controllers
             var phoneResult = await _userManager.SetPhoneNumberAsync(
                 docGia.User,
                 model.SoDienThoai.Trim());
+            var lockoutEnabledResult = await _userManager.SetLockoutEnabledAsync(
+                docGia.User,
+                true);
+            var lockoutResult = await _userManager.SetLockoutEndDateAsync(
+                docGia.User,
+                model.TrangThai == TrangThaiDocGia.Khoa
+                    ? DateTimeOffset.MaxValue
+                    : null);
 
             if (!emailResult.Succeeded ||
                 !userNameResult.Succeeded ||
-                !phoneResult.Succeeded)
+                !phoneResult.Succeeded ||
+                !lockoutEnabledResult.Succeeded ||
+                !lockoutResult.Succeeded)
             {
                 AddIdentityErrors(emailResult);
                 AddIdentityErrors(userNameResult);
                 AddIdentityErrors(phoneResult);
+                AddIdentityErrors(lockoutEnabledResult);
+                AddIdentityErrors(lockoutResult);
                 await transaction.RollbackAsync();
                 return View(model);
             }

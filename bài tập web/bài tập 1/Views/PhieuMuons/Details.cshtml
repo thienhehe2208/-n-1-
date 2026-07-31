@@ -1,48 +1,141 @@
 ﻿@model bài_tập_1.Models.PhieuMuon
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết phiếu mượn";
+    var daTra = Model.TrangThai == TrangThaiPhieuMuon.DaTra;
+    var quaHan = !daTra && Model.NgayHenTra.Date < DateTime.Today;
 }
 
-<h1>Details</h1>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h2>Phiếu #PM@Model.MaPhieuMuon.ToString("D4")</h2>
+                <p class="text-muted mb-0">
+                    @(daTra ? "Đã hoàn trả" : quaHan ? "Đang quá hạn" : "Đang mượn")
+                </p>
+            </div>
+            <div>
+                @if (!daTra && !quaHan)
+                {
+                    <a asp-controller="ChiTietPhieuMuons"
+                           asp-action="Create"
+                           asp-route-maPhieuMuon="@Model.MaPhieuMuon"
+                           class="btn btn-primary">
+                        Thêm sách vào phiếu
+                    </a>
+                }
+                @if (!daTra)
+                {
+                    <a asp-action="Edit"
+                           asp-route-id="@Model.MaPhieuMuon"
+                           class="btn btn-outline-primary">
+                        Đổi hạn trả
+                    </a>
+                }
+                @if (!daTra && !quaHan && Model.ChiTietPhieuMuons.Any(c => !c.NgayTra.HasValue))
+                {
+                    <form asp-action="GiaHan" asp-route-id="@Model.MaPhieuMuon" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-success">
+                            Gia hạn (@Model.SoLanGiaHan/@bài_tập_1.Services.LibraryRules.SoLanGiaHanToiDa)
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
 
-<div>
-    <h4>PhieuMuon</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DocGia)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DocGia.HoTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NhanVien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NhanVien.HoTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayMuon)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayMuon)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayHenTra)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayHenTra)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-3">Độc giả</dt>
+            <dd class="col-sm-9">@Model.DocGia.HoTen</dd>
+
+            <dt class="col-sm-3">Nhân viên xử lý</dt>
+            <dd class="col-sm-9">@Model.NhanVien.HoTen</dd>
+
+            <dt class="col-sm-3">Ngày mượn</dt>
+            <dd class="col-sm-9">@Model.NgayMuon.ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-3">Ngày hẹn trả</dt>
+            <dd class="col-sm-9">@Model.NgayHenTra.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Số lần gia hạn</dt>
+            <dd class="col-sm-9">@Model.SoLanGiaHan/@bài_tập_1.Services.LibraryRules.SoLanGiaHanToiDa</dd>
+        </dl>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaPhieuMuon">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3 class="h5">Danh sách sách trong phiếu</h3>
+
+        @if (Model.ChiTietPhieuMuons.Count == 0)
+        {
+            <p class="text-muted mb-0">
+                Phiếu chưa có sách. Bạn có thể thêm sách hoặc xóa phiếu trống.
+            </p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Sách</th>
+                            <th>Mã vạch</th>
+                            <th>Ngày trả</th>
+                            <th>Tình trạng khi trả</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ChiTietPhieuMuons)
+                        {
+                            <tr>
+                                <td>@item.BanSao.Sach.TenSach</td>
+                                <td>@item.BanSao.MaVach</td>
+                                <td>
+                                    @(item.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")
+                                </td>
+                                <td>
+                                    @(item.TinhTrangKhiTra?.ToString() ?? "—")
+                                </td>
+                                <td>
+                                    @if (!item.NgayTra.HasValue)
+                                    {
+                                        <a asp-controller="ChiTietPhieuMuons"
+                                               asp-action="TraSach"
+                                               asp-route-id="@item.MaChiTiet"
+                                               class="btn btn-sm btn-success">
+                                            Trả sách
+                                        </a>
+                                    }
+                                    <a asp-controller="ChiTietPhieuMuons"
+                                           asp-action="Details"
+                                           asp-route-id="@item.MaChiTiet"
+                                           class="btn btn-sm btn-outline-secondary">
+                                        Chi tiết
+                                    </a>
+                                    @if (item.PhieuPhat != null)
+                                    {
+                                        <a asp-controller="PhieuPhats"
+                                               asp-action="Details"
+                                               asp-route-id="@item.PhieuPhat.MaPhieuPhat"
+                                               class="btn btn-sm btn-outline-danger">
+                                            Phiếu phạt
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Quay lại danh sách
+        </a>
+    </div>
 </div>

@@ -22,6 +22,10 @@ namespace bài_tập_1.Models
 
         public TrangThaiPhieuMuon TrangThai { get; set; } = TrangThaiPhieuMuon.DangMuon;
 
+        public int SoLanGiaHan { get; set; }
+
+        public DateTime? NgayGiaHanGanNhat { get; set; }
+
         // Navigation
         public ICollection<ChiTietPhieuMuon> ChiTietPhieuMuons { get; set; } = new List<ChiTietPhieuMuon>();
 

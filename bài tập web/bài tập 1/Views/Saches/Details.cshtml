@@ -123,17 +123,26 @@
                             @Model.GiaSach.ToString("N0") đ
                         </span>
 
-                        <a asp-controller="DatTruocs"
-                           asp-action="Create"
-                           asp-route-maSach="@Model.MaSach"
-                           class="btn btn-primary">
-                            <i class="bi bi-bookmark-check me-1"></i>
-                            Đặt trước
-                        </a>
+                        @if (soBanSanCo == 0)
+                        {
+                            <a asp-controller="DatTruocs"
+                                   asp-action="Create"
+                                   asp-route-maSach="@Model.MaSach"
+                                   class="btn btn-primary">
+                                <i class="bi bi-bookmark-check me-1"></i>
+                                Đặt trước
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-success">
+                                Sách đang sẵn có, vui lòng đến quầy để mượn.
+                            </span>
+                        }
 
                         <a asp-controller="Home"
-                           asp-action="Index"
-                           class="btn btn-outline-secondary">
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-1"></i>
                             Quay lại
                         </a>
@@ -141,9 +150,9 @@
                         @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
                         {
                             <a asp-controller="Saches"
-                               asp-action="Edit"
-                               asp-route-id="@Model.MaSach"
-                               class="btn btn-outline-warning">
+                                   asp-action="Edit"
+                                   asp-route-id="@Model.MaSach"
+                                   class="btn btn-outline-warning">
                                 <i class="bi bi-pencil me-1"></i>
                                 Sửa sách
                             </a>

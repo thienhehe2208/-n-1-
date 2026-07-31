@@ -17,6 +17,8 @@
         <article class="inventory-stat stat-ready"><i class="bi bi-check-circle"></i><div><span>Sẵn có</span><strong>@ViewData["SanCo"]</strong></div></article>
         <article class="inventory-stat stat-loan"><i class="bi bi-arrow-left-right"></i><div><span>Đang mượn</span><strong>@ViewData["DangMuon"]</strong></div></article>
         <article class="inventory-stat stat-damaged"><i class="bi bi-tools"></i><div><span>Hư hỏng</span><strong>@ViewData["HuHong"]</strong></div></article>
+        <article class="inventory-stat stat-damaged"><i class="bi bi-question-circle"></i><div><span>Bị mất</span><strong>@ViewData["Mat"]</strong></div></article>
+        <article class="inventory-stat stat-loan"><i class="bi bi-bookmark-check"></i><div><span>Đang giữ</span><strong>@ViewData["DaGiu"]</strong></div></article>
         <article class="inventory-stat stat-retired"><i class="bi bi-archive"></i><div><span>Thanh lý</span><strong>@ViewData["ThanhLy"]</strong></div></article>
     </section>
 
@@ -30,6 +32,8 @@
             <a class="@(currentStatus == "available" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="available">Sẵn có</a>
             <a class="@(currentStatus == "borrowed" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="borrowed">Đang mượn</a>
             <a class="@(currentStatus == "damaged" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="damaged">Hư hỏng</a>
+            <a class="@(currentStatus == "lost" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="lost">Bị mất</a>
+            <a class="@(currentStatus == "reserved" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="reserved">Đang giữ</a>
             <a class="@(currentStatus == "liquidated" ? "active" : "")" asp-action="Index" asp-route-q="@keyword" asp-route-tinhTrang="liquidated">Thanh lý</a>
         </nav>
         <div class="inventory-table-wrap">
@@ -38,8 +42,8 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        var statusClass = item.TinhTrang switch { TinhTrangBanSao.SanCo => "available", TinhTrangBanSao.DangMuon => "borrowed", TinhTrangBanSao.HuHong => "damaged", _ => "liquidated" };
-                        var statusText = item.TinhTrang switch { TinhTrangBanSao.SanCo => "Sẵn có", TinhTrangBanSao.DangMuon => "Đang mượn", TinhTrangBanSao.HuHong => "Hư hỏng", _ => "Đã thanh lý" };
+                        var statusClass = item.TinhTrang switch { TinhTrangBanSao.SanCo => "available", TinhTrangBanSao.DangMuon => "borrowed", TinhTrangBanSao.DaGiu => "borrowed", TinhTrangBanSao.HuHong => "damaged", TinhTrangBanSao.Mat => "damaged", _ => "liquidated" };
+                        var statusText = item.TinhTrang switch { TinhTrangBanSao.SanCo => "Sẵn có", TinhTrangBanSao.DangMuon => "Đang mượn", TinhTrangBanSao.DaGiu => "Đang giữ", TinhTrangBanSao.HuHong => "Hư hỏng", TinhTrangBanSao.Mat => "Bị mất", _ => "Đã thanh lý" };
                         <tr>
                             <td><span class="inventory-id">BS-@item.MaBanSao.ToString("D5")</span></td>
                             <td><div class="inventory-book"><span><i class="bi bi-book"></i></span><div><strong>@item.Sach?.TenSach</strong><small>Mã sách: #@item.MaSach</small></div></div></td>
@@ -58,3 +62,8 @@
         </div>
     </section>
 </div>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

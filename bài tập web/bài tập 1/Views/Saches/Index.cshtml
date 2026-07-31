@@ -18,7 +18,8 @@
             <div class="catalog-search-benefits" aria-label="Tiện ích tìm kiếm">
                 <span><i class="bi bi-lightning-charge-fill"></i> Tra cứu nhanh</span>
                 <span><i class="bi bi-check-circle-fill"></i> Kiểm tra sách có sẵn</span>
-            </div>
+</div>
+
         </div>
 
         <form asp-action="Index" method="get" class="catalog-search-form" role="search">
@@ -190,3 +191,8 @@
         </div>
     }
 </section>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

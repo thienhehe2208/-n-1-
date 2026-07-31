@@ -49,7 +49,7 @@
                         <span class="reservation-step">1</span>
                         <div>
                             <h2>Sách bạn đang đặt</h2>
-                            <p>Yêu cầu áp dụng cho bất kỳ bản sao sẵn có nào.</p>
+                            <p>Yêu cầu sẽ vào hàng đợi và được cấp bản sao theo thứ tự.</p>
                         </div>
                     </div>
 
@@ -179,7 +179,7 @@
                         </div>
                         <div>
                             <dt>Hiệu lực yêu cầu</dt>
-                            <dd>7 ngày</dd>
+                            <dd>30 ngày</dd>
                         </div>
                         <div>
                             <dt>Đang chờ trước bạn</dt>
@@ -197,9 +197,9 @@
                     </button>
 
                     <a asp-controller="Saches"
-                       asp-action="Details"
-                       asp-route-id="@Model.MaSach"
-                       class="reservation-cancel-link">
+                           asp-action="Details"
+                           asp-route-id="@Model.MaSach"
+                           class="reservation-cancel-link">
                         Quay lại chi tiết sách
                     </a>
 

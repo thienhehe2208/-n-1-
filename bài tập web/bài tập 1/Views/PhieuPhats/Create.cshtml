@@ -1,52 +1,81 @@
-﻿@model bài_tập_1.Models.PhieuPhat
+﻿@model bài_tập_1.Models.ViewModels.PhieuPhatFormViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Lập phiếu phạt";
 }
 
-<h1>Create</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2>Lập phiếu phạt</h2>
 
-<h4>PhieuPhat</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaChiTiet" class="control-label"></label>
-                <select asp-for="MaChiTiet" class ="form-control" asp-items="ViewBag.MaChiTiet"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoTien" class="control-label"></label>
-                <input asp-for="SoTien" class="form-control" />
-                <span asp-validation-for="SoTien" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LyDo" class="control-label"></label>
-                <select asp-for="LyDo" class="form-control"></select>
-                <span asp-validation-for="LyDo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayLap" class="control-label"></label>
-                <input asp-for="NgayLap" class="form-control" />
-                <span asp-validation-for="NgayLap" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <select asp-for="TrangThai" class="form-control"></select>
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        @if (Model.MaChiTiet <= 0)
+        {
+            <p class="text-muted">
+                Chọn một lượt đã trả trễ, hư hỏng hoặc mất sách.
+            </p>
+
+            <form asp-action="Create" method="get">
+                <div class="mb-3">
+                    <label asp-for="MaChiTiet" class="form-label"></label>
+                    <select asp-for="MaChiTiet"
+                            asp-items="ViewBag.MaChiTiet"
+                            class="form-select">
+                        <option value="">-- Chọn lượt mượn --</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    Tiếp tục
+                </button>
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">Quay lại</a>
+            </form>
+        }
+        else
+        {
+            <partial name="_PhieuPhatFormSummary" model="Model" />
+
+            <form asp-action="Create" method="post">
+                <input asp-for="MaChiTiet" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="LyDo" class="form-label"></label>
+                    <select asp-for="LyDo"
+                            asp-items="ViewBag.LyDo"
+                            class="form-select">
+                        <option value="">-- Chọn lý do --</option>
+                    </select>
+                    <span asp-validation-for="LyDo"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SoTien" class="form-label"></label>
+                    <div class="input-group">
+                        <input asp-for="SoTien" class="form-control" />
+                        <span class="input-group-text">đồng</span>
+                    </div>
+                    <span asp-validation-for="SoTien"
+                          class="text-danger"></span>
+                    <small class="text-muted">
+                        Nhập số tiền theo quy định phạt của thư viện.
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-danger">
+                    Lập phiếu phạt
+                </button>
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">Hủy</a>
+            </form>
+        }
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -5,7 +5,9 @@
         SanCo,      // Sẵn có, có thể cho mượn
         DangMuon,   // Đang được mượn
         HuHong,     // Hư hỏng
-        ThanhLy     // Đã thanh lý, không còn sử dụng
+        ThanhLy,    // Đã thanh lý, không còn sử dụng
+        Mat,        // Bị mất trong quá trình mượn
+        DaGiu       // Đang được giữ cho một yêu cầu đặt trước
     }
 
     public enum TrangThaiDocGia
@@ -33,7 +35,8 @@
         DangCho,        // Đang chờ sách về
         DaCoSach,       // Đã có sách, chờ độc giả đến lấy
         DaHuy,
-        HoanThanh
+        HoanThanh,
+        HetHan
     }
 
     public enum LyDoPhat
@@ -46,6 +49,7 @@
     public enum TrangThaiPhieuPhat
     {
         ChuaDong,
-        DaDong
+        DaDong,
+        DaHuy
     }
 }

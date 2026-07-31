@@ -1,59 +1,122 @@
-﻿@model IEnumerable<bài_tập_1.Models.DatTruoc>
+﻿@using bài_tập_1.Models
+@model IEnumerable<bài_tập_1.Models.DatTruoc>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý đặt trước";
 }
 
-<h1>Index</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1">Quản lý đặt trước</h1>
+            <p class="text-muted mb-0">Xử lý hàng đợi, giữ bản sao và xác nhận độc giả nhận sách.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">Tạo yêu cầu</a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DocGia)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayDat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayHetHanDat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DocGia.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sach.TenSach)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayDat)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayHetHanDat)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaDatTruoc">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaDatTruoc">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaDatTruoc">Delete</a>
-            </td>
-        </tr>
+    @if (TempData["DatTruocSuccess"] is string success)
+    {
+        <div class="alert alert-success">@success</div>
+    }
+    @if (TempData["DatTruocError"] is string error)
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-4"><div class="card card-body"><strong>@ViewData["DangCho"]</strong><span>Đang chờ</span></div></div>
+        <div class="col-md-4"><div class="card card-body"><strong>@ViewData["DaCoSach"]</strong><span>Đang giữ sách</span></div></div>
+        <div class="col-md-4"><div class="card card-body"><strong>@ViewData["HoanThanh"]</strong><span>Đã nhận sách</span></div></div>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-7">
+            <input name="q" value="@ViewData["Search"]" class="form-control"
+                   placeholder="Tên độc giả, tên sách hoặc mã vạch" />
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="waiting" selected="@(ViewData["Status"]?.ToString() == "waiting")">Đang chờ</option>
+                <option value="ready" selected="@(ViewData["Status"]?.ToString() == "ready")">Sẵn sàng nhận</option>
+                <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed")">Hoàn thành</option>
+                <option value="cancelled" selected="@(ViewData["Status"]?.ToString() == "cancelled")">Đã hủy/hết hạn</option>
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-outline-primary w-100">Lọc</button></div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Độc giả</th>
+                    <th>Sách</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Bản sao / thời hạn</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var statusText = item.TrangThai switch
+                    {
+                        TrangThaiDatTruoc.DangCho => "Đang chờ",
+                        TrangThaiDatTruoc.DaCoSach => "Sẵn sàng nhận",
+                        TrangThaiDatTruoc.HoanThanh => "Hoàn thành",
+                        TrangThaiDatTruoc.DaHuy => "Đã hủy",
+                        TrangThaiDatTruoc.HetHan => "Hết hạn",
+                        _ => item.TrangThai.ToString()
+                    };
+                    <tr>
+                        <td>@item.DocGia.HoTen</td>
+                        <td>@item.Sach.TenSach</td>
+                        <td>@item.NgayDat.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@statusText</td>
+                        <td>
+                            @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                            {
+                                <div>Mã vạch: <strong>@item.BanSaoDuocGiu?.MaVach</strong></div>
+                                <small class="text-danger">Nhận trước @item.HanNhanSach?.ToString("dd/MM/yyyy HH:mm")</small>
+                            }
+                            else if (item.TrangThai == TrangThaiDatTruoc.DangCho)
+                            {
+                                <small>Hàng chờ đến @item.NgayHetHanDat?.ToString("dd/MM/yyyy")</small>
+                            }
+                            else
+                            {
+                                <span>—</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a asp-action="Details" asp-route-id="@item.MaDatTruoc" class="btn btn-sm btn-outline-secondary">Chi tiết</a>
+                            @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                            {
+                                <form asp-action="XacNhanNhanSach" asp-route-id="@item.MaDatTruoc" method="post" class="d-inline"
+                                      onsubmit="return confirm('Xác nhận độc giả đã nhận bản sao này?');">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-sm btn-success">Xác nhận nhận</button>
+                                </form>
+                            }
+                            @if (item.TrangThai == TrangThaiDatTruoc.DangCho || item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                            {
+                                <form asp-action="Huy" asp-route-id="@item.MaDatTruoc" method="post" class="d-inline"
+                                      onsubmit="return confirm('Hủy yêu cầu và chuyển bản sao cho người tiếp theo?');">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-sm btn-outline-danger">Hủy</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
 }
-    </tbody>
-</table>

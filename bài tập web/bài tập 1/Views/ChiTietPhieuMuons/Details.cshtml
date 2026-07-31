@@ -1,48 +1,72 @@
 ﻿@model bài_tập_1.Models.ChiTietPhieuMuon
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết lượt mượn";
 }
 
-<h1>Details</h1>
+<h1>Chi tiết lượt mượn</h1>
 
 <div>
-    <h4>ChiTietPhieuMuon</h4>
+    <h4>@Model.BanSao.Sach.TenSach</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.PhieuMuon)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.PhieuMuon.MaPhieuMuon)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.BanSao)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.BanSao.MaVach)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.NgayTra)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NgayTra)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.TinhTrangKhiTra)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.TinhTrangKhiTra)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.GhiChu)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.GhiChu)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaChiTiet">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @if (!Model.NgayTra.HasValue)
+    {
+        <a asp-action="TraSach"
+           asp-route-id="@Model.MaChiTiet"
+           class="btn btn-success">Trả sách</a>
+    }
+    else if (Model.PhieuPhat != null)
+    {
+        <a asp-controller="PhieuPhats"
+           asp-action="Details"
+           asp-route-id="@Model.PhieuPhat.MaPhieuPhat"
+           class="btn btn-outline-danger">Xem phiếu phạt</a>
+    }
+    else if (Model.NgayTra.Value.Date > Model.PhieuMuon.NgayHenTra.Date ||
+             Model.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ||
+             Model.TinhTrangKhiTra == TinhTrangKhiTra.Mat)
+    {
+        <a asp-controller="PhieuPhats"
+           asp-action="Create"
+           asp-route-maChiTiet="@Model.MaChiTiet"
+           class="btn btn-danger">Lập phiếu phạt</a>
+    }
+    <a asp-controller="PhieuMuons"
+       asp-action="Details"
+       asp-route-id="@Model.MaPhieuMuon"
+       class="btn btn-outline-secondary">Quay lại phiếu</a>
 </div>

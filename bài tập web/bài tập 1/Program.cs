@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
+using bài_tập_1.Services;
 namespace bài_tập_1
 {
     public class Program
@@ -26,9 +27,14 @@ namespace bài_tập_1
             // Đăng ký Identity
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
             {
-                options.Password.RequiredLength = 6;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddEntityFrameworkStores<bài_tập_1Context>()
             .AddDefaultTokenProviders();
@@ -50,6 +56,9 @@ namespace bài_tập_1
 
             // Đăng ký MVC
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<DatTruocService>();
+            builder.Services.AddScoped<PhieuMuonService>();
+            builder.Services.AddScoped<ThongBaoService>();
 
             var app = builder.Build();
 

@@ -281,9 +281,8 @@
 
                         <label class="library-register-agreement-label">
 
-                            <input type="checkbox"
-                                   id="acceptTerms"
-                                   required />
+                            <input asp-for="AcceptTerms"
+                                   id="acceptTerms" />
 
                             <span class="library-register-custom-checkbox">
                                 <i class="bi bi-check"></i>
@@ -291,12 +290,14 @@
 
                             <span>
                                 Tôi đồng ý với
-                                <a href="#">điều khoản sử dụng</a>
+                                <a asp-controller="Home" asp-action="Terms" target="_blank">điều khoản sử dụng</a>
                                 và
-                                <a href="#">chính sách bảo mật</a>.
+                                <a asp-controller="Home" asp-action="Privacy" target="_blank">chính sách bảo mật</a>.
                             </span>
                         </label>
                     </div>
+                    <span asp-validation-for="AcceptTerms"
+                          class="library-register-error"></span>
 
                     <!-- NÚT ĐĂNG KÝ -->
                     <button type="submit"

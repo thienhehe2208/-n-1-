@@ -20,6 +20,14 @@ namespace bài_tập_1.Models
 
         public DateTime? NgayHetHanDat { get; set; }
 
+        public int? MaBanSaoDuocGiu { get; set; }
+        [ForeignKey(nameof(MaBanSaoDuocGiu))]
+        public BanSao? BanSaoDuocGiu { get; set; }
+
+        public DateTime? NgaySanSang { get; set; }
+
+        public DateTime? HanNhanSach { get; set; }
+
         public TrangThaiDatTruoc TrangThai { get; set; } = TrangThaiDatTruoc.DangCho;
     }
 }

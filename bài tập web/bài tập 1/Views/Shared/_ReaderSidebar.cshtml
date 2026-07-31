@@ -26,6 +26,13 @@
             <span class="reader-menu-icon"><i class="bi bi-heart"></i></span>
             <span>Yêu thích</span>
         </a>
+        @if (User.IsInRole("DocGia"))
+        {
+            <a asp-controller="ThongBaos" asp-action="Index" class="reader-menu-item @Active("ThongBaos")">
+                <span class="reader-menu-icon"><i class="bi bi-bell"></i></span>
+                <span>Thông báo</span>
+            </a>
+        }
         <a asp-controller="Profile" asp-action="LichSuMuon" class="reader-menu-item @(controller == "Profile" && action == "LichSuMuon" ? "active" : "")">
             <span class="reader-menu-icon"><i class="bi bi-clock-history"></i></span>
             <span>Lịch sử mượn</span>
@@ -53,7 +60,7 @@
             </a>
             <a asp-controller="Profile" asp-action="LichSuMuon" class="reader-menu-item">
                 <span class="reader-menu-icon"><i class="bi bi-journal-bookmark"></i></span>
-                <span>Sách đang mượn</span>
+                <span>Sách đang mượn và phí</span>
             </a>
             @if (User.IsInRole("DocGia"))
             {

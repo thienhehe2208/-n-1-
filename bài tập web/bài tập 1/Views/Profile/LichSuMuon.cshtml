@@ -6,6 +6,12 @@
 
 <h2>Lịch sử mượn sách</h2>
 
+<div class="btn-group mb-3" role="group" aria-label="Lọc lịch sử mượn">
+    <a asp-action="LichSuMuon" class="btn btn-outline-primary">Tất cả</a>
+    <a asp-action="LichSuMuon" asp-route-trangThai="borrowing" class="btn btn-outline-primary">Đang mượn</a>
+    <a asp-action="LichSuMuon" asp-route-trangThai="fines" class="btn btn-outline-danger">Phí chưa đóng</a>
+</div>
+
 @if (!Model.Any())
 {
     <p>Bạn chưa có lượt mượn sách nào.</p>
@@ -27,6 +33,7 @@ else
                             <th>Tên sách</th>
                             <th>Ngày trả</th>
                             <th>Tình trạng khi trả</th>
+                            <th>Phiếu phạt</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,6 +43,26 @@ else
                                 <td>@ct.BanSao?.Sach?.TenSach</td>
                                 <td>@(ct.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")</td>
                                 <td>@(ct.TinhTrangKhiTra?.ToString() ?? "-")</td>
+                                <td>
+                                    @if (ct.PhieuPhat == null)
+                                    {
+                                        <span>—</span>
+                                    }
+                                    else
+                                    {
+                                        var fineStatus = ct.PhieuPhat.TrangThai switch
+                                        {
+                                            TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
+                                            TrangThaiPhieuPhat.DaDong => "Đã đóng",
+                                            TrangThaiPhieuPhat.DaHuy => "Đã hủy",
+                                            _ => ct.PhieuPhat.TrangThai.ToString()
+                                        };
+                                        <span>
+                                            @ct.PhieuPhat.SoTien.ToString("N0") đ
+                                            - @fineStatus
+                                        </span>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -46,3 +73,8 @@ else
 }
 
 <a asp-action="Index" class="btn btn-link">Quay lại thông tin cá nhân</a>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
@@ -13,13 +14,16 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly PhieuMuonService _phieuMuonService;
 
         public ProfileController(
             bài_tập_1Context context,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            PhieuMuonService phieuMuonService)
         {
             _context = context;
             _userManager = userManager;
+            _phieuMuonService = phieuMuonService;
         }
 
         public async Task<IActionResult> Index()
@@ -172,8 +176,11 @@ namespace bài_tập_1.Controllers
         }
 
         [Authorize(Roles = "DocGia")]
-        public async Task<IActionResult> LichSuMuon()
+        public async Task<IActionResult> LichSuMuon(
+            string? trangThai,
+            int page = 1)
         {
+            await _phieuMuonService.CapNhatTrangThaiAsync();
             var userId = _userManager.GetUserId(User);
             var docGia = await _context.DocGia
                 .AsNoTracking()
@@ -181,13 +188,35 @@ namespace bài_tập_1.Controllers
             if (docGia == null)
                 return NotFound();
 
-            var danhSachPhieuMuon = await _context.PhieuMuon
+            var query = _context.PhieuMuon
                 .Include(p => p.ChiTietPhieuMuons)
                     .ThenInclude(ct => ct.BanSao)
                         .ThenInclude(b => b.Sach)
+                .Include(p => p.ChiTietPhieuMuons)
+                    .ThenInclude(ct => ct.PhieuPhat)
                 .Where(p => p.MaDocGia == docGia.MaDocGia)
-                .OrderByDescending(p => p.NgayMuon)
                 .AsNoTracking()
+                .AsQueryable();
+
+            query = trangThai switch
+            {
+                "borrowing" => query.Where(p =>
+                    p.ChiTietPhieuMuons.Any(c => c.NgayTra == null)),
+                "fines" => query.Where(p =>
+                    p.ChiTietPhieuMuons.Any(c =>
+                        c.PhieuPhat != null &&
+                        c.PhieuPhat.TrangThai == TrangThaiPhieuPhat.ChuaDong)),
+                _ => query
+            };
+
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            ViewData["Status"] = trangThai;
+
+            var danhSachPhieuMuon = await query
+                .OrderByDescending(p => p.NgayMuon)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
                 .ToListAsync();
 
             return View(danhSachPhieuMuon);

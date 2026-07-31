@@ -18,7 +18,7 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? q)
+        public async Task<IActionResult> Index(string? q, int? maTheLoai, int page = 1)
         {
             var query = _context.Sach
                 .Include(s => s.NhaXuatBan)
@@ -35,7 +35,11 @@ namespace bài_tập_1.Controllers
                     s.ISBN.Contains(keyword));
             }
 
+            if (maTheLoai.HasValue)
+                query = query.Where(s => s.MaTheLoai == maTheLoai.Value);
+
             ViewData["Search"] = q;
+            ViewData["MaTheLoai"] = maTheLoai;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["FavoriteIds"] = string.IsNullOrWhiteSpace(userId)
                 ? new HashSet<int>()
@@ -44,7 +48,12 @@ namespace bài_tập_1.Controllers
                     .Select(y => y.MaSach)
                     .ToListAsync())
                     .ToHashSet();
-            return View(await query.OrderBy(s => s.TenSach).ToListAsync());
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            return View(await query.OrderBy(s => s.TenSach)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)

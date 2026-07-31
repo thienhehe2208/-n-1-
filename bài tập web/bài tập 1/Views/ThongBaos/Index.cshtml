@@ -1,0 +1,59 @@
+@model IEnumerable<bài_tập_1.Models.ThongBao>
+
+@{
+    ViewData["Title"] = "Thông báo của tôi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Thông báo của tôi</h1>
+        <p class="text-muted mb-0">Theo dõi hạn trả và tình trạng sách đặt trước.</p>
+    </div>
+    @if (Model.Any(t => !t.DaDoc))
+    {
+        <form asp-action="DanhDauTatCaDaDoc" method="post">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-outline-primary" type="submit">Đánh dấu tất cả đã đọc</button>
+        </form>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="content-card"><p class="mb-0 text-muted">Bạn chưa có thông báo nào.</p></div>
+}
+
+else
+{
+    <div class="list-group shadow-sm">
+        @foreach (var item in Model)
+        {
+            <div class="list-group-item @(item.DaDoc ? "" : "list-group-item-light border-start border-primary border-4")">
+                <div class="d-flex justify-content-between gap-3">
+                    <div>
+                        <h2 class="h6 mb-1">@item.TieuDe</h2>
+                        <p class="mb-1">@item.NoiDung</p>
+                        <small class="text-muted">@item.NgayTao.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    @if (!item.DaDoc)
+                    {
+                        <form asp-action="DanhDauDaDoc" method="post" class="flex-shrink-0">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.MaThongBao" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Xem</button>
+                        </form>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(item.LienKet))
+                    {
+                        <a class="btn btn-sm btn-outline-secondary flex-shrink-0" href="@item.LienKet">Chi tiết</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

@@ -4,6 +4,7 @@ using bài_tập_1.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using bài_tập_1.Models.ViewModels;
 
 namespace bài_tập_1.Controllers
 {
@@ -17,13 +18,13 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             var docGia = await GetDocGiaAsync();
             if (docGia == null)
                 return RedirectToAction("Index", "Profile");
 
-            var favorites = await _context.YeuThich
+            var query = _context.YeuThich
                 .Where(y => y.MaDocGia == docGia.MaDocGia)
                 .Include(y => y.Sach)
                     .ThenInclude(s => s.TheLoai)
@@ -31,8 +32,13 @@ namespace bài_tập_1.Controllers
                     .ThenInclude(s => s.NhaXuatBan)
                 .Include(y => y.Sach)
                     .ThenInclude(s => s.BanSaos)
-                .AsNoTracking()
+                .AsNoTracking();
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            var favorites = await query
                 .OrderByDescending(y => y.NgayThem)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
                 .ToListAsync();
 
             return View(favorites);
