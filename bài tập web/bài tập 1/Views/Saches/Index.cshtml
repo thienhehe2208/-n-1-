@@ -4,25 +4,45 @@
     ViewData["Title"] = "Kho sách";
     var tuKhoa = ViewData["Search"]?.ToString();
     var favoriteIds = ViewData["FavoriteIds"] as HashSet<int> ?? new HashSet<int>();
+    var selectedCategory = ViewData["SelectedCategory"] as TheLoai;
+    var categories = ViewData["Categories"] as IEnumerable<TheLoai> ?? Enumerable.Empty<TheLoai>();
+    var selectedCategoryId = ViewData["MaTheLoai"] as int?;
+    var totalResults = (int?)ViewData["TotalResults"] ?? 0;
 }
 
 <section class="catalog-page">
-    <div class="catalog-search-hero">
+    <div class="catalog-search-hero @(selectedCategory != null ? "is-category" : "")">
         <div class="catalog-search-intro">
             <span class="catalog-search-kicker">
                 <i class="bi bi-stars"></i>
-                THƯ VIỆN TRỰC TUYẾN
+                @(selectedCategory == null ? "THƯ VIỆN TRỰC TUYẾN" : "DANH MỤC ĐANG KHÁM PHÁ")
             </span>
-            <h1>Tìm cuốn sách<br />dành cho bạn</h1>
-            <p>Khám phá kho tri thức và tra cứu nhanh theo tên sách hoặc mã ISBN.</p>
+            <h1>
+                @(selectedCategory == null ? "Tìm cuốn sách" : selectedCategory.TenTheLoai)
+                @if (selectedCategory == null)
+                {
+                    <br /><text>dành cho bạn</text>
+                }
+            </h1>
+            <p>
+                @(selectedCategory == null
+                ? "Khám phá kho tri thức và tra cứu nhanh theo tên sách hoặc mã ISBN."
+                : (string.IsNullOrWhiteSpace(selectedCategory.MoTa)
+                    ? "Khám phá những đầu sách nổi bật trong danh mục này."
+                    : selectedCategory.MoTa))
+            </p>
             <div class="catalog-search-benefits" aria-label="Tiện ích tìm kiếm">
                 <span><i class="bi bi-lightning-charge-fill"></i> Tra cứu nhanh</span>
                 <span><i class="bi bi-check-circle-fill"></i> Kiểm tra sách có sẵn</span>
-</div>
+            </div>
 
         </div>
 
         <form asp-action="Index" method="get" class="catalog-search-form" role="search">
+            @if (selectedCategoryId.HasValue)
+            {
+                <input type="hidden" name="maTheLoai" value="@selectedCategoryId.Value" />
+            }
             <label for="catalog-search-input">Bạn muốn tìm sách gì?</label>
             <div class="catalog-search-field">
                 <i class="bi bi-search" aria-hidden="true"></i>
@@ -30,11 +50,11 @@
                        type="search"
                        name="q"
                        value="@tuKhoa"
-                       placeholder="Tên sách hoặc mã ISBN..."
+                       placeholder="@(selectedCategory == null ? "Tên sách hoặc mã ISBN..." : $"Tìm trong {selectedCategory.TenTheLoai}...")"
                        autocomplete="off" />
                 @if (!string.IsNullOrWhiteSpace(tuKhoa))
                 {
-                    <a asp-action="Index" class="catalog-search-clear" aria-label="Xóa từ khóa" title="Xóa từ khóa">
+                    <a asp-action="Index" asp-route-maTheLoai="@selectedCategoryId" class="catalog-search-clear" aria-label="Xóa từ khóa" title="Xóa từ khóa">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 }
@@ -47,19 +67,38 @@
         </form>
     </div>
 
+    <nav class="catalog-category-switcher" aria-label="Chọn danh mục sách">
+        <a asp-action="Index" class="@(selectedCategory == null ? "active" : "")">
+            <i class="bi bi-collection"></i><span>Tất cả sách</span>
+        </a>
+        @foreach (var category in categories)
+        {
+            <a asp-action="Index"
+               asp-route-maTheLoai="@category.MaTheLoai"
+               class="@(selectedCategoryId == category.MaTheLoai ? "active" : "")">
+                <span>@category.TenTheLoai</span>
+                <small>@category.DanhSachSach.Count</small>
+            </a>
+        }
+    </nav>
+
     <div class="catalog-result-toolbar">
         <div class="catalog-result-title">
             <span class="catalog-result-icon"><i class="bi bi-grid"></i></span>
             <div>
-                <h2>@(string.IsNullOrWhiteSpace(tuKhoa) ? "Kho sách thư viện" : "Kết quả tìm kiếm")</h2>
+                <h2>
+                    @(!string.IsNullOrWhiteSpace(tuKhoa)
+                    ? "Kết quả tìm kiếm"
+                    : selectedCategory == null ? "Kho sách thư viện" : $"Sách {selectedCategory.TenTheLoai}")
+                </h2>
                 <p class="book-search-summary" aria-live="polite">
                     @if (!string.IsNullOrWhiteSpace(tuKhoa))
                     {
-                        <span>Tìm thấy <strong>@Model.Count()</strong> cuốn sách cho “@tuKhoa”</span>
+                        <span>Tìm thấy <strong>@totalResults</strong> cuốn sách cho “@tuKhoa”</span>
                     }
                     else
                     {
-                        <span>Hiện có <strong>@Model.Count()</strong> cuốn sách để bạn khám phá</span>
+                        <span>Hiện có <strong>@totalResults</strong> cuốn sách để bạn khám phá</span>
                     }
                 </p>
             </div>
@@ -142,26 +181,33 @@
                                 : item.MoTa)
                         </p>
 
-                        <div class="catalog-card-footer">
-                            <div class="catalog-price">
-                                <small>Giá tham khảo</small>
-                                <strong>@item.GiaSach.ToString("N0") <span>đ</span></strong>
-                            </div>
+                        <div class="catalog-card-footer catalog-library-footer">
                             <div class="catalog-actions">
                                 <a asp-action="Details"
                                    asp-route-id="@item.MaSach"
                                    class="catalog-detail-button"
                                    aria-label="Xem chi tiết @item.TenSach"
-                                   title="Xem chi tiết">
+                                    title="Xem chi tiết">
                                     <i class="bi bi-eye"></i>
+                                    <span>Chi tiết</span>
                                 </a>
-                                <a asp-controller="DatTruocs"
-                                   asp-action="Create"
-                                   asp-route-maSach="@item.MaSach"
-                                   class="catalog-reserve-button">
-                                    <i class="bi bi-bookmark-plus"></i>
-                                    <span>Đặt sách</span>
-                                </a>
+                                @if (!coTheMuon)
+                                {
+                                    <a asp-controller="DatTruocs"
+                                       asp-action="Create"
+                                       asp-route-maSach="@item.MaSach"
+                                       class="catalog-reserve-button">
+                                        <i class="bi bi-bookmark-plus"></i>
+                                        <span>Đặt trước</span>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@item.MaSach" class="catalog-counter-button">
+                                        <i class="bi bi-qr-code-scan"></i>
+                                        <span>Mượn online</span>
+                                    </a>
+                                }
                             </div>
                         </div>
 
@@ -186,7 +232,11 @@
         <div class="catalog-empty">
             <span><i class="bi bi-search"></i></span>
             <h2>Chưa tìm thấy sách phù hợp</h2>
-            <p>Thử kiểm tra lại từ khóa hoặc tìm bằng mã ISBN khác.</p>
+            <p>
+                @(selectedCategory == null
+                    ? "Thử kiểm tra lại từ khóa hoặc tìm bằng mã ISBN khác."
+                    : "Danh mục này hiện chưa có sách phù hợp.")
+            </p>
             <a asp-action="Index">Xem tất cả sách</a>
         </div>
     }

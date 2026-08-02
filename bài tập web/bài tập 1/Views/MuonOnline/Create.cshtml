@@ -1,0 +1,38 @@
+@model TaoYeuCauMuonOnlineViewModel
+@{
+    ViewData["Title"] = "Tạo phiếu mượn online";
+}
+
+<section class="online-loan-page">
+    <div class="online-loan-heading">
+        <span><i class="bi bi-qr-code-scan"></i> MƯỢN SÁCH ONLINE</span>
+        <h1>Tạo phiếu nhận sách tại quầy</h1>
+        <p>Hoàn tất thông tin, sau đó mang mã QR đến quầy để nhân viên xác nhận.</p>
+    </div>
+    <div class="online-loan-layout">
+        <aside class="online-loan-book">
+            <div class="online-loan-cover"><img src="@(string.IsNullOrWhiteSpace(Model.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : Model.AnhBia)" alt="Bìa sách @Model.TenSach" /></div>
+            <span>SÁCH ĐANG CHỌN</span><h2>@Model.TenSach</h2>
+            <p><i class="bi bi-check-circle-fill"></i> @Model.SoBanSanCo bản đang sẵn có</p>
+        </aside>
+        <form asp-action="Create" method="post" class="online-loan-form">
+            @Html.AntiForgeryToken()
+            <input asp-for="MaSach" type="hidden" />
+            <input asp-for="TenSach" type="hidden" />
+            <input asp-for="AnhBia" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="online-loan-validation"></div>
+            <div class="online-loan-form-title"><span><i class="bi bi-pencil-square"></i></span><div><h2>Thông tin nhận sách</h2><p>Chọn thời gian phù hợp với bạn.</p></div></div>
+            <div class="online-loan-field-grid">
+                <div class="online-loan-field"><label asp-for="NgayHenNhan"></label><div><i class="bi bi-calendar-check"></i><input asp-for="NgayHenNhan" /></div><span asp-validation-for="NgayHenNhan"></span></div>
+                <div class="online-loan-field"><label asp-for="NgayHenTra"></label><div><i class="bi bi-calendar-event"></i><input asp-for="NgayHenTra" /></div><span asp-validation-for="NgayHenTra"></span></div>
+            </div>
+            <div class="online-loan-field"><label asp-for="GhiChu"></label><textarea asp-for="GhiChu" rows="4" placeholder="Ví dụ: Tôi sẽ đến nhận vào buổi sáng..."></textarea><span asp-validation-for="GhiChu"></span></div>
+            <div class="online-loan-note"><i class="bi bi-info-circle"></i><p>Một bản sách sẽ được giữ cho bạn đến hết ngày hẹn nhận. Phiếu mượn chỉ có hiệu lực sau khi nhân viên quét mã.</p></div>
+            <div class="online-loan-form-actions"><a asp-controller="Saches" asp-action="Details" asp-route-id="@Model.MaSach">Quay lại</a><button type="submit"><i class="bi bi-qr-code"></i> Tạo phiếu mượn</button></div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

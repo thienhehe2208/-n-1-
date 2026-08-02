@@ -40,6 +40,22 @@ namespace bài_tập_1.Data
                 .HasForeignKey(p => p.MaDocGia)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<YeuCauMuonOnline>()
+                .HasIndex(y => y.MaXacNhan)
+                .IsUnique();
+
+            modelBuilder.Entity<YeuCauMuonOnline>()
+                .HasOne(y => y.BanSao)
+                .WithMany()
+                .HasForeignKey(y => y.MaBanSao)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<YeuCauMuonOnline>()
+                .HasOne(y => y.PhieuMuon)
+                .WithMany()
+                .HasForeignKey(y => y.MaPhieuMuon)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<DatTruoc>()
                 .HasOne(d => d.BanSaoDuocGiu)
                 .WithMany(b => b.DatTruocsDuocGiu)
@@ -88,5 +104,7 @@ namespace bài_tập_1.Data
         public DbSet<PhanHoi> PhanHoi { get; set; } = default!;
 
         public DbSet<ThongBao> ThongBao { get; set; } = default!;
+
+        public DbSet<YeuCauMuonOnline> YeuCauMuonOnline { get; set; } = default!;
     }
 }

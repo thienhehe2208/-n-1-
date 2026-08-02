@@ -2,79 +2,164 @@
 
 @{
     ViewData["Title"] = "Lịch sử mượn sách";
+    var currentStatus = ViewData["Status"]?.ToString();
+    var totalLoans = (int?)ViewData["TongPhieuMuon"] ?? 0;
+    var activeLoans = (int?)ViewData["SoPhieuDangMuon"] ?? 0;
+    var overdueLoans = (int?)ViewData["SoPhieuQuaHan"] ?? 0;
+    var totalBooks = (int?)ViewData["TongSachDaMuon"] ?? 0;
+    var today = DateTime.Today;
 }
 
-<h2>Lịch sử mượn sách</h2>
+<section class="reader-loans-page">
+    <header class="reader-loans-hero">
+        <div>
+            <span class="reader-loans-eyebrow">
+                <i class="bi bi-bookmark-check" aria-hidden="true"></i>
+                Thư viện của bạn
+            </span>
+            <h1>Lịch sử mượn sách</h1>
+            <p>Theo dõi các phiếu mượn, thời hạn trả và tình trạng từng cuốn sách trong một nơi.</p>
+        </div>
+        <div class="reader-loans-hero-visual" aria-hidden="true">
+            <i class="bi bi-journals"></i>
+        </div>
+    </header>
 
-<div class="btn-group mb-3" role="group" aria-label="Lọc lịch sử mượn">
-    <a asp-action="LichSuMuon" class="btn btn-outline-primary">Tất cả</a>
-    <a asp-action="LichSuMuon" asp-route-trangThai="borrowing" class="btn btn-outline-primary">Đang mượn</a>
-    <a asp-action="LichSuMuon" asp-route-trangThai="fines" class="btn btn-outline-danger">Phí chưa đóng</a>
-</div>
+    <div class="reader-loans-summary">
+        <article>
+            <span class="loan-summary-icon blue"><i class="bi bi-files"></i></span>
+            <div><small>Tổng phiếu mượn</small><strong>@totalLoans</strong></div>
+        </article>
+        <article>
+            <span class="loan-summary-icon green"><i class="bi bi-book-half"></i></span>
+            <div><small>Đang mượn</small><strong>@activeLoans phiếu</strong></div>
+        </article>
+        <article>
+            <span class="loan-summary-icon red"><i class="bi bi-alarm"></i></span>
+            <div><small>Quá hạn</small><strong>@overdueLoans phiếu</strong></div>
+        </article>
+        <article>
+            <span class="loan-summary-icon purple"><i class="bi bi-book"></i></span>
+            <div><small>Sách đã mượn</small><strong>@totalBooks cuốn</strong></div>
+        </article>
+    </div>
 
-@if (!Model.Any())
-{
-    <p>Bạn chưa có lượt mượn sách nào.</p>
-}
-else
-{
-    foreach (var phieu in Model)
+    <div class="reader-loans-toolbar">
+        <div>
+            <h2>Phiếu mượn của tôi</h2>
+            <p>Các phiếu được sắp xếp theo ngày mượn gần nhất.</p>
+        </div>
+        <nav class="reader-loans-filters" aria-label="Lọc lịch sử mượn">
+            <a asp-action="LichSuMuon" class="@(string.IsNullOrEmpty(currentStatus) ? "active" : "")">
+                <i class="bi bi-grid"></i> Tất cả
+            </a>
+            <a asp-action="LichSuMuon" asp-route-trangThai="borrowing" class="@(currentStatus == "borrowing" ? "active" : "")">
+                <i class="bi bi-clock-history"></i> Đang mượn
+            </a>
+            <a asp-controller="Profile" asp-action="PhieuPhatCuaToi">
+                <i class="bi bi-receipt"></i> Phiếu phạt
+            </a>
+        </nav>
+    </div>
+
+    @if (!Model.Any())
     {
-        <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between">
-                <span>Phiếu mượn #@phieu.MaPhieuMuon - Ngày mượn: @phieu.NgayMuon.ToString("dd/MM/yyyy")</span>
-                <span class="badge bg-secondary">@phieu.TrangThai</span>
-            </div>
-            <div class="card-body">
-                <p><strong>Hẹn trả:</strong> @phieu.NgayHenTra.ToString("dd/MM/yyyy")</p>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Tên sách</th>
-                            <th>Ngày trả</th>
-                            <th>Tình trạng khi trả</th>
-                            <th>Phiếu phạt</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var ct in phieu.ChiTietPhieuMuons)
+        <div class="reader-loans-empty">
+            <span><i class="bi bi-journal-check"></i></span>
+            <h3>Chưa có phiếu mượn</h3>
+            <p>Bạn chưa có phiếu mượn nào trong nhóm này.</p>
+            <a asp-controller="Saches" asp-action="Index"><i class="bi bi-search"></i> Khám phá sách</a>
+        </div>
+    }
+    else
+    {
+        <div class="reader-loans-list">
+            @foreach (var loan in Model)
+            {
+                var unreturnedCount = loan.ChiTietPhieuMuons.Count(c => !c.NgayTra.HasValue);
+                var isReturned = unreturnedCount == 0 || loan.TrangThai == TrangThaiPhieuMuon.DaTra;
+                var isOverdue = !isReturned && loan.NgayHenTra.Date < today;
+                var daysRemaining = (loan.NgayHenTra.Date - today).Days;
+                var statusClass = isReturned ? "returned" : isOverdue ? "overdue" : "borrowing";
+                var statusText = isReturned ? "Đã trả" : isOverdue ? "Quá hạn" : "Đang mượn";
+                var statusIcon = isReturned ? "bi-check-circle" : isOverdue ? "bi-exclamation-triangle" : "bi-clock";
+
+                <article class="reader-loan-card @statusClass">
+                    <header class="reader-loan-card-header">
+                        <div class="reader-loan-identity">
+                            <span class="reader-loan-document"><i class="bi bi-file-earmark-text"></i></span>
+                            <div>
+                                <span>Phiếu mượn</span>
+                                <h3>#PM@loan.MaPhieuMuon.ToString("D4")</h3>
+                            </div>
+                        </div>
+                        <span class="reader-loan-status @statusClass"><i class="bi @statusIcon"></i>@statusText</span>
+                    </header>
+
+                    <div class="reader-loan-dates">
+                        <div><i class="bi bi-calendar-plus"></i><span>Ngày mượn<strong>@loan.NgayMuon.ToString("dd/MM/yyyy")</strong></span></div>
+                        <span class="date-connector"><i class="bi bi-arrow-right"></i></span>
+                        <div><i class="bi bi-calendar-event"></i><span>Hạn trả<strong>@loan.NgayHenTra.ToString("dd/MM/yyyy")</strong></span></div>
+                        <div class="reader-loan-deadline @statusClass">
+                            @if (isReturned)
+                            {
+                                <span><i class="bi bi-check2"></i> Đã hoàn tất</span>
+                            }
+                            else if (isOverdue)
+                            {
+                                <span><i class="bi bi-exclamation-circle"></i> Quá hạn @Math.Abs(daysRemaining) ngày</span>
+                            }
+                            else
+                            {
+                                <span><i class="bi bi-hourglass-split"></i> Còn @daysRemaining ngày</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="reader-loan-books">
+                        <div class="reader-loan-books-heading">
+                            <strong>Danh sách sách</strong>
+                            <span>@loan.ChiTietPhieuMuons.Count cuốn</span>
+                        </div>
+                        @foreach (var detail in loan.ChiTietPhieuMuons)
                         {
-                            <tr>
-                                <td>@ct.BanSao?.Sach?.TenSach</td>
-                                <td>@(ct.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")</td>
-                                <td>@(ct.TinhTrangKhiTra?.ToString() ?? "-")</td>
-                                <td>
-                                    @if (ct.PhieuPhat == null)
+                            var book = detail.BanSao?.Sach;
+                            <div class="reader-loan-book-row">
+                                <div class="reader-loan-cover">
+                                    <i class="bi bi-book"></i>
+                                    @if (!string.IsNullOrWhiteSpace(book?.AnhBia))
                                     {
-                                        <span>—</span>
+                                        <img src="@book.AnhBia" alt="Bìa sách @book.TenSach" loading="lazy" onerror="this.style.display='none'" />
+                                    }
+                                </div>
+                                <div class="reader-loan-book-info">
+                                    <strong>@(book?.TenSach ?? "Sách không còn tồn tại")</strong>
+                                    <small>Mã bản sao: @(detail.BanSao?.MaVach ?? "--")</small>
+                                </div>
+                                <div class="reader-loan-book-result">
+                                    @if (detail.NgayTra.HasValue)
+                                    {
+                                        <span class="book-returned"><i class="bi bi-check-circle"></i> Đã trả @detail.NgayTra.Value.ToString("dd/MM/yyyy")</span>
                                     }
                                     else
                                     {
-                                        var fineStatus = ct.PhieuPhat.TrangThai switch
-                                        {
-                                            TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
-                                            TrangThaiPhieuPhat.DaDong => "Đã đóng",
-                                            TrangThaiPhieuPhat.DaHuy => "Đã hủy",
-                                            _ => ct.PhieuPhat.TrangThai.ToString()
-                                        };
-                                        <span>
-                                            @ct.PhieuPhat.SoTien.ToString("N0") đ
-                                            - @fineStatus
-                                        </span>
+                                        <span class="book-borrowing"><i class="bi bi-arrow-repeat"></i> Chưa trả</span>
                                     }
-                                </td>
-                            </tr>
+                                    @if (detail.PhieuPhat != null)
+                                    {
+                                        <a asp-action="PhieuPhatCuaToi" class="book-has-fine"><i class="bi bi-receipt"></i> Có phiếu phạt</a>
+                                    }
+                                </div>
+                            </div>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                </article>
+            }
         </div>
     }
-}
 
-<a asp-action="Index" class="btn btn-link">Quay lại thông tin cá nhân</a>
-
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
-{
-    <partial name="_Pagination" model="pagination" />
-}
+    @if (ViewData["Pagination"] is PaginationViewModel pagination)
+    {
+        <partial name="_Pagination" model="pagination" />
+    }
+</section>

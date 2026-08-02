@@ -1,165 +1,67 @@
-@using bài_tập_1.Models
 @model bài_tập_1.Models.Sach
 
 @{
     ViewData["Title"] = Model.TenSach;
-
-    var anhMacDinh = "/images/books/banner.jpg";
-    var anhBia = string.IsNullOrWhiteSpace(Model.AnhBia)
-        ? anhMacDinh
-        : Model.AnhBia;
-
-    var tenTacGia = Model.SachTacGias
-        .Where(st => st.TacGia != null)
-        .Select(st => st.TacGia.HoTen)
-        .ToList();
-
-    var tongBanSao = Model.BanSaos.Count;
-    var soBanSanCo = Model.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
+    var cover = string.IsNullOrWhiteSpace(Model.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : Model.AnhBia;
+    var authors = Model.SachTacGias.Where(x => x.TacGia != null).Select(x => x.TacGia.HoTen).ToList();
+    var available = Model.BanSaos.Count(x => x.TinhTrang == TinhTrangBanSao.SanCo);
 }
 
-<div class="container py-4">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a asp-controller="Saches" asp-action="Index">Sách</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">@Model.TenSach</li>
-        </ol>
+<section class="reader-book-detail">
+    <nav class="reader-book-breadcrumb" aria-label="Đường dẫn">
+        <a asp-controller="Home" asp-action="Index">Trang chủ</a><i class="bi bi-chevron-right"></i>
+        <a asp-action="Index" asp-route-maTheLoai="@Model.MaTheLoai">@Model.TheLoai.TenTheLoai</a><i class="bi bi-chevron-right"></i>
+        <span>@Model.TenSach</span>
     </nav>
 
-    <div class="card border-0 shadow-sm overflow-hidden">
-        <div class="row g-0">
-            <div class="col-md-4 col-lg-3 bg-light p-4 text-center">
-                <img src="@anhBia"
-                     alt="Ảnh bìa @Model.TenSach"
-                     class="img-fluid rounded shadow-sm"
-                     style="max-height: 430px; object-fit: cover;"
-                     onerror="this.onerror=null; this.src='@anhMacDinh';" />
+    <div class="reader-book-detail-card">
+        <div class="reader-book-detail-cover">
+            <img src="@cover" alt="Bìa sách @Model.TenSach" />
+            <span><i class="bi bi-grid"></i> @Model.TheLoai.TenTheLoai</span>
+        </div>
+        <div class="reader-book-detail-info">
+            <span class="reader-book-detail-kicker">THÔNG TIN ĐẦU SÁCH</span>
+            <h1>@Model.TenSach</h1>
+            <p class="reader-book-authors"><i class="bi bi-person"></i> @(authors.Any() ? string.Join(", ", authors) : "Tác giả đang cập nhật")</p>
+
+            <div class="reader-book-facts">
+                <div><small>Nhà xuất bản</small><strong>@Model.NhaXuatBan.TenNXB</strong></div>
+                <div><small>Năm xuất bản</small><strong>@(Model.NamXuatBan?.ToString() ?? "Chưa rõ")</strong></div>
+                <div><small>Số trang</small><strong>@(Model.SoTrang?.ToString() ?? "--") trang</strong></div>
+                <div><small>Ngôn ngữ</small><strong>@Model.NgonNgu</strong></div>
+                <div><small>ISBN</small><strong>@Model.ISBN</strong></div>
             </div>
 
-            <div class="col-md-8 col-lg-9">
-                <div class="card-body p-4 p-lg-5">
-                    <span class="badge bg-primary mb-3">
-                        @(Model.TheLoai?.TenTheLoai ?? "Chưa phân loại")
-                    </span>
-
-                    <h1 class="display-6 fw-bold mb-3">@Model.TenSach</h1>
-
-                    <p class="text-muted fs-5 mb-4">
-                        Tác giả:
-                        <strong class="text-dark">
-                            @(tenTacGia.Count > 0
-                                ? string.Join(", ", tenTacGia)
-                                : "Chưa cập nhật")
-                        </strong>
-                    </p>
-
-                    <div class="row g-3 mb-4">
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">ISBN</small>
-                                <strong>@(string.IsNullOrWhiteSpace(Model.ISBN) ? "Chưa cập nhật" : Model.ISBN)</strong>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Nhà xuất bản</small>
-                                <strong>@(Model.NhaXuatBan?.TenNXB ?? "Chưa cập nhật")</strong>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Năm xuất bản</small>
-                                <strong>@(Model.NamXuatBan?.ToString() ?? "Chưa cập nhật")</strong>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Số trang</small>
-                                <strong>@(Model.SoTrang?.ToString() ?? "Chưa cập nhật")</strong>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Ngôn ngữ</small>
-                                <strong>@(string.IsNullOrWhiteSpace(Model.NgonNgu) ? "Chưa cập nhật" : Model.NgonNgu)</strong>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4">
-                            <div class="border rounded p-3 h-100">
-                                <small class="text-muted d-block">Tình trạng</small>
-                                @if (soBanSanCo > 0)
-                                {
-                                    <strong class="text-success">Còn @soBanSanCo/@tongBanSao bản</strong>
-                                }
-                                else
-                                {
-                                    <strong class="text-danger">Đang hết sách</strong>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h2 class="h5 fw-bold">Mô tả</h2>
-                        <p class="text-secondary mb-0" style="white-space: pre-line;">
-                            @(string.IsNullOrWhiteSpace(Model.MoTa)
-                                ? "Chưa có mô tả cho cuốn sách này."
-                                : Model.MoTa)
-                        </p>
-                    </div>
-
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <span class="fs-3 fw-bold text-primary">
-                            @Model.GiaSach.ToString("N0") đ
-                        </span>
-
-                        @if (soBanSanCo == 0)
-                        {
-                            <a asp-controller="DatTruocs"
-                                   asp-action="Create"
-                                   asp-route-maSach="@Model.MaSach"
-                                   class="btn btn-primary">
-                                <i class="bi bi-bookmark-check me-1"></i>
-                                Đặt trước
-                            </a>
-                        }
-                        else
-                        {
-                            <span class="text-success">
-                                Sách đang sẵn có, vui lòng đến quầy để mượn.
-                            </span>
-                        }
-
-                        <a asp-controller="Home"
-                               asp-action="Index"
-                               class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>
-                            Quay lại
-                        </a>
-
-                        @if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
-                        {
-                            <a asp-controller="Saches"
-                                   asp-action="Edit"
-                                   asp-route-id="@Model.MaSach"
-                                   class="btn btn-outline-warning">
-                                <i class="bi bi-pencil me-1"></i>
-                                Sửa sách
-                            </a>
-                        }
-                    </div>
+            <div class="reader-book-stock @(available > 0 ? "available" : "unavailable")">
+                <span><i class="bi @(available > 0 ? "bi-check-circle-fill" : "bi-clock-fill")"></i></span>
+                <div>
+                    <strong>@(available > 0 ? "Sách đang sẵn sàng" : "Tạm thời hết sách")</strong>
+                    <small>@(available > 0 ? $"Còn {available} bản – có thể tạo phiếu mượn online" : "Hãy đặt trước để được thông báo khi sách về")</small>
                 </div>
+            </div>
+
+            <div class="reader-book-description">
+                <h2>Giới thiệu sách</h2>
+                <p>@(string.IsNullOrWhiteSpace(Model.MoTa) ? "Nội dung giới thiệu đang được cập nhật." : Model.MoTa)</p>
+            </div>
+
+            <div class="reader-book-detail-actions">
+                @if (available > 0)
+                {
+                    <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@Model.MaSach" class="primary">
+                        <i class="bi bi-qr-code-scan"></i><span>Mượn online</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="DatTruocs" asp-action="Create" asp-route-maSach="@Model.MaSach" class="primary">
+                        <i class="bi bi-bookmark-check"></i><span>Đặt trước</span>
+                    </a>
+                }
+                <a asp-action="Index" asp-route-maTheLoai="@Model.MaTheLoai" class="secondary">
+                    <i class="bi bi-arrow-left"></i><span>Quay lại danh mục</span>
+                </a>
             </div>
         </div>
     </div>
-</div>
+</section>

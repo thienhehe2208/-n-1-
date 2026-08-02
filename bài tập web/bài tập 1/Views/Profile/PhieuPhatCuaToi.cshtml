@@ -1,0 +1,127 @@
+@model IEnumerable<bài_tập_1.Models.PhieuPhat>
+
+@{
+    ViewData["Title"] = "Phiếu phạt của tôi";
+    var currentStatus = ViewData["Status"]?.ToString();
+    var totalFines = (int?)ViewData["TongPhieuPhat"] ?? 0;
+    var unpaidFines = (int?)ViewData["SoPhieuChuaDong"] ?? 0;
+    var unpaidAmount = (decimal?)ViewData["TongTienChuaDong"] ?? 0;
+}
+
+<section class="reader-fines-page">
+    <header class="reader-fines-hero">
+        <div>
+            <span class="reader-fines-eyebrow">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                Tài khoản độc giả
+            </span>
+            <h1>Phiếu phạt của tôi</h1>
+            <p>Theo dõi minh bạch các khoản phạt phát sinh trong quá trình mượn sách.</p>
+        </div>
+        <div class="reader-fines-hero-icon" aria-hidden="true">
+            <i class="bi bi-receipt-cutoff"></i>
+        </div>
+    </header>
+
+    <div class="reader-fines-summary">
+        <article>
+            <span class="summary-icon summary-icon-blue"><i class="bi bi-receipt"></i></span>
+            <div><small>Tổng phiếu phạt</small><strong>@totalFines</strong></div>
+        </article>
+        <article>
+            <span class="summary-icon summary-icon-amber"><i class="bi bi-hourglass-split"></i></span>
+            <div><small>Chưa đóng</small><strong>@unpaidFines phiếu</strong></div>
+        </article>
+        <article>
+            <span class="summary-icon summary-icon-red"><i class="bi bi-cash-stack"></i></span>
+            <div><small>Tổng tiền chưa đóng</small><strong>@unpaidAmount.ToString("N0") đ</strong></div>
+        </article>
+    </div>
+
+    <div class="reader-fines-panel">
+        <div class="reader-fines-toolbar">
+            <div>
+                <h2>Danh sách phiếu phạt</h2>
+                <p>Hiển thị các phiếu phạt thuộc tài khoản của bạn.</p>
+            </div>
+            <nav class="reader-fines-filters" aria-label="Lọc phiếu phạt">
+                <a asp-action="PhieuPhatCuaToi" class="@(string.IsNullOrEmpty(currentStatus) ? "active" : "")">Tất cả</a>
+                <a asp-action="PhieuPhatCuaToi" asp-route-trangThai="unpaid" class="@(currentStatus == "unpaid" ? "active" : "")">Chưa đóng</a>
+                <a asp-action="PhieuPhatCuaToi" asp-route-trangThai="paid" class="@(currentStatus == "paid" ? "active" : "")">Đã đóng</a>
+                <a asp-action="PhieuPhatCuaToi" asp-route-trangThai="cancelled" class="@(currentStatus == "cancelled" ? "active" : "")">Đã hủy</a>
+            </nav>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="reader-fines-empty">
+                <span><i class="bi bi-patch-check"></i></span>
+                <h3>Không có phiếu phạt</h3>
+                <p>Bạn không có phiếu phạt nào trong nhóm trạng thái này.</p>
+            </div>
+        }
+        else
+        {
+            <div class="reader-fines-table-wrap">
+                <table class="reader-fines-table">
+                    <thead>
+                        <tr>
+                            <th>Mã phiếu</th>
+                            <th>Sách</th>
+                            <th>Lý do</th>
+                            <th>Ngày lập</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var reason = item.LyDo switch
+                            {
+                                LyDoPhat.TraTre => "Trả sách trễ",
+                                LyDoPhat.MatSach => "Làm mất sách",
+                                LyDoPhat.HuHong => "Làm hư hỏng sách",
+                                _ => item.LyDo.ToString()
+                            };
+                            var statusText = item.TrangThai switch
+                            {
+                                TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
+                                TrangThaiPhieuPhat.DaDong => "Đã đóng",
+                                TrangThaiPhieuPhat.DaHuy => "Đã hủy",
+                                _ => item.TrangThai.ToString()
+                            };
+                            var statusClass = item.TrangThai switch
+                            {
+                                TrangThaiPhieuPhat.ChuaDong => "unpaid",
+                                TrangThaiPhieuPhat.DaDong => "paid",
+                                _ => "cancelled"
+                            };
+                            <tr>
+                                <td><strong class="reader-fine-code">#PP@item.MaPhieuPhat.ToString("D4")</strong></td>
+                                <td>
+                                    <div class="reader-fine-book">
+                                        <span><i class="bi bi-book"></i></span>
+                                        <div>
+                                            <strong>@(item.ChiTietPhieuMuon?.BanSao?.Sach?.TenSach ?? "Sách không cón tồn tại")</strong>
+                                            <small>Phiếu mượn #PM@(item.ChiTietPhieuMuon?.MaPhieuMuon.ToString("D4"))</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@reason</td>
+                                <td>@item.NgayLap.ToString("dd/MM/yyyy")</td>
+                                <td><strong class="reader-fine-amount">@item.SoTien.ToString("N0") đ</strong></td>
+                                <td><span class="reader-fine-status @statusClass">@statusText</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (ViewData["Pagination"] is PaginationViewModel pagination)
+        {
+            <partial name="_Pagination" model="pagination" />
+        }
+    </div>
+</section>

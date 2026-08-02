@@ -86,12 +86,22 @@
                                     <div class="book-content">
                                         <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach" class="book-title">@sach.TenSach</a>
                                         <p class="book-description">@(string.IsNullOrWhiteSpace(sach.MoTa) ? "Chưa có mô tả cho cuốn sách này." : sach.MoTa)</p>
-                                        <div class="book-meta"><span><i class="bi bi-box"></i> @soBanSanCo bản sẵn có</span><strong>@sach.GiaSach.ToString("N0") đ</strong></div>
+                                        <div class="book-availability-line @(soBanSanCo > 0 ? "is-available" : "is-unavailable")">
+                                            <span><i class="bi @(soBanSanCo > 0 ? "bi-check-circle-fill" : "bi-clock-fill")"></i></span>
+                                            <div>
+                                                <strong>@(soBanSanCo > 0 ? $"Còn {soBanSanCo} bản sẵn có" : "Hiện đang hết sách")</strong>
+                                                <small>@(soBanSanCo > 0 ? "Có thể mượn tại quầy" : "Bạn có thể đặt trước")</small>
+                                            </div>
+                                        </div>
                                         <div class="book-actions">
-                                            <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach" class="book-detail-button"><i class="bi bi-eye"></i> Chi tiết</a>
-                                            @if (soBanSanCo == 0 && User.IsInRole("DocGia"))
+                                            <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach" class="book-detail-button"><i class="bi bi-eye"></i> Xem chi tiết</a>
+                                            @if (soBanSanCo == 0)
                                             {
                                                 <a asp-controller="DatTruocs" asp-action="Create" asp-route-maSach="@sach.MaSach" class="book-reserve-button"><i class="bi bi-bookmark-check"></i> Đặt trước</a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@sach.MaSach" class="book-counter-button"><i class="bi bi-qr-code-scan"></i> Mượn online</a>
                                             }
                                         </div>
                                     </div>
@@ -106,7 +116,10 @@
                 <section class="content-card">
                     <div class="section-heading compact-heading">
                         <div><span class="section-label">Của bạn</span><h2>Sách đang mượn</h2></div>
-                        @if (User.IsInRole("DocGia")) { <a asp-controller="Profile" asp-action="LichSuMuon">Xem tất cả</a> }
+                        @if (User.IsInRole("DocGia"))
+                        {
+                            <a asp-controller="Profile" asp-action="LichSuMuon">Xem tất cả</a>
+                        }
                     </div>
                     @if (!Model.SachDangMuon.Any())
                     {
@@ -131,7 +144,10 @@
                 <section class="content-card">
                     <div class="section-heading compact-heading">
                         <div><span class="section-label">Cập nhật</span><h2>Thông báo</h2></div>
-                        @if (User.IsInRole("DocGia")) { <a asp-controller="ThongBaos" asp-action="Index">Xem tất cả</a> }
+                        @if (User.IsInRole("DocGia"))
+                        {
+                            <a asp-controller="ThongBaos" asp-action="Index">Xem tất cả</a>
+                        }
                     </div>
                     @if (!Model.ThongBao.Any())
                     {

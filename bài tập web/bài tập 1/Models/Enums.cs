@@ -52,4 +52,12 @@
         DaDong,
         DaHuy
     }
+
+    public enum TrangThaiYeuCauMuonOnline
+    {
+        ChoNhan,
+        DaNhan,
+        DaHuy,
+        HetHan
+    }
 }

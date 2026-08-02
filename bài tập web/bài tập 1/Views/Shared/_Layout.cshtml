@@ -365,64 +365,53 @@
 
                 <nav class="reader-navigation">
 
-                    <a asp-controller="Home"
-                       asp-action="Index">
-
-                        Trang chủ
+                    <a asp-controller="Profile"
+                       asp-action="LichSuMuon"
+                       asp-route-trangThai="borrowing"
+                       class="reader-record-button reader-loan-button @(currentController == "Profile" && currentAction == "LichSuMuon" && Context.Request.Query["trangThai"] == "borrowing" ? "active" : "")">
+                        <i class="bi bi-journal-check" aria-hidden="true"></i>
+                        <span>Xem phiếu mượn</span>
                     </a>
 
-                    <a asp-controller="Saches"
-                       asp-action="Index">
-
-                        Sách
+                    <a asp-controller="Profile"
+                       asp-action="PhieuPhatCuaToi"
+                       class="reader-record-button reader-fine-button @(currentController == "Profile" && currentAction == "PhieuPhatCuaToi" ? "active" : "")">
+                        <i class="bi bi-receipt-cutoff" aria-hidden="true"></i>
+                        <span>Xem phiếu phạt</span>
                     </a>
 
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <a asp-controller="Profile"
-                           asp-action="Index">
-
-                            Tài khoản
-                        </a>
-
-                        @if (User.IsInRole("DocGia"))
-                        {
-                            <a asp-controller="DatTruocs"
-                               asp-action="CuaToi">
-
-                                Đặt trước của tôi
-                            </a>
-                        }
-
                         <form asp-controller="Account"
                               asp-action="Logout"
                               method="post"
-                              class="d-inline">
+                              class="reader-logout-form">
 
                             @Html.AntiForgeryToken()
 
                             <button type="submit"
                                     class="reader-logout-button">
-
-                                Đăng xuất
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                <span>Đăng xuất</span>
                             </button>
                         </form>
                     }
                     else
                     {
                         <a asp-controller="Account"
+                           asp-action="Register"
+                           class="reader-register-button @(currentController == "Account" && currentAction == "Register" ? "active" : "")">
+
+                            <i class="bi bi-person-plus" aria-hidden="true"></i>
+                            <span>Đăng ký</span>
+                        </a>
+
+                        <a asp-controller="Account"
                            asp-action="Login"
                            class="reader-login-button @(currentController == "Account" && currentAction == "Login" ? "active" : "")">
 
                             <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
                             <span>Đăng nhập</span>
-                        </a>
-
-                        <a asp-controller="Account"
-                           asp-action="Register"
-                           class="reader-register-button">
-
-                            Đăng ký
                         </a>
                     }
 

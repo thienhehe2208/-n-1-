@@ -1,0 +1,20 @@
+@model YeuCauMuonOnline
+@{ ViewData["Title"] = "Phiếu mượn online"; var scanUrl = Url.Action("XacNhan", "MuonOnline", new { ma = Model.MaXacNhan }, Context.Request.Scheme); }
+
+<section class="online-ticket-page">
+    <div class="online-ticket-success"><span><i class="bi bi-check2"></i></span><div><h1>Tạo phiếu thành công</h1><p>Sách đã được giữ. Hãy mang phiếu này đến quầy thư viện.</p></div></div>
+    <article class="online-ticket">
+        <header><div><span>THƯ VIỆN • PHIẾU NHẬN SÁCH</span><h2>#MO-@Model.MaXacNhan</h2></div><span class="online-ticket-status">Chờ nhận sách</span></header>
+        <div class="online-ticket-body">
+            <div class="online-ticket-book"><img src="@(string.IsNullOrWhiteSpace(Model.Sach.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : Model.Sach.AnhBia)" alt="Bìa sách" /><div><small>SÁCH CẦN MƯỢN</small><h3>@Model.Sach.TenSach</h3><p>Mã bản sao: <strong>@Model.BanSao.MaVach</strong></p></div></div>
+            <div class="online-ticket-info"><div><small>Độc giả</small><strong>@Model.DocGia.HoTen</strong></div><div><small>Ngày nhận</small><strong>@Model.NgayHenNhan.ToString("dd/MM/yyyy")</strong></div><div><small>Hạn trả</small><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div><div><small>Hiệu lực đến</small><strong>@Model.HanNhanSach.ToString("HH:mm dd/MM/yyyy")</strong></div></div>
+            <div class="online-ticket-qr"><div id="loanQr"></div><div><strong>Đưa mã này cho nhân viên quét</strong><small>Mã xác nhận: @Model.MaXacNhan</small></div></div>
+        </div>
+    </article>
+    <div class="online-ticket-actions"><button type="button" onclick="window.print()"><i class="bi bi-printer"></i> In phiếu</button><a asp-controller="Home" asp-action="Index">Về trang chủ</a></div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>new QRCode(document.getElementById("loanQr"), { text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(scanUrl)), width: 156, height: 156, correctLevel: QRCode.CorrectLevel.H });</script>
+}

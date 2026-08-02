@@ -198,6 +198,17 @@ namespace bài_tập_1.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
+            var homNay = DateTime.Today;
+            ViewData["TongPhieuMuon"] = await query.CountAsync();
+            ViewData["SoPhieuDangMuon"] = await query.CountAsync(p =>
+                p.ChiTietPhieuMuons.Any(c => c.NgayTra == null) &&
+                p.NgayHenTra >= homNay);
+            ViewData["SoPhieuQuaHan"] = await query.CountAsync(p =>
+                p.ChiTietPhieuMuons.Any(c => c.NgayTra == null) &&
+                p.NgayHenTra < homNay);
+            ViewData["TongSachDaMuon"] = await _context.ChiTietPhieuMuon
+                .CountAsync(c => c.PhieuMuon.MaDocGia == docGia.MaDocGia);
+
             query = trangThai switch
             {
                 "borrowing" => query.Where(p =>
@@ -220,6 +231,61 @@ namespace bài_tập_1.Controllers
                 .ToListAsync();
 
             return View(danhSachPhieuMuon);
+        }
+
+        [Authorize(Roles = "DocGia")]
+        public async Task<IActionResult> PhieuPhatCuaToi(
+            string? trangThai,
+            int page = 1)
+        {
+            var userId = _userManager.GetUserId(User);
+            var docGia = await _context.DocGia
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+            if (docGia == null)
+                return NotFound();
+
+            var query = _context.PhieuPhat
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.BanSao)
+                        .ThenInclude(b => b.Sach)
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.PhieuMuon)
+                .Where(p =>
+                    p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == docGia.MaDocGia)
+                .AsNoTracking()
+                .AsQueryable();
+
+            ViewData["TongPhieuPhat"] = await query.CountAsync();
+            ViewData["SoPhieuChuaDong"] = await query.CountAsync(p =>
+                p.TrangThai == TrangThaiPhieuPhat.ChuaDong);
+            ViewData["TongTienChuaDong"] = await query
+                .Where(p => p.TrangThai == TrangThaiPhieuPhat.ChuaDong)
+                .SumAsync(p => (decimal?)p.SoTien) ?? 0;
+
+            query = trangThai switch
+            {
+                "unpaid" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.ChuaDong),
+                "paid" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.DaDong),
+                "cancelled" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuPhat.DaHuy),
+                _ => query
+            };
+
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            ViewData["Status"] = trangThai;
+
+            var danhSachPhieuPhat = await query
+                .OrderByDescending(p => p.NgayLap)
+                .ThenByDescending(p => p.MaPhieuPhat)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            return View(danhSachPhieuPhat);
         }
 
         private async Task<bool> UpdateIdentityAsync(

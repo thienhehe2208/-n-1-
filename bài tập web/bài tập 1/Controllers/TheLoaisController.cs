@@ -38,19 +38,14 @@ namespace bài_tập_1.Controllers
         // Xem chi tiết 1 thể loại - ai cũng xem được
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.TheLoai == null)
-            {
+            if (id == null || !await _context.TheLoai
+                .AnyAsync(t => t.MaTheLoai == id.Value))
                 return NotFound();
-            }
 
-            var theLoai = await _context.TheLoai
-                .FirstOrDefaultAsync(m => m.MaTheLoai == id);
-            if (theLoai == null)
-            {
-                return NotFound();
-            }
-
-            return View(theLoai);
+            return RedirectToAction(
+                "Index",
+                "Saches",
+                new { maTheLoai = id.Value });
         }
 
         // Hiển thị form thêm thể loại - chỉ Admin/NhanVien

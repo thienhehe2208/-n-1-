@@ -20,6 +20,17 @@ namespace bài_tập_1.Controllers
 
         public async Task<IActionResult> Index(string? q, int? maTheLoai, int page = 1)
         {
+            var categories = await _context.TheLoai
+                .Include(t => t.DanhSachSach)
+                .AsNoTracking()
+                .OrderBy(t => t.TenTheLoai)
+                .ToListAsync();
+            var selectedCategory = maTheLoai.HasValue
+                ? categories.FirstOrDefault(t => t.MaTheLoai == maTheLoai.Value)
+                : null;
+            if (maTheLoai.HasValue && selectedCategory == null)
+                return NotFound();
+
             var query = _context.Sach
                 .Include(s => s.NhaXuatBan)
                 .Include(s => s.TheLoai)
@@ -40,6 +51,8 @@ namespace bài_tập_1.Controllers
 
             ViewData["Search"] = q;
             ViewData["MaTheLoai"] = maTheLoai;
+            ViewData["SelectedCategory"] = selectedCategory;
+            ViewData["Categories"] = categories;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["FavoriteIds"] = string.IsNullOrWhiteSpace(userId)
                 ? new HashSet<int>()
@@ -50,6 +63,7 @@ namespace bài_tập_1.Controllers
                     .ToHashSet();
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
+            ViewData["TotalResults"] = pagination.TotalItems;
             return View(await query.OrderBy(s => s.TenSach)
                 .Skip((pagination.Page - 1) * pagination.PageSize)
                 .Take(pagination.PageSize)

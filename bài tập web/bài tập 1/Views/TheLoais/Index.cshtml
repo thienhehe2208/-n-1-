@@ -65,8 +65,9 @@
                     </div>
 
                     <div class="category-card-footer">
-                        <a asp-action="Details"
-                           asp-route-id="@item.MaTheLoai"
+                        <a asp-controller="Saches"
+                           asp-action="Index"
+                           asp-route-maTheLoai="@item.MaTheLoai"
                            class="category-explore-link">
                             Khám phá danh mục
                             <i class="bi bi-arrow-up-right"></i>

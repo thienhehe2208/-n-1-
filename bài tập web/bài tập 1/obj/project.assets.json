@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "targets": {
     "net6.0": {
       "Humanizer/2.14.1": {
@@ -10914,23 +10914,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Luong\\.nuget\\packages\\": {},
+    "C:\\Users\\thaic\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\đồ án 1\\bài tập web\\bài tập 1\\bài tập 1.csproj",
+      "projectUniqueName": "D:\\ĐỒ ÁN 01.08\\-n-1-\\bài tập web\\bài tập 1\\bài tập 1.csproj",
       "projectName": "bài tập 1",
-      "projectPath": "E:\\đồ án 1\\bài tập web\\bài tập 1\\bài tập 1.csproj",
-      "packagesPath": "C:\\Users\\Luong\\.nuget\\packages\\",
-      "outputPath": "E:\\đồ án 1\\bài tập web\\bài tập 1\\obj\\",
+      "projectPath": "D:\\ĐỒ ÁN 01.08\\-n-1-\\bài tập web\\bài tập 1\\bài tập 1.csproj",
+      "packagesPath": "C:\\Users\\thaic\\.nuget\\packages\\",
+      "outputPath": "D:\\ĐỒ ÁN 01.08\\-n-1-\\bài tập web\\bài tập 1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Luong\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\thaic\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -10943,6 +10943,7 @@
       },
       "frameworks": {
         "net6.0": {
+          "framework": "net6.0",
           "targetAlias": "net6.0",
           "projectReferences": {}
         }
@@ -10957,10 +10958,11 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.200"
+      "SdkAnalysisLevel": "10.0.300"
     },
     "frameworks": {
       "net6.0": {
+        "framework": "net6.0",
         "targetAlias": "net6.0",
         "dependencies": {
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
@@ -11011,7 +11013,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301\\RuntimeIdentifierGraph.json"
       }
     }
   }

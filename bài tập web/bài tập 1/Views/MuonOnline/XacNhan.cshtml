@@ -1,0 +1,20 @@
+@model YeuCauMuonOnline
+@{
+    ViewData["Title"] = "Xác nhận phiếu online"; var valid = Model.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan;
+}
+
+<section class="staff-scan-page">
+    <header><span><i class="bi bi-qr-code-scan"></i></span><div><small>KẾT QUẢ QUÉT MÃ</small><h1>Phiếu mượn online</h1><p>Kiểm tra sách và độc giả trước khi xác nhận giao.</p></div></header>
+    <div class="staff-scan-card">
+        <div class="staff-scan-status @(valid ? "valid" : "invalid")"><i class="bi @(valid ? "bi-shield-check" : "bi-x-octagon")"></i><div><strong>@(valid ? "Phiếu hợp lệ" : "Phiếu không còn hiệu lực")</strong><small>#MO-@Model.MaXacNhan</small></div></div>
+        <div class="staff-scan-grid"><div><small>Độc giả</small><strong>@Model.DocGia.HoTen</strong><span>@Model.DocGia.Email • @Model.DocGia.SoDienThoai</span></div><div><small>Sách cần giao</small><strong>@Model.Sach.TenSach</strong><span>Mã bản sao: @Model.BanSao.MaVach</span></div><div><small>Ngày hẹn nhận</small><strong>@Model.NgayHenNhan.ToString("dd/MM/yyyy")</strong></div><div><small>Hạn trả</small><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div></div>
+        @if (!string.IsNullOrWhiteSpace(Model.GhiChu))
+        {
+            <div class="staff-scan-note"><i class="bi bi-chat-left-text"></i><span>@Model.GhiChu</span></div>
+        }
+        @if (valid)
+        {
+            <form asp-action="XacNhanNhanSach" method="post"><input type="hidden" name="ma" value="@Model.MaXacNhan" />@Html.AntiForgeryToken()<button type="submit"><i class="bi bi-check2-circle"></i> Xác nhận giao sách &amp; tạo phiếu mượn</button></form>
+        }
+    </div>
+</section>
