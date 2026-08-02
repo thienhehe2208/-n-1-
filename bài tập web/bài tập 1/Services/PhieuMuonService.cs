@@ -28,11 +28,13 @@ namespace bài_tập_1.Services
 
             foreach (var phieu in phieuMuons)
             {
-                var trangThaiMoi = phieu.ChiTietPhieuMuons.All(c => c.NgayTra.HasValue)
-                    ? TrangThaiPhieuMuon.DaTra
-                    : phieu.NgayHenTra.Date < homNay
-                        ? TrangThaiPhieuMuon.QuaHan
-                        : TrangThaiPhieuMuon.DangMuon;
+                var trangThaiMoi = phieu.ChiTietPhieuMuons.Count == 0
+                    ? TrangThaiPhieuMuon.Nhap
+                    : phieu.ChiTietPhieuMuons.All(c => c.NgayTra.HasValue)
+                        ? TrangThaiPhieuMuon.DaTra
+                        : phieu.NgayHenTra.Date < homNay
+                            ? TrangThaiPhieuMuon.QuaHan
+                            : TrangThaiPhieuMuon.DangMuon;
 
                 if (phieu.TrangThai == trangThaiMoi)
                     continue;

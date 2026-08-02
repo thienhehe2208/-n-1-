@@ -16,15 +16,18 @@ namespace bài_tập_1.Controllers
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly PhieuMuonService _phieuMuonService;
+        private readonly DocGiaEligibilityService _eligibilityService;
 
         public PhieuMuonsController(
             bài_tập_1Context context,
             UserManager<IdentityUser> userManager,
-            PhieuMuonService phieuMuonService)
+            PhieuMuonService phieuMuonService,
+            DocGiaEligibilityService eligibilityService)
         {
             _context = context;
             _userManager = userManager;
             _phieuMuonService = phieuMuonService;
+            _eligibilityService = eligibilityService;
         }
 
         public async Task<IActionResult> Index(
@@ -33,7 +36,6 @@ namespace bài_tập_1.Controllers
             int page = 1)
         {
             await _phieuMuonService.CapNhatTrangThaiAsync();
-            var homNay = DateTime.Today;
             var query = _context.PhieuMuon
                 .Include(p => p.DocGia)
                 .Include(p => p.NhanVien)
@@ -43,13 +45,13 @@ namespace bài_tập_1.Controllers
 
             ViewData["TongPhieu"] = await query.CountAsync();
             ViewData["DangMuon"] = await query.CountAsync(p =>
-                p.TrangThai != TrangThaiPhieuMuon.DaTra &&
-                p.NgayHenTra >= homNay);
+                p.TrangThai == TrangThaiPhieuMuon.DangMuon);
             ViewData["DaTra"] = await query.CountAsync(p =>
                 p.TrangThai == TrangThaiPhieuMuon.DaTra);
             ViewData["QuaHan"] = await query.CountAsync(p =>
-                p.TrangThai != TrangThaiPhieuMuon.DaTra &&
-                p.NgayHenTra < homNay);
+                p.TrangThai == TrangThaiPhieuMuon.QuaHan);
+            ViewData["Nhap"] = await query.CountAsync(p =>
+                p.TrangThai == TrangThaiPhieuMuon.Nhap);
 
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -67,13 +69,13 @@ namespace bài_tập_1.Controllers
             query = trangThai switch
             {
                 "borrowing" => query.Where(p =>
-                    p.TrangThai != TrangThaiPhieuMuon.DaTra &&
-                    p.NgayHenTra >= homNay),
+                    p.TrangThai == TrangThaiPhieuMuon.DangMuon),
                 "returned" => query.Where(p =>
                     p.TrangThai == TrangThaiPhieuMuon.DaTra),
                 "overdue" => query.Where(p =>
-                    p.TrangThai != TrangThaiPhieuMuon.DaTra &&
-                    p.NgayHenTra < homNay),
+                    p.TrangThai == TrangThaiPhieuMuon.QuaHan),
+                "draft" => query.Where(p =>
+                    p.TrangThai == TrangThaiPhieuMuon.Nhap),
                 _ => query
             };
 
@@ -132,19 +134,10 @@ namespace bài_tập_1.Controllers
 
             if (docGia != null)
             {
-                var conNoPhat = await _context.PhieuPhat
-                    .AnyAsync(p =>
-                        p.TrangThai ==
-                            TrangThaiPhieuPhat.ChuaDong &&
-                        p.ChiTietPhieuMuon.PhieuMuon.MaDocGia ==
-                            docGia.MaDocGia);
-
-                if (conNoPhat)
-                {
-                    ModelState.AddModelError(
-                        nameof(model.MaDocGia),
-                        "Độc giả còn phiếu phạt chưa thanh toán.");
-                }
+                var errors = await _eligibilityService.KiemTraAsync(
+                    docGia.MaDocGia);
+                foreach (var error in errors)
+                    ModelState.AddModelError(nameof(model.MaDocGia), error);
             }
 
             if (model.NgayHenTra.Date <= DateTime.Today)
@@ -186,7 +179,7 @@ namespace bài_tập_1.Controllers
                 MaNhanVien = nhanVien!.MaNhanVien,
                 NgayMuon = DateTime.Now,
                 NgayHenTra = model.NgayHenTra.Date,
-                TrangThai = TrangThaiPhieuMuon.DangMuon
+                TrangThai = TrangThaiPhieuMuon.Nhap
             };
 
             _context.PhieuMuon.Add(phieuMuon);
@@ -214,10 +207,11 @@ namespace bài_tập_1.Controllers
             if (phieuMuon == null)
                 return NotFound();
 
-            if (phieuMuon.TrangThai == TrangThaiPhieuMuon.DaTra)
+            if (phieuMuon.TrangThai != TrangThaiPhieuMuon.Nhap)
             {
                 TempData["Error"] =
-                    "Không thể thay đổi hạn trả của phiếu đã hoàn tất.";
+                    "Chỉ được sửa hạn trả khi phiếu còn là bản nháp. " +
+                    "Phiếu đã có sách phải sử dụng chức năng gia hạn.";
                 return RedirectToAction(
                     nameof(Details),
                     new { id = phieuMuon.MaPhieuMuon });
@@ -243,16 +237,17 @@ namespace bài_tập_1.Controllers
 
             var phieuMuon = await _context.PhieuMuon
                 .Include(p => p.DocGia)
+                .Include(p => p.ChiTietPhieuMuons)
                 .FirstOrDefaultAsync(p => p.MaPhieuMuon == id);
 
             if (phieuMuon == null)
                 return NotFound();
 
-            if (phieuMuon.TrangThai == TrangThaiPhieuMuon.DaTra)
+            if (phieuMuon.TrangThai != TrangThaiPhieuMuon.Nhap)
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "Không thể thay đổi phiếu đã hoàn tất.");
+                    "Chỉ được sửa hạn trả của phiếu nháp.");
             }
 
             if (model.NgayHenTra.Date <= phieuMuon.NgayMuon.Date)
@@ -278,8 +273,9 @@ namespace bài_tập_1.Controllers
             }
 
             phieuMuon.NgayHenTra = model.NgayHenTra.Date;
-            phieuMuon.TrangThai =
-                phieuMuon.NgayHenTra < DateTime.Today
+            phieuMuon.TrangThai = phieuMuon.ChiTietPhieuMuons.Count == 0
+                ? TrangThaiPhieuMuon.Nhap
+                : phieuMuon.NgayHenTra < DateTime.Today
                     ? TrangThaiPhieuMuon.QuaHan
                     : TrangThaiPhieuMuon.DangMuon;
 

@@ -45,6 +45,12 @@ namespace bài_tập_1.Data
                 .IsUnique();
 
             modelBuilder.Entity<YeuCauMuonOnline>()
+                .HasIndex(y => y.MaBanSao)
+                .HasDatabaseName("UX_YeuCauMuonOnline_BanSaoChoNhan")
+                .IsUnique()
+                .HasFilter("[TrangThai] = 0");
+
+            modelBuilder.Entity<YeuCauMuonOnline>()
                 .HasOne(y => y.BanSao)
                 .WithMany()
                 .HasForeignKey(y => y.MaBanSao)

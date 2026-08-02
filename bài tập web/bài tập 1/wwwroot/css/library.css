@@ -11346,6 +11346,15 @@ body.sidebar-collapsed .sidebar-item {
             background: #ef4444;
         }
 
+    .loan-status.draft {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+        .loan-status.draft i {
+            background: #64748b;
+        }
+
 .loan-row-actions {
     display: flex;
     align-items: center;

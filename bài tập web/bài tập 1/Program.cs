@@ -59,6 +59,9 @@ namespace bài_tập_1
             builder.Services.AddScoped<DatTruocService>();
             builder.Services.AddScoped<PhieuMuonService>();
             builder.Services.AddScoped<ThongBaoService>();
+            builder.Services.AddScoped<DocGiaEligibilityService>();
+            builder.Services.AddScoped<MuonOnlineService>();
+            builder.Services.AddHostedService<LibraryMaintenanceService>();
 
             var app = builder.Build();
 
@@ -208,6 +211,48 @@ namespace bài_tập_1
                                 logger.LogError(
                                     "Không thể gán role Admin: {Errors}",
                                     errors);
+                            }
+                        }
+
+                        if (await userManager.IsInRoleAsync(admin, "Admin"))
+                        {
+                            // Hệ thống chỉ duy trì một Admin theo email cấu hình.
+                            // Các Admin dư được hạ về Nhân viên nếu có hồ sơ.
+                            var adminUsers = await userManager
+                                .GetUsersInRoleAsync("Admin");
+                            foreach (var extraAdmin in adminUsers
+                                         .Where(user => user.Id != admin.Id))
+                            {
+                                var removeAdminResult = await userManager
+                                    .RemoveFromRoleAsync(extraAdmin, "Admin");
+                                if (!removeAdminResult.Succeeded)
+                                {
+                                    logger.LogError(
+                                        "Không thể gỡ quyền Admin dư của {Email}.",
+                                        extraAdmin.Email);
+                                    continue;
+                                }
+
+                                var hasStaffProfile = await context.NhanVien
+                                    .AnyAsync(n => n.UserId == extraAdmin.Id);
+                                if (hasStaffProfile &&
+                                    !await userManager.IsInRoleAsync(
+                                        extraAdmin,
+                                        "NhanVien"))
+                                {
+                                    await userManager.AddToRoleAsync(
+                                        extraAdmin,
+                                        "NhanVien");
+                                }
+
+                                await userManager.UpdateSecurityStampAsync(
+                                    extraAdmin);
+
+                                logger.LogWarning(
+                                    "Đã gỡ quyền Admin dư khỏi {Email}; " +
+                                    "Admin duy nhất là {AdminEmail}.",
+                                    extraAdmin.Email,
+                                    adminEmail);
                             }
                         }
 

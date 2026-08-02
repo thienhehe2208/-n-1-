@@ -170,6 +170,10 @@ namespace bài_tập_1.Controllers
                 .AnyAsync(d =>
                     d.MaBanSaoDuocGiu == id &&
                     d.TrangThai == TrangThaiDatTruoc.DaCoSach);
+            var dangDuocGiuOnline = await _context.YeuCauMuonOnline
+                .AnyAsync(y =>
+                    y.MaBanSao == id &&
+                    y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
 
             if (dangCoLuotMuon)
             {
@@ -187,7 +191,7 @@ namespace bài_tập_1.Controllers
                         "Không thể đổi đầu sách của bản sao đang được mượn.");
                 }
             }
-            else if (dangDuocGiu)
+            else if (dangDuocGiu || dangDuocGiuOnline)
             {
                 if (banSao.TinhTrang != TinhTrangBanSao.DaGiu)
                 {
@@ -278,11 +282,13 @@ namespace bài_tập_1.Controllers
                 .AnyAsync(c => c.MaBanSao == id);
             var daCoDatTruoc = await _context.DatTruoc
                 .AnyAsync(d => d.MaBanSaoDuocGiu == id);
+            var daCoYeuCauOnline = await _context.YeuCauMuonOnline
+                .AnyAsync(y => y.MaBanSao == id);
 
-            if (daCoLichSuMuon || daCoDatTruoc)
+            if (daCoLichSuMuon || daCoDatTruoc || daCoYeuCauOnline)
             {
                 TempData["Error"] =
-                    "Không thể xóa bản sao đã có lịch sử mượn hoặc đặt trước. " +
+                    "Không thể xóa bản sao đã có lịch sử mượn, đặt trước hoặc mượn online. " +
                     "Hãy chuyển sang trạng thái thanh lý nếu bản sao không còn sử dụng.";
                 return RedirectToAction(nameof(Index));
             }

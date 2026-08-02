@@ -20,7 +20,7 @@ namespace bài_tập_1.Models
 
         public DateTime NgayHenTra { get; set; }
 
-        public TrangThaiPhieuMuon TrangThai { get; set; } = TrangThaiPhieuMuon.DangMuon;
+        public TrangThaiPhieuMuon TrangThai { get; set; } = TrangThaiPhieuMuon.Nhap;
 
         public int SoLanGiaHan { get; set; }
 

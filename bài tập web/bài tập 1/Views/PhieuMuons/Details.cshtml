@@ -2,8 +2,9 @@
 
 @{
     ViewData["Title"] = "Chi tiết phiếu mượn";
+    var laPhieuNhap = Model.TrangThai == TrangThaiPhieuMuon.Nhap;
     var daTra = Model.TrangThai == TrangThaiPhieuMuon.DaTra;
-    var quaHan = !daTra && Model.NgayHenTra.Date < DateTime.Today;
+    var quaHan = Model.TrangThai == TrangThaiPhieuMuon.QuaHan;
 }
 
 <div class="card shadow-sm mb-4">
@@ -12,7 +13,7 @@
             <div>
                 <h2>Phiếu #PM@Model.MaPhieuMuon.ToString("D4")</h2>
                 <p class="text-muted mb-0">
-                    @(daTra ? "Đã hoàn trả" : quaHan ? "Đang quá hạn" : "Đang mượn")
+                    @(laPhieuNhap ? "Phiếu nháp – chưa có sách" : daTra ? "Đã hoàn trả" : quaHan ? "Đang quá hạn" : "Đang mượn")
                 </p>
             </div>
             <div>
@@ -25,7 +26,7 @@
                         Thêm sách vào phiếu
                     </a>
                 }
-                @if (!daTra)
+                @if (laPhieuNhap)
                 {
                     <a asp-action="Edit"
                            asp-route-id="@Model.MaPhieuMuon"
@@ -33,7 +34,7 @@
                         Đổi hạn trả
                     </a>
                 }
-                @if (!daTra && !quaHan && Model.ChiTietPhieuMuons.Any(c => !c.NgayTra.HasValue))
+                @if (!laPhieuNhap && !daTra && !quaHan && Model.ChiTietPhieuMuons.Any(c => !c.NgayTra.HasValue))
                 {
                     <form asp-action="GiaHan" asp-route-id="@Model.MaPhieuMuon" method="post" class="d-inline">
                         @Html.AntiForgeryToken()

@@ -194,7 +194,9 @@ namespace bài_tập_1.Controllers
                         .ThenInclude(b => b.Sach)
                 .Include(p => p.ChiTietPhieuMuons)
                     .ThenInclude(ct => ct.PhieuPhat)
-                .Where(p => p.MaDocGia == docGia.MaDocGia)
+                .Where(p =>
+                    p.MaDocGia == docGia.MaDocGia &&
+                    p.TrangThai != TrangThaiPhieuMuon.Nhap)
                 .AsNoTracking()
                 .AsQueryable();
 

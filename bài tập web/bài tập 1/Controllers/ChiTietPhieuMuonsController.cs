@@ -16,15 +16,18 @@ namespace bài_tập_1.Controllers
         private readonly bài_tập_1Context _context;
         private readonly DatTruocService _datTruocService;
         private readonly PhieuMuonService _phieuMuonService;
+        private readonly DocGiaEligibilityService _eligibilityService;
 
         public ChiTietPhieuMuonsController(
             bài_tập_1Context context,
             DatTruocService datTruocService,
-            PhieuMuonService phieuMuonService)
+            PhieuMuonService phieuMuonService,
+            DocGiaEligibilityService eligibilityService)
         {
             _context = context;
             _datTruocService = datTruocService;
             _phieuMuonService = phieuMuonService;
+            _eligibilityService = eligibilityService;
         }
 
         public async Task<IActionResult> Index(
@@ -142,18 +145,13 @@ namespace bài_tập_1.Controllers
 
             ValidatePhieuMuon(phieuMuon);
 
-            if (phieuMuon != null)
+            if (phieuMuon != null && banSao != null)
             {
-                var soSachDangMuon =
-                    await _phieuMuonService.DemSoSachDangMuonAsync(
-                        phieuMuon.MaDocGia);
-
-                if (soSachDangMuon >= LibraryRules.SoSachMuonToiDa)
-                {
-                    ModelState.AddModelError(
-                        nameof(model.MaBanSao),
-                        $"Độc giả đã đạt giới hạn {LibraryRules.SoSachMuonToiDa} sách đang mượn.");
-                }
+                var errors = await _eligibilityService.KiemTraAsync(
+                    phieuMuon.MaDocGia,
+                    new KiemTraDocGiaOptions { MaSach = banSao.MaSach });
+                foreach (var error in errors)
+                    ModelState.AddModelError(nameof(model.MaBanSao), error);
             }
 
             if (banSao == null)

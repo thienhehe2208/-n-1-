@@ -15,19 +15,25 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly DocGiaEligibilityService _eligibilityService;
+        private readonly MuonOnlineService _muonOnlineService;
 
         public MuonOnlineController(
             bài_tập_1Context context,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            DocGiaEligibilityService eligibilityService,
+            MuonOnlineService muonOnlineService)
         {
             _context = context;
             _userManager = userManager;
+            _eligibilityService = eligibilityService;
+            _muonOnlineService = muonOnlineService;
         }
 
         [Authorize(Roles = "DocGia")]
         public async Task<IActionResult> Create(int maSach)
         {
-            await ExpireAsync();
+            await _muonOnlineService.XuLyHetHanAsync();
             var sach = await _context.Sach
                 .Include(s => s.BanSaos)
                 .AsNoTracking()
@@ -52,7 +58,7 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> Create(
             TaoYeuCauMuonOnlineViewModel model)
         {
-            await ExpireAsync();
+            await _muonOnlineService.XuLyHetHanAsync();
             await using var transaction = await _context.Database
                 .BeginTransactionAsync(IsolationLevel.Serializable);
 
@@ -93,28 +99,11 @@ namespace bài_tập_1.Controllers
 
             if (docGia != null)
             {
-                var hasFine = await _context.PhieuPhat.AnyAsync(p =>
-                    p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
-                    p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == docGia.MaDocGia);
-                if (hasFine)
-                    ModelState.AddModelError(string.Empty,
-                        "Bạn còn phiếu phạt chưa thanh toán.");
-
-                var borrowedCount = await _context.ChiTietPhieuMuon.CountAsync(c =>
-                    c.PhieuMuon.MaDocGia == docGia.MaDocGia && c.NgayTra == null);
-                var waitingCount = await _context.YeuCauMuonOnline.CountAsync(y =>
-                    y.MaDocGia == docGia.MaDocGia &&
-                    y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
-                if (borrowedCount + waitingCount >= LibraryRules.SoSachMuonToiDa)
-                    ModelState.AddModelError(string.Empty,
-                        $"Bạn đã đạt giới hạn {LibraryRules.SoSachMuonToiDa} cuốn sách.");
-
-                var duplicate = await _context.YeuCauMuonOnline.AnyAsync(y =>
-                    y.MaDocGia == docGia.MaDocGia && y.MaSach == model.MaSach &&
-                    y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
-                if (duplicate)
-                    ModelState.AddModelError(string.Empty,
-                        "Bạn đã có phiếu mượn online đang chờ cho sách này.");
+                var errors = await _eligibilityService.KiemTraAsync(
+                    docGia.MaDocGia,
+                    new KiemTraDocGiaOptions { MaSach = model.MaSach });
+                foreach (var error in errors)
+                    ModelState.AddModelError(string.Empty, error);
             }
 
             if (!ModelState.IsValid)
@@ -140,8 +129,23 @@ namespace bài_tập_1.Controllers
                 GhiChu = model.GhiChu?.Trim() ?? string.Empty
             };
             _context.YeuCauMuonOnline.Add(request);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Bản sao vừa được người khác giữ. Vui lòng thử lại hoặc đặt trước.");
+                model.TenSach = sach.TenSach;
+                model.AnhBia = sach.AnhBia;
+                model.SoBanSanCo = sach.BanSaos.Count(b =>
+                    b.TinhTrang == TinhTrangBanSao.SanCo);
+                return View(model);
+            }
 
             return RedirectToAction(nameof(Phieu), new { id = request.MaYeuCau });
         }
@@ -149,7 +153,7 @@ namespace bài_tập_1.Controllers
         [Authorize(Roles = "DocGia")]
         public async Task<IActionResult> Phieu(int id)
         {
-            await ExpireAsync();
+            await _muonOnlineService.XuLyHetHanAsync();
             var userId = _userManager.GetUserId(User);
             var request = await RequestQuery()
                 .FirstOrDefaultAsync(y => y.MaYeuCau == id && y.DocGia.UserId == userId);
@@ -159,7 +163,7 @@ namespace bài_tập_1.Controllers
         [Authorize(Roles = "Admin,NhanVien")]
         public async Task<IActionResult> XacNhan(string ma)
         {
-            await ExpireAsync();
+            await _muonOnlineService.XuLyHetHanAsync();
             var request = await RequestQuery()
                 .FirstOrDefaultAsync(y => y.MaXacNhan == ma);
             return request == null ? NotFound() : View(request);
@@ -170,17 +174,34 @@ namespace bài_tập_1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> XacNhanNhanSach(string ma)
         {
+            await _muonOnlineService.XuLyHetHanAsync();
             await using var transaction = await _context.Database
                 .BeginTransactionAsync(IsolationLevel.Serializable);
             var request = await _context.YeuCauMuonOnline
+                .Include(y => y.DocGia)
                 .Include(y => y.BanSao)
                 .FirstOrDefaultAsync(y => y.MaXacNhan == ma);
             if (request == null)
                 return NotFound();
             if (request.TrangThai != TrangThaiYeuCauMuonOnline.ChoNhan ||
-                request.BanSao.TinhTrang != TinhTrangBanSao.DaGiu)
+                request.BanSao.TinhTrang != TinhTrangBanSao.DaGiu ||
+                request.HanNhanSach < DateTime.Now)
             {
                 TempData["Error"] = "Phiếu không còn hiệu lực hoặc đã được xử lý.";
+                return RedirectToAction(nameof(XacNhan), new { ma });
+            }
+
+            var eligibilityErrors = await _eligibilityService.KiemTraAsync(
+                request.MaDocGia,
+                new KiemTraDocGiaOptions
+                {
+                    MaSach = request.MaSach,
+                    BoQuaMaYeuCauOnline = request.MaYeuCau
+                });
+            if (eligibilityErrors.Count != 0)
+            {
+                await transaction.RollbackAsync();
+                TempData["Error"] = string.Join(" ", eligibilityErrors);
                 return RedirectToAction(nameof(XacNhan), new { ma });
             }
 
@@ -221,21 +242,5 @@ namespace bài_tập_1.Controllers
                 .Include(y => y.PhieuMuon)
                 .AsNoTracking();
 
-        private async Task ExpireAsync()
-        {
-            var expired = await _context.YeuCauMuonOnline
-                .Include(y => y.BanSao)
-                .Where(y => y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan &&
-                    y.HanNhanSach < DateTime.Now)
-                .ToListAsync();
-            foreach (var request in expired)
-            {
-                request.TrangThai = TrangThaiYeuCauMuonOnline.HetHan;
-                if (request.BanSao.TinhTrang == TinhTrangBanSao.DaGiu)
-                    request.BanSao.TinhTrang = TinhTrangBanSao.SanCo;
-            }
-            if (expired.Count != 0)
-                await _context.SaveChangesAsync();
-        }
     }
 }

@@ -182,6 +182,21 @@ namespace bài_tập_1.Controllers
                 return NotFound();
 
             var email = model.Email.Trim().ToLowerInvariant();
+            var laTaiKhoanAdmin = await _userManager.IsInRoleAsync(
+                nhanVien.User,
+                "Admin");
+            if (laTaiKhoanAdmin &&
+                !string.Equals(
+                    email,
+                    nhanVien.User.Email,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(
+                    nameof(model.Email),
+                    "Không thể đổi email của tài khoản Admin cấu hình.");
+                return View(model);
+            }
+
             var accountUsingEmail =
                 await _userManager.FindByEmailAsync(email);
 
@@ -282,6 +297,14 @@ namespace bài_tập_1.Controllers
             {
                 TempData["Error"] =
                     "Bạn không thể xóa tài khoản đang đăng nhập.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (nhanVien.User != null &&
+                await _userManager.IsInRoleAsync(nhanVien.User, "Admin"))
+            {
+                TempData["Error"] =
+                    "Tài khoản Admin duy nhất không thể bị xóa.";
                 return RedirectToAction(nameof(Index));
             }
 

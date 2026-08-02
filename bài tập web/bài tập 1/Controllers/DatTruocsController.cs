@@ -17,15 +17,18 @@ namespace bài_tập_1.Controllers
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly DatTruocService _datTruocService;
+        private readonly DocGiaEligibilityService _eligibilityService;
 
         public DatTruocsController(
             bài_tập_1Context context,
             UserManager<IdentityUser> userManager,
-            DatTruocService datTruocService)
+            DatTruocService datTruocService,
+            DocGiaEligibilityService eligibilityService)
         {
             _context = context;
             _userManager = userManager;
             _datTruocService = datTruocService;
+            _eligibilityService = eligibilityService;
         }
 
         [Authorize(Roles = "Admin,NhanVien")]
@@ -169,44 +172,15 @@ namespace bài_tập_1.Controllers
 
             if (docGia != null)
             {
-                var conNoPhat = await _context.PhieuPhat.AnyAsync(p =>
-                    p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
-                    p.ChiTietPhieuMuon.PhieuMuon.MaDocGia ==
-                        docGia.MaDocGia);
-
-                if (conNoPhat)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Độc giả còn phiếu phạt chưa thanh toán.");
-                }
-
-                var daDatTrung = await _context.DatTruoc.AnyAsync(d =>
-                    d.MaDocGia == docGia.MaDocGia &&
-                    d.MaSach == input.MaSach &&
-                    (d.TrangThai == TrangThaiDatTruoc.DangCho ||
-                     d.TrangThai == TrangThaiDatTruoc.DaCoSach));
-
-                if (daDatTrung)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Độc giả đã có một yêu cầu đang hoạt động " +
-                        "cho cuốn sách này.");
-                }
-
-                var dangMuonCungDauSach =
-                    await _context.ChiTietPhieuMuon.AnyAsync(c =>
-                        c.PhieuMuon.MaDocGia == docGia.MaDocGia &&
-                        c.BanSao.MaSach == input.MaSach &&
-                        c.NgayTra == null);
-
-                if (dangMuonCungDauSach)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Độc giả đang mượn đầu sách này nên không thể đặt trước thêm.");
-                }
+                var errors = await _eligibilityService.KiemTraAsync(
+                    docGia.MaDocGia,
+                    new KiemTraDocGiaOptions
+                    {
+                        MaSach = input.MaSach,
+                        KiemTraGioiHanSach = false
+                    });
+                foreach (var error in errors)
+                    ModelState.AddModelError(string.Empty, error);
             }
 
             if (!ModelState.IsValid)
@@ -244,7 +218,7 @@ namespace bài_tập_1.Controllers
         }
 
         [Authorize(Roles = "DocGia")]
-        public async Task<IActionResult> CuaToi()
+        public async Task<IActionResult> CuaToi(int page = 1)
         {
             await _datTruocService.XuLyHetHanAsync();
 
@@ -255,12 +229,17 @@ namespace bài_tập_1.Controllers
             if (docGia == null)
                 return NotFound();
 
-            var items = await _context.DatTruoc
+            var query = _context.DatTruoc
                 .Include(d => d.Sach)
                 .Include(d => d.BanSaoDuocGiu)
                 .Where(d => d.MaDocGia == docGia.MaDocGia)
+                .AsNoTracking();
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            var items = await query
                 .OrderByDescending(d => d.NgayDat)
-                .AsNoTracking()
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
                 .ToListAsync();
 
             return View(items);
@@ -340,27 +319,15 @@ namespace bài_tập_1.Controllers
             }
 
             ValidateDocGia(datTruoc.DocGia);
-
-            var conNoPhat = await _context.PhieuPhat.AnyAsync(p =>
-                p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
-                p.ChiTietPhieuMuon.PhieuMuon.MaDocGia ==
-                    datTruoc.MaDocGia);
-            if (conNoPhat)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Độc giả còn phiếu phạt chưa thanh toán.");
-            }
-
-            var soSachDangMuon = await _context.ChiTietPhieuMuon.CountAsync(c =>
-                c.PhieuMuon.MaDocGia == datTruoc.MaDocGia &&
-                c.NgayTra == null);
-            if (soSachDangMuon >= LibraryRules.SoSachMuonToiDa)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    $"Độc giả đã đạt giới hạn {LibraryRules.SoSachMuonToiDa} sách đang mượn.");
-            }
+            var eligibilityErrors = await _eligibilityService.KiemTraAsync(
+                datTruoc.MaDocGia,
+                new KiemTraDocGiaOptions
+                {
+                    MaSach = datTruoc.MaSach,
+                    BoQuaMaDatTruoc = datTruoc.MaDatTruoc
+                });
+            foreach (var error in eligibilityErrors)
+                ModelState.AddModelError(string.Empty, error);
 
             var userId = _userManager.GetUserId(User);
             var nhanVien = await _context.NhanVien

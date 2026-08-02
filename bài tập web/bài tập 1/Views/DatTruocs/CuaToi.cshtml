@@ -36,7 +36,8 @@
                 <a asp-controller="Saches" asp-action="Index" class="btn btn-primary">
                     Khám phá kho sách
                 </a>
-            </section>
+</section>
+
         }
         else
         {
@@ -124,3 +125,8 @@
         }
     </div>
 </main>
+
+@if (ViewData["Pagination"] is PaginationViewModel pagination)
+{
+    <partial name="_Pagination" model="pagination" />
+}

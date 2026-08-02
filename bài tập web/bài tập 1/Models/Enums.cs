@@ -20,7 +20,8 @@
     {
         DangMuon,
         DaTra,
-        QuaHan
+        QuaHan,
+        Nhap
     }
 
     public enum TinhTrangKhiTra

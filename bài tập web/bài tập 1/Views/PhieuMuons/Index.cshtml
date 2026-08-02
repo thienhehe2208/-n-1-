@@ -8,6 +8,7 @@
     var dangMuon = (int?)ViewData["DangMuon"] ?? 0;
     var daTra = (int?)ViewData["DaTra"] ?? 0;
     var quaHan = (int?)ViewData["QuaHan"] ?? 0;
+    var phieuNhap = (int?)ViewData["Nhap"] ?? 0;
 }
 
 <section class="loan-admin-page">
@@ -64,6 +65,7 @@
                 <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="borrowing" class="@(selectedStatus == "borrowing" ? "active" : "")">Đang mượn</a>
                 <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="returned" class="@(selectedStatus == "returned" ? "active" : "")">Đã trả</a>
                 <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="overdue" class="@(selectedStatus == "overdue" ? "active" : "")">Quá hạn</a>
+                <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="draft" class="@(selectedStatus == "draft" ? "active" : "")">Phiếu nháp (@phieuNhap)</a>
             </nav>
         </div>
 
@@ -90,8 +92,9 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
+                            var isDraft = item.TrangThai == TrangThaiPhieuMuon.Nhap;
                             var isReturned = item.TrangThai == TrangThaiPhieuMuon.DaTra;
-                            var isOverdue = !isReturned && item.NgayHenTra.Date < DateTime.Today;
+                            var isOverdue = item.TrangThai == TrangThaiPhieuMuon.QuaHan;
                             var daysLeft = (item.NgayHenTra.Date - DateTime.Today).Days;
                             var readerName = item.DocGia?.HoTen ?? "Chưa xác định";
                             var initials = string.Concat(readerName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
@@ -121,8 +124,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="loan-status @(isReturned ? "returned" : isOverdue ? "overdue" : "borrowing")">
-                                        <i></i> @(isReturned ? "Đã trả" : isOverdue ? "Quá hạn" : "Đang mượn")
+                                    <span class="loan-status @(isDraft ? "draft" : isReturned ? "returned" : isOverdue ? "overdue" : "borrowing")">
+                                        <i></i> @(isDraft ? "Phiếu nháp" : isReturned ? "Đã trả" : isOverdue ? "Quá hạn" : "Đang mượn")
                                     </span>
                                 </td>
                                 <td>

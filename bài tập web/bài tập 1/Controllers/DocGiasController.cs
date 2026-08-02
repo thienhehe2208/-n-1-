@@ -311,6 +311,16 @@ namespace bài_tập_1.Controllers
             if (docGia == null)
                 return NotFound();
 
+            var coYeuCauMuonOnline = await _context.YeuCauMuonOnline
+                .AnyAsync(y => y.MaDocGia == id);
+            if (coYeuCauMuonOnline)
+            {
+                TempData["Error"] =
+                    "Không thể xóa độc giả đã có yêu cầu mượn online. " +
+                    "Hãy khóa tài khoản để giữ nguyên lịch sử nghiệp vụ.";
+                return RedirectToAction(nameof(Index));
+            }
+
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 

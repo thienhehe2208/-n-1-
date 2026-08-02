@@ -34,7 +34,11 @@ namespace bài_tập_1.Services
                     d.DocGia.NgayHetHanThe < DateTime.Today ||
                     _context.PhieuPhat.Any(p =>
                         p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
-                        p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == d.MaDocGia))
+                        p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == d.MaDocGia) ||
+                    _context.ChiTietPhieuMuon.Any(c =>
+                        c.PhieuMuon.MaDocGia == d.MaDocGia &&
+                        c.NgayTra == null &&
+                        c.PhieuMuon.NgayHenTra < DateTime.Today))
                 .ToListAsync();
 
             foreach (var item in invalidWaiting)
@@ -123,7 +127,11 @@ namespace bài_tập_1.Services
                     (!d.NgayHetHanDat.HasValue || d.NgayHetHanDat >= DateTime.Now) &&
                     !_context.PhieuPhat.Any(p =>
                         p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
-                        p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == d.MaDocGia))
+                        p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == d.MaDocGia) &&
+                    !_context.ChiTietPhieuMuon.Any(c =>
+                        c.PhieuMuon.MaDocGia == d.MaDocGia &&
+                        c.NgayTra == null &&
+                        c.PhieuMuon.NgayHenTra < DateTime.Today))
                 .OrderBy(d => d.NgayDat)
                 .ThenBy(d => d.MaDatTruoc)
                 .FirstOrDefaultAsync();
