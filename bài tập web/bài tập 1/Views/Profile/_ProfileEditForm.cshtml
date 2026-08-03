@@ -1,0 +1,146 @@
+@model bài_tập_1.Models.ViewModels.ProfileEditViewModel
+@{
+    var formAction = ViewData["FormAction"]?.ToString() ?? "EditDocGia";
+    var profileType = ViewData["ProfileType"]?.ToString() ?? "HỒ SƠ CÁ NHÂN";
+    var profileNote = ViewData["ProfileNote"]?.ToString() ?? string.Empty;
+    var displayName = string.IsNullOrWhiteSpace(Model.HoTen) ? "Tài khoản của bạn" : Model.HoTen.Trim();
+    var nameParts = displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = nameParts.Length > 1
+        ? $"{nameParts[0][0]}{nameParts[^1][0]}".ToUpperInvariant()
+        : displayName[..Math.Min(2, displayName.Length)].ToUpperInvariant();
+}
+
+<section class="profile-edit-page">
+    <a asp-action="Index" class="profile-edit-back">
+        <i class="bi bi-arrow-left"></i> Quay lại hồ sơ
+    </a>
+
+    <header class="profile-edit-hero">
+        <div class="profile-edit-hero-content">
+            <span class="profile-edit-avatar">@initials</span>
+            <div>
+                <span class="profile-edit-kicker">@profileType</span>
+                <h1>Chỉnh sửa thông tin cá nhân</h1>
+                <p>Cập nhật thông tin chính xác để thư viện có thể hỗ trợ bạn tốt hơn.</p>
+            </div>
+        </div>
+        <div class="profile-edit-progress">
+            <span><i class="bi bi-shield-check"></i></span>
+            <div><small>THÔNG TIN ĐƯỢC BẢO VỆ</small><strong>Kết nối an toàn</strong></div>
+        </div>
+    </header>
+
+    <div class="profile-edit-layout">
+        <form asp-action="@formAction" method="post" class="profile-edit-card">
+            @Html.AntiForgeryToken()
+
+            <div class="profile-edit-card-heading">
+                <span><i class="bi bi-person-lines-fill"></i></span>
+                <div>
+                    <small>THÔNG TIN CÁ NHÂN</small>
+                    <h2>Chi tiết hồ sơ</h2>
+                    <p>Các trường có dấu <b>*</b> là thông tin bắt buộc.</p>
+                </div>
+            </div>
+
+            <div asp-validation-summary="ModelOnly" class="profile-edit-validation"></div>
+
+            <div class="profile-edit-form-grid">
+                <div class="profile-edit-field profile-edit-field-wide">
+                    <label asp-for="HoTen"><span>Họ và tên</span><b>*</b></label>
+                    <div class="profile-edit-control">
+                        <i class="bi bi-person"></i>
+                        <input asp-for="HoTen" placeholder="Nhập họ và tên đầy đủ" autocomplete="name" />
+                    </div>
+                    <span asp-validation-for="HoTen"></span>
+                </div>
+
+                <div class="profile-edit-field">
+                    <label asp-for="NgaySinh"><span>Ngày sinh</span></label>
+                    <div class="profile-edit-control">
+                        <i class="bi bi-calendar3"></i>
+                        <input asp-for="NgaySinh" type="date" />
+                    </div>
+                    <span asp-validation-for="NgaySinh"></span>
+                </div>
+
+                <div class="profile-edit-field">
+                    <label asp-for="GioiTinh"><span>Giới tính</span></label>
+                    <div class="profile-edit-control">
+                        <i class="bi bi-gender-ambiguous"></i>
+                        <select asp-for="GioiTinh">
+                            <option value="">Chọn giới tính</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="GioiTinh"></span>
+                </div>
+
+                <div class="profile-edit-field profile-edit-field-wide">
+                    <label asp-for="DiaChi"><span>Địa chỉ</span></label>
+                    <div class="profile-edit-control">
+                        <i class="bi bi-geo-alt"></i>
+                        <input asp-for="DiaChi" placeholder="Số nhà, đường, phường/xã, tỉnh/thành phố" autocomplete="street-address" />
+                    </div>
+                    <span asp-validation-for="DiaChi"></span>
+                </div>
+            </div>
+
+            <div class="profile-edit-section-divider">
+                <span><i class="bi bi-telephone"></i></span>
+                <div><h3>Thông tin liên hệ</h3><p>Dùng để nhận hỗ trợ và các cập nhật quan trọng từ thư viện.</p></div>
+            </div>
+
+            <div class="profile-edit-form-grid">
+                <div class="profile-edit-field">
+                    <label asp-for="SoDienThoai"><span>Số điện thoại</span></label>
+                    <div class="profile-edit-control">
+                        <i class="bi bi-phone"></i>
+                        <input asp-for="SoDienThoai" placeholder="Ví dụ: 0901234567" autocomplete="tel" inputmode="tel" />
+                    </div>
+                    <span asp-validation-for="SoDienThoai"></span>
+                </div>
+
+                <div class="profile-edit-field">
+                    <label asp-for="Email"><span>Email đăng nhập</span><b>*</b></label>
+                    <div class="profile-edit-control">
+                        <i class="bi bi-envelope"></i>
+                        <input asp-for="Email" placeholder="tenban@example.com" autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email"></span>
+                </div>
+            </div>
+
+            <div class="profile-edit-actions">
+                <a asp-action="Index"><i class="bi bi-x-lg"></i> Hủy thay đổi</a>
+                <button type="submit"><i class="bi bi-check2-circle"></i> Lưu thông tin</button>
+            </div>
+        </form>
+
+        <aside class="profile-edit-sidebar">
+            <article class="profile-edit-preview">
+                <span class="profile-edit-preview-icon"><i class="bi bi-person-badge"></i></span>
+                <small>XEM TRƯỚC HỒ SƠ</small>
+                <span class="profile-edit-preview-avatar">@initials</span>
+                <h2>@displayName</h2>
+                <p><i class="bi bi-envelope"></i> @Model.Email</p>
+                <div><i class="bi bi-patch-check-fill"></i><span><strong>Tài khoản đã xác minh</strong><small>Thông tin được quản lý an toàn</small></span></div>
+            </article>
+
+            <article class="profile-edit-guide">
+                <span><i class="bi bi-lightbulb"></i></span>
+                <div>
+                    <h3>Lưu ý khi cập nhật</h3>
+                    <p>Kiểm tra kỹ email vì đây cũng là tên đăng nhập của bạn.</p>
+                </div>
+            </article>
+
+            <article class="profile-edit-locked-note">
+                <i class="bi bi-lock"></i>
+                <p><strong>Thông tin giới hạn</strong><span>@profileNote</span></p>
+            </article>
+        </aside>
+    </div>
+</section>

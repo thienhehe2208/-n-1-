@@ -1,59 +1,96 @@
 @model IEnumerable<bài_tập_1.Models.ThongBao>
-
+@using bài_tập_1.Models.ViewModels
 @{
-    ViewData["Title"] = "Thông báo của tôi";
+    var isAdminOutbox = ViewData["IsAdminOutbox"] as bool? == true;
+    var unread = Model.Count(t => !t.DaDoc);
+    ViewData["Title"] = isAdminOutbox ? "Quản lý thông báo" : "Thông báo của tôi";
+    string Icon(string type) => type switch { "success" => "bi-check-circle", "warning" => "bi-exclamation-triangle", "danger" => "bi-exclamation-octagon", _ => "bi-info-circle" };
+    string Audience(string value) => value switch { "DocGia" => "Độc giả", "NhanVien" => "Nhân viên", _ => "Tất cả tài khoản" };
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h1 class="h3 mb-1">Thông báo của tôi</h1>
-        <p class="text-muted mb-0">Theo dõi hạn trả và tình trạng sách đặt trước.</p>
+<section class="notification-page">
+    <header class="notification-hero">
+        <div>
+            <span class="notification-eyebrow"><i class="bi bi-bell"></i> TRUNG TÂM THÔNG BÁO</span>
+            <h1>@(isAdminOutbox ? "Kết nối mọi thành viên" : "Luôn cập nhật, không bỏ lỡ")</h1>
+            <p>@(isAdminOutbox ? "Soạn và gửi thông tin quan trọng đến đúng nhóm người dùng trong thư viện." : "Theo dõi thông báo từ thư viện, hạn trả sách và trạng thái đặt trước của bạn.")</p>
+        </div>
+        <div class="notification-hero-art"><i class="bi bi-send"></i><span></span><span></span></div>
+    </header>
+
+    <div class="notification-summary">
+        <article><span class="summary-icon blue"><i class="bi bi-inbox"></i></span><div><small>@(isAdminOutbox ? "CHIẾN DỊCH ĐÃ GỬI" : "TỔNG THÔNG BÁO")</small><strong>@Model.Count()</strong></div></article>
+        <article><span class="summary-icon amber"><i class="bi bi-envelope-exclamation"></i></span><div><small>@(isAdminOutbox ? "KÊNH PHÂN PHỐI" : "CHƯA ĐỌC")</small><strong>@(isAdminOutbox ? "02" : unread)</strong></div></article>
+        <article class="notification-summary-action">
+            @if (isAdminOutbox)
+            {
+                <a asp-action="Create"><i class="bi bi-pencil-square"></i><span><strong>Soạn thông báo mới</strong><small>Gửi tới độc giả hoặc nhân viên</small></span><i class="bi bi-arrow-right"></i></a>
+            }
+            else
+            {
+
+                <span class="summary-icon green"><i class="bi bi-shield-check"></i></span><div><small>TRẠNG THÁI HỘP THƯ</small><strong>@(unread == 0 ? "Đã cập nhật" : "Có tin mới")</strong></div>
+            }
+        </article>
     </div>
-    @if (Model.Any(t => !t.DaDoc))
-    {
-        <form asp-action="DanhDauTatCaDaDoc" method="post">
-            @Html.AntiForgeryToken()
-            <button class="btn btn-outline-primary" type="submit">Đánh dấu tất cả đã đọc</button>
-        </form>
-    }
-</div>
 
-@if (!Model.Any())
-{
-    <div class="content-card"><p class="mb-0 text-muted">Bạn chưa có thông báo nào.</p></div>
-}
+    <div class="notification-panel">
+        <div class="notification-panel-head">
+            <div><span>@(isAdminOutbox ? "LỊCH SỬ PHÁT HÀNH" : "HỘP THƯ CỦA BẠN")</span><h2>@(isAdminOutbox ? "Thông báo đã gửi" : "Thông báo gần đây")</h2><p>Sắp xếp theo thời gian mới nhất.</p></div>
+            @if (!isAdminOutbox && unread > 0)
+            {
+                <form asp-action="DanhDauTatCaDaDoc" method="post">@Html.AntiForgeryToken()<button class="notification-read-all"><i class="bi bi-check2-all"></i> Đánh dấu tất cả đã đọc</button></form>
+            }
+        </div>
 
-else
-{
-    <div class="list-group shadow-sm">
-        @foreach (var item in Model)
+        @if (!Model.Any())
         {
-            <div class="list-group-item @(item.DaDoc ? "" : "list-group-item-light border-start border-primary border-4")">
-                <div class="d-flex justify-content-between gap-3">
-                    <div>
-                        <h2 class="h6 mb-1">@item.TieuDe</h2>
-                        <p class="mb-1">@item.NoiDung</p>
-                        <small class="text-muted">@item.NgayTao.ToString("dd/MM/yyyy HH:mm")</small>
-                    </div>
-                    @if (!item.DaDoc)
-                    {
-                        <form asp-action="DanhDauDaDoc" method="post" class="flex-shrink-0">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@item.MaThongBao" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Xem</button>
-                        </form>
-                    }
-                    else if (!string.IsNullOrWhiteSpace(item.LienKet))
-                    {
-                        <a class="btn btn-sm btn-outline-secondary flex-shrink-0" href="@item.LienKet">Chi tiết</a>
-                    }
-                </div>
+            <div class="notification-empty"><span><i class="bi bi-bell-slash"></i></span><h3>Chưa có thông báo nào</h3><p>@(isAdminOutbox ? "Hãy tạo thông báo đầu tiên để kết nối với mọi người." : "Các cập nhật mới từ thư viện sẽ xuất hiện tại đây.")</p></div>
+        }
+        else
+        {
+            <div class="notification-list">
+                @foreach (var item in Model)
+                {
+                    <article class="notification-item type-@item.Loai @(!item.DaDoc && !isAdminOutbox ? "unread" : "")">
+                        <span class="notification-type-icon"><i class="bi @Icon(item.Loai)"></i></span>
+                        <div class="notification-body">
+                            <div class="notification-meta">
+                                @if (!item.DaDoc && !isAdminOutbox)
+                                {
+                                    <span class="new-badge">MỚI</span>
+                                }
+                                @if (item.LaThongBaoAdmin)
+                                {
+                                    <span class="admin-badge"><i class="bi bi-patch-check-fill"></i> Từ quản trị viên</span>
+                                }
+                                @if (isAdminOutbox)
+                                {
+                                    <span class="audience-badge"><i class="bi bi-people"></i> @Audience(item.DoiTuong) · @item.SoNguoiNhan người nhận</span>
+                                }
+                                <time><i class="bi bi-clock"></i> @item.NgayTao.ToString("HH:mm · dd/MM/yyyy")</time>
+                            </div>
+                            <h3>@item.TieuDe</h3><p>@item.NoiDung</p>
+                        </div>
+                        @if (!isAdminOutbox)
+                        {
+                            if (!item.DaDoc)
+                            {
+                                <form asp-action="DanhDauDaDoc" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@item.MaThongBao" /><button class="notification-open">@(string.IsNullOrWhiteSpace(item.LienKet) ? "Đã hiểu" : "Xem chi tiết") <i class="bi bi-arrow-right"></i></button></form>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(item.LienKet))
+                            {
+
+                                <a class="notification-open secondary" href="@item.LienKet">Xem lại <i class="bi bi-arrow-right"></i></a>
+                            }
+                        }
+                    </article>
+                }
             </div>
         }
     </div>
-}
-
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
-{
-    <partial name="_Pagination" model="pagination" />
-}
+    @if (ViewData["Pagination"] is PaginationViewModel pagination)
+    {
+        <partial name="_Pagination" model="pagination" />
+    }
+</section>

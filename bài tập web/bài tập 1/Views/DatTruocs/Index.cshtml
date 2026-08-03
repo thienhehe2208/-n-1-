@@ -1,122 +1,154 @@
-﻿@using bài_tập_1.Models
+@using bài_tập_1.Models
+@using bài_tập_1.Models.ViewModels
 @model IEnumerable<bài_tập_1.Models.DatTruoc>
-
 @{
-    ViewData["Title"] = "Quản lý đặt trước";
+    ViewData["Title"] = "Trung tâm yêu cầu";
+    var onlineRequests = ViewData["YeuCauMuonOnline"] as IEnumerable<YeuCauMuonOnline> ?? Enumerable.Empty<YeuCauMuonOnline>();
+    var onlinePending = ViewData["MuonOnlineChoNhan"] as int? ?? 0;
+    var onlineToday = ViewData["MuonOnlineHomNay"] as int? ?? 0;
+    var search = ViewData["Search"]?.ToString();
+    var status = ViewData["Status"]?.ToString();
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<section class="request-center-page">
+    <header class="request-center-hero">
         <div>
-            <h1 class="h3 mb-1">Quản lý đặt trước</h1>
-            <p class="text-muted mb-0">Xử lý hàng đợi, giữ bản sao và xác nhận độc giả nhận sách.</p>
+            <span class="request-center-kicker"><i class="bi bi-inboxes"></i> QUẢN LÝ LƯU THÔNG</span>
+            <h1>Trung tâm yêu cầu sách</h1>
+            <p>Tiếp nhận phiếu mượn online, quản lý hàng chờ đặt trước và bàn giao sách cho độc giả tại một nơi.</p>
         </div>
-        <a asp-action="Create" class="btn btn-primary">Tạo yêu cầu</a>
-    </div>
+        <a asp-action="Create"><i class="bi bi-plus-lg"></i> Tạo yêu cầu đặt trước</a>
+    </header>
 
     @if (TempData["DatTruocSuccess"] is string success)
     {
-        <div class="alert alert-success">@success</div>
+        <div class="request-center-alert success"><i class="bi bi-check-circle-fill"></i><span>@success</span></div>
     }
     @if (TempData["DatTruocError"] is string error)
     {
-        <div class="alert alert-danger">@error</div>
+        <div class="request-center-alert danger"><i class="bi bi-exclamation-circle-fill"></i><span>@error</span></div>
+    }
+    @if (TempData["Success"] is string loanSuccess)
+    {
+        <div class="request-center-alert success"><i class="bi bi-check-circle-fill"></i><span>@loanSuccess</span></div>
+    }
+    @if (TempData["Error"] is string loanError)
+    {
+        <div class="request-center-alert danger"><i class="bi bi-exclamation-circle-fill"></i><span>@loanError</span></div>
     }
 
-    <div class="row g-3 mb-3">
-        <div class="col-md-4"><div class="card card-body"><strong>@ViewData["DangCho"]</strong><span>Đang chờ</span></div></div>
-        <div class="col-md-4"><div class="card card-body"><strong>@ViewData["DaCoSach"]</strong><span>Đang giữ sách</span></div></div>
-        <div class="col-md-4"><div class="card card-body"><strong>@ViewData["HoanThanh"]</strong><span>Đã nhận sách</span></div></div>
+    <div class="request-center-stats">
+        <article><span class="blue"><i class="bi bi-qr-code-scan"></i></span><div><small>PHIẾU MƯỢN CHỜ NHẬN</small><strong>@onlinePending</strong><em>Độc giả đã tạo online</em></div></article>
+        <article><span class="cyan"><i class="bi bi-calendar-check"></i></span><div><small>PHIẾU ONLINE HÔM NAY</small><strong>@onlineToday</strong><em>Yêu cầu mới trong ngày</em></div></article>
+        <article><span class="amber"><i class="bi bi-hourglass-split"></i></span><div><small>ĐẶT TRƯỚC ĐANG CHỜ</small><strong>@ViewData["DangCho"]</strong><em>Chờ bản sao khả dụng</em></div></article>
+        <article><span class="green"><i class="bi bi-bookmark-check"></i></span><div><small>ĐANG GIỮ SÁCH</small><strong>@ViewData["DaCoSach"]</strong><em>Sẵn sàng bàn giao</em></div></article>
     </div>
 
-    <form method="get" class="row g-2 mb-3">
-        <div class="col-md-7">
-            <input name="q" value="@ViewData["Search"]" class="form-control"
-                   placeholder="Tên độc giả, tên sách hoặc mã vạch" />
-        </div>
-        <div class="col-md-3">
-            <select name="trangThai" class="form-select">
-                <option value="">Tất cả trạng thái</option>
-                <option value="waiting" selected="@(ViewData["Status"]?.ToString() == "waiting")">Đang chờ</option>
-                <option value="ready" selected="@(ViewData["Status"]?.ToString() == "ready")">Sẵn sàng nhận</option>
-                <option value="completed" selected="@(ViewData["Status"]?.ToString() == "completed")">Hoàn thành</option>
-                <option value="cancelled" selected="@(ViewData["Status"]?.ToString() == "cancelled")">Đã hủy/hết hạn</option>
-            </select>
-        </div>
-        <div class="col-md-2"><button class="btn btn-outline-primary w-100">Lọc</button></div>
+    <form method="get" class="request-center-toolbar">
+        <div class="request-center-search"><i class="bi bi-search"></i><input name="q" value="@search" placeholder="Tìm độc giả, tên sách, mã xác nhận hoặc mã vạch..." /><button type="submit">Tìm kiếm</button></div>
+        <select name="trangThai" onchange="this.form.submit()">
+            <option value="">Tất cả đặt trước</option>
+            <option value="waiting" selected="@(status == "waiting")">Đang chờ</option>
+            <option value="ready" selected="@(status == "ready")">Sẵn sàng nhận</option>
+            <option value="completed" selected="@(status == "completed")">Hoàn thành</option>
+            <option value="cancelled" selected="@(status == "cancelled")">Đã hủy / hết hạn</option>
+        </select>
+        @if (!string.IsNullOrWhiteSpace(search) || !string.IsNullOrWhiteSpace(status))
+        {
+            <a asp-action="Index"><i class="bi bi-x-lg"></i> Xóa lọc</a>
+        }
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Độc giả</th>
-                    <th>Sách</th>
-                    <th>Ngày đặt</th>
-                    <th>Trạng thái</th>
-                    <th>Bản sao / thời hạn</th>
-                    <th class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    var statusText = item.TrangThai switch
+    <div class="request-section request-online-section">
+        <div class="request-section-heading">
+            <div><span>ƯU TIÊN XỬ LÝ</span><h2><i class="bi bi-qr-code-scan"></i> Phiếu mượn do độc giả tạo</h2><p>Sách đã được giữ; quét hoặc mở mã xác nhận khi độc giả đến nhận.</p></div>
+            <span class="request-heading-count">@onlineRequests.Count() phiếu hiển thị</span>
+        </div>
+        @if (!onlineRequests.Any())
+        {
+            <div class="request-center-empty compact"><span><i class="bi bi-inbox"></i></span><div><h3>Chưa có phiếu mượn online</h3><p>Phiếu do độc giả tạo sẽ tự động xuất hiện tại khu vực này.</p></div></div>
+        }
+        else
+        {
+            <div class="online-request-table-wrap">
+                <table class="online-request-table">
+                    <thead><tr><th>Mã phiếu</th><th>Độc giả</th><th>Sách được giữ</th><th>Lịch nhận / trả</th><th>Trạng thái</th><th></th></tr></thead>
+                    <tbody>
+                        @foreach (var item in onlineRequests)
+                        {
+                            var pending = item.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan;
+                            var expiredSoon = pending && item.HanNhanSach <= DateTime.Now.AddHours(12);
+                            var stateText = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "Chờ nhận sách", TrangThaiYeuCauMuonOnline.DaNhan => "Đã giao sách", TrangThaiYeuCauMuonOnline.DaHuy => "Đã hủy", _ => "Hết hạn" };
+                            var stateClass = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "pending", TrangThaiYeuCauMuonOnline.DaNhan => "received", _ => "closed" };
+                            <tr class="@(pending ? "is-pending" : "")">
+                                <td><a asp-controller="MuonOnline" asp-action="XacNhan" asp-route-ma="@item.MaXacNhan" class="online-request-code"><i class="bi bi-qr-code"></i><span><strong>#MO-@item.MaXacNhan</strong><small>@item.NgayTao.ToString("HH:mm · dd/MM/yyyy")</small></span></a></td>
+                                <td><div class="online-request-reader"><span>@(string.IsNullOrWhiteSpace(item.DocGia.HoTen) ? "DG" : item.DocGia.HoTen.Trim()[0].ToString().ToUpper())</span><div><strong>@item.DocGia.HoTen</strong><small>DG-@item.MaDocGia.ToString("D5")</small></div></div></td>
+                                <td><div class="online-request-book"><span><i class="bi bi-book"></i></span><div><strong>@item.Sach.TenSach</strong><small>Mã vạch: @item.BanSao.MaVach</small></div></div></td>
+                                <td><div class="online-request-dates"><span><i class="bi bi-box-arrow-in-down"></i> Nhận @item.NgayHenNhan.ToString("dd/MM/yyyy")</span><span><i class="bi bi-box-arrow-up"></i> Trả @item.NgayHenTra.ToString("dd/MM/yyyy")</span>@if (expiredSoon){
+                                    <em><i class="bi bi-exclamation-triangle"></i> Hạn xác nhận: @item.HanNhanSach.ToString("HH:mm dd/MM")</em>
+                                }
+                            </div></td>
+                            <td><span class="online-request-status @stateClass"><i></i>@stateText</span></td>
+                            <td><a asp-controller="MuonOnline" asp-action="XacNhan" asp-route-ma="@item.MaXacNhan" class="online-request-open" title="Mở phiếu"><i class="bi bi-arrow-right"></i></a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="request-section reservation-admin-section">
+    <div class="request-section-heading"><div><span>HÀNG ĐỢI ĐẶT TRƯỚC</span><h2><i class="bi bi-bookmarks"></i> Yêu cầu đặt trước</h2><p>Ưu tiên các yêu cầu đã có sách và đang chờ độc giả đến nhận.</p></div><span class="request-heading-count">@ViewData["HoanThanh"] đã hoàn thành</span></div>
+    @if (!Model.Any())
+    {
+        <div class="request-center-empty"><span><i class="bi bi-bookmark"></i></span><div><h3>Không tìm thấy yêu cầu đặt trước</h3><p>Thử thay đổi bộ lọc hoặc tạo yêu cầu mới.</p></div></div>
+    }
+    else
+    {
+        <div class="reservation-admin-table-wrap">
+            <table class="reservation-admin-table">
+                <thead><tr><th>Độc giả</th><th>Sách</th><th>Ngày đặt</th><th>Trạng thái</th><th>Bản sao / thời hạn</th><th>Thao tác</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model)
                     {
-                        TrangThaiDatTruoc.DangCho => "Đang chờ",
-                        TrangThaiDatTruoc.DaCoSach => "Sẵn sàng nhận",
-                        TrangThaiDatTruoc.HoanThanh => "Hoàn thành",
-                        TrangThaiDatTruoc.DaHuy => "Đã hủy",
-                        TrangThaiDatTruoc.HetHan => "Hết hạn",
-                        _ => item.TrangThai.ToString()
-                    };
-                    <tr>
-                        <td>@item.DocGia.HoTen</td>
-                        <td>@item.Sach.TenSach</td>
-                        <td>@item.NgayDat.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@statusText</td>
-                        <td>
-                            @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                        var statusText = item.TrangThai switch { TrangThaiDatTruoc.DangCho => "Đang chờ", TrangThaiDatTruoc.DaCoSach => "Sẵn sàng nhận", TrangThaiDatTruoc.HoanThanh => "Hoàn thành", TrangThaiDatTruoc.DaHuy => "Đã hủy", _ => "Hết hạn" };
+                        var statusClass = item.TrangThai switch { TrangThaiDatTruoc.DangCho => "waiting", TrangThaiDatTruoc.DaCoSach => "ready", TrangThaiDatTruoc.HoanThanh => "completed", _ => "closed" };
+                        <tr>
+                            <td><div class="reservation-admin-reader"><span>@(string.IsNullOrWhiteSpace(item.DocGia.HoTen) ? "DG" : item.DocGia.HoTen.Trim()[0].ToString().ToUpper())</span><div><strong>@item.DocGia.HoTen</strong><small>DG-@item.MaDocGia.ToString("D5")</small></div></div></td>
+                            <td><div class="reservation-admin-book"><i class="bi bi-book"></i><div><strong>@item.Sach.TenSach</strong><small>Yêu cầu #DT-@item.MaDatTruoc.ToString("D5")</small></div></div></td>
+                            <td><strong class="reservation-admin-date">@item.NgayDat.ToString("dd/MM/yyyy")</strong><small class="reservation-admin-time">@item.NgayDat.ToString("HH:mm")</small></td>
+                            <td><span class="reservation-admin-status @statusClass"><i></i>@statusText</span></td>
+                            <td>@if(item.TrangThai==TrangThaiDatTruoc.DaCoSach){
+                                <div class="reservation-admin-hold"><strong><i class="bi bi-upc-scan"></i> @item.BanSaoDuocGiu?.MaVach</strong><small>Nhận trước @item.HanNhanSach?.ToString("HH:mm dd/MM/yyyy")</small></div>
+                            }else if (item.TrangThai == TrangThaiDatTruoc.DangCho)
                             {
-                                <div>Mã vạch: <strong>@item.BanSaoDuocGiu?.MaVach</strong></div>
-                                <small class="text-danger">Nhận trước @item.HanNhanSach?.ToString("dd/MM/yyyy HH:mm")</small>
-                            }
-                            else if (item.TrangThai == TrangThaiDatTruoc.DangCho)
-                            {
-                                <small>Hàng chờ đến @item.NgayHetHanDat?.ToString("dd/MM/yyyy")</small>
+
+                                <span class="reservation-admin-wait"><i class="bi bi-hourglass"></i> Đến @item.NgayHetHanDat?.ToString("dd/MM/yyyy")</span>
                             }
                             else
                             {
+
                                 <span>—</span>
                             }
                         </td>
-                        <td class="text-end text-nowrap">
-                            <a asp-action="Details" asp-route-id="@item.MaDatTruoc" class="btn btn-sm btn-outline-secondary">Chi tiết</a>
-                            @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
-                            {
-                                <form asp-action="XacNhanNhanSach" asp-route-id="@item.MaDatTruoc" method="post" class="d-inline"
-                                      onsubmit="return confirm('Xác nhận độc giả đã nhận bản sao này?');">
-                                    @Html.AntiForgeryToken()
-                                    <button class="btn btn-sm btn-success">Xác nhận nhận</button>
-                                </form>
-                            }
-                            @if (item.TrangThai == TrangThaiDatTruoc.DangCho || item.TrangThai == TrangThaiDatTruoc.DaCoSach)
-                            {
-                                <form asp-action="Huy" asp-route-id="@item.MaDatTruoc" method="post" class="d-inline"
-                                      onsubmit="return confirm('Hủy yêu cầu và chuyển bản sao cho người tiếp theo?');">
-                                    @Html.AntiForgeryToken()
-                                    <button class="btn btn-sm btn-outline-danger">Hủy</button>
-                                </form>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                        <td><div class="reservation-admin-actions"><a asp-action="Details" asp-route-id="@item.MaDatTruoc" title="Chi tiết"><i class="bi bi-eye"></i></a>@if(item.TrangThai==TrangThaiDatTruoc.DaCoSach){
+                            <form asp-action="XacNhanNhanSach" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Xác nhận độc giả đã nhận bản sao này?');">@Html.AntiForgeryToken()<button class="confirm" title="Xác nhận nhận"><i class="bi bi-check2"></i></button></form>
+                        }
+                        @if (item.TrangThai is TrangThaiDatTruoc.DangCho or TrangThaiDatTruoc.DaCoSach)
+                        {
+                            <form asp-action="Huy" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Hủy yêu cầu và chuyển bản sao cho người tiếp theo?');">@Html.AntiForgeryToken()<button class="cancel" title="Hủy"><i class="bi bi-x-lg"></i></button></form>
+                        }
+                    </div></td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
-
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
+        }
+        @if (ViewData["Pagination"] is PaginationViewModel pagination)
 {
-    <partial name="_Pagination" model="pagination" />
+    <div class="request-center-pagination"><partial name="_Pagination" model="pagination" /></div>
 }
+</div>
+</section>

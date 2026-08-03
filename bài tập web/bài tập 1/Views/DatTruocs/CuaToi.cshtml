@@ -1,120 +1,125 @@
 @using bài_tập_1.Models
+@using bài_tập_1.Models.ViewModels
 @model IEnumerable<bài_tập_1.Models.DatTruoc>
 
 @{
     ViewData["Title"] = "Đặt trước của tôi";
+    var tong = ViewData["TongDatTruoc"] as int? ?? Model.Count();
+    var dangCho = ViewData["DangCho"] as int? ?? Model.Count(x => x.TrangThai == TrangThaiDatTruoc.DangCho);
+    var sanSang = ViewData["SanSangNhan"] as int? ?? Model.Count(x => x.TrangThai == TrangThaiDatTruoc.DaCoSach);
+    var hoanThanh = ViewData["DaHoanThanh"] as int? ?? Model.Count(x => x.TrangThai == TrangThaiDatTruoc.HoanThanh);
 }
 
-<main class="my-reservations-page">
-    <div class="my-reservations-shell">
-        <header class="my-reservations-header">
-            <div>
-                <span class="reservation-kicker">Tài khoản độc giả</span>
-                <h1>Đặt trước của tôi</h1>
-                <p>Theo dõi trạng thái và quản lý các yêu cầu đặt sách của bạn.</p>
-            </div>
-            <a asp-controller="Saches" asp-action="Index" class="btn btn-primary">
-                <i class="bi bi-search"></i>
-                Tìm thêm sách
-            </a>
-        </header>
+<section class="reader-reservations-page">
+    <header class="reader-reservations-hero">
+        <div>
+            <span class="reader-reservations-eyebrow"><i class="bi bi-bookmark-star"></i> THƯ VIỆN CỦA BẠN</span>
+            <h1>Danh sách đặt trước</h1>
+            <p>Theo dõi vị trí trong hàng chờ và nhận sách đúng thời hạn khi sách đã sẵn sàng.</p>
+            <a asp-controller="Saches" asp-action="Index"><i class="bi bi-search"></i> Tìm thêm sách</a>
+        </div>
+        <div class="reader-reservations-illustration" aria-hidden="true">
+            <span><i class="bi bi-book"></i></span><i class="bi bi-bookmark-check-fill"></i>
+        </div>
+    </header>
 
-        @if (TempData["DatTruocSuccess"] is string success)
-        {
-            <div class="reservation-alert reservation-alert-success">
-                <i class="bi bi-check-circle"></i>
-                @success
-            </div>
-        }
+    <div class="reader-reservations-stats">
+        <article><span class="stat-icon blue"><i class="bi bi-collection"></i></span><div><small>TỔNG YÊU CẦU</small><strong>@tong</strong></div></article>
+        <article><span class="stat-icon amber"><i class="bi bi-hourglass-split"></i></span><div><small>ĐANG CHỜ SÁCH</small><strong>@dangCho</strong></div></article>
+        <article><span class="stat-icon green"><i class="bi bi-bag-check"></i></span><div><small>SẴN SÀNG NHẬN</small><strong>@sanSang</strong></div></article>
+        <article><span class="stat-icon purple"><i class="bi bi-check2-circle"></i></span><div><small>ĐÃ HOÀN THÀNH</small><strong>@hoanThanh</strong></div></article>
+    </div>
+
+    @if (TempData["DatTruocSuccess"] is string success)
+    {
+        <div class="reader-reservations-alert success"><i class="bi bi-check-circle-fill"></i><span>@success</span><button type="button" data-bs-dismiss="alert" aria-label="Đóng"><i class="bi bi-x"></i></button></div>
+    }
+    @if (TempData["DatTruocError"] is string error)
+    {
+        <div class="reader-reservations-alert danger"><i class="bi bi-exclamation-circle-fill"></i><span>@error</span><button type="button" data-bs-dismiss="alert" aria-label="Đóng"><i class="bi bi-x"></i></button></div>
+    }
+
+    <div class="reader-reservations-panel">
+        <div class="reader-reservations-panel-head">
+            <div><span>YÊU CẦU GẦN ĐÂY</span><h2>Sách bạn đang quan tâm</h2><p>Các yêu cầu mới nhất được hiển thị trước.</p></div>
+            <div class="reader-reservations-legend"><span><i class="waiting"></i> Đang chờ</span><span><i class="ready"></i> Có thể nhận</span></div>
+        </div>
 
         @if (!Model.Any())
         {
-            <section class="reservation-empty">
-                <i class="bi bi-bookmark"></i>
-                <h2>Bạn chưa đặt trước cuốn sách nào</h2>
-                <p>Khi tìm thấy cuốn sách yêu thích, hãy bấm “Đặt trước”.</p>
-                <a asp-controller="Saches" asp-action="Index" class="btn btn-primary">
-                    Khám phá kho sách
-                </a>
-</section>
-
+            <div class="reader-reservations-empty">
+                <span><i class="bi bi-bookmark-heart"></i></span>
+                <h2>Chưa có yêu cầu đặt trước</h2>
+                <p>Khám phá kho sách và đặt trước những cuốn bạn muốn đọc.</p>
+                <a asp-controller="Saches" asp-action="Index"><i class="bi bi-grid"></i> Khám phá kho sách</a>
+            </div>
         }
         else
         {
-            <div class="my-reservations-list">
+            <div class="reader-reservations-list">
                 @foreach (var item in Model)
                 {
                     var statusText = item.TrangThai switch
                     {
-                        TrangThaiDatTruoc.DangCho => "Đang chờ",
+                        TrangThaiDatTruoc.DangCho => "Đang chờ sách",
                         TrangThaiDatTruoc.DaCoSach => "Sẵn sàng nhận",
-                        TrangThaiDatTruoc.HoanThanh => "Hoàn thành",
+                        TrangThaiDatTruoc.HoanThanh => "Đã hoàn thành",
                         TrangThaiDatTruoc.DaHuy => "Đã hủy",
-                        TrangThaiDatTruoc.HetHan => "Hết hạn",
+                        TrangThaiDatTruoc.HetHan => "Đã hết hạn",
                         _ => item.TrangThai.ToString()
                     };
-
                     var statusClass = item.TrangThai switch
                     {
-                        TrangThaiDatTruoc.DangCho => "is-waiting",
-                        TrangThaiDatTruoc.DaCoSach => "is-ready",
-                        TrangThaiDatTruoc.HoanThanh => "is-completed",
-                        _ => "is-cancelled"
+                        TrangThaiDatTruoc.DangCho => "waiting",
+                        TrangThaiDatTruoc.DaCoSach => "ready",
+                        TrangThaiDatTruoc.HoanThanh => "completed",
+                        TrangThaiDatTruoc.HetHan => "expired",
+                        _ => "cancelled"
                     };
+                    var statusIcon = item.TrangThai switch
+                    {
+                        TrangThaiDatTruoc.DangCho => "bi-hourglass-split",
+                        TrangThaiDatTruoc.DaCoSach => "bi-bag-check-fill",
+                        TrangThaiDatTruoc.HoanThanh => "bi-check-circle-fill",
+                        TrangThaiDatTruoc.HetHan => "bi-clock-history",
+                        _ => "bi-x-circle-fill"
+                    };
+                    var anhBia = string.IsNullOrWhiteSpace(item.Sach.AnhBia) ? "/images/books/banner.jpg" : item.Sach.AnhBia;
+                    var canCancel = item.TrangThai is TrangThaiDatTruoc.DangCho or TrangThaiDatTruoc.DaCoSach;
 
-                    var anhBia = string.IsNullOrWhiteSpace(item.Sach.AnhBia)
-                        ? "/images/books/banner.jpg"
-                        : item.Sach.AnhBia;
-
-                    <article class="my-reservation-item">
-                        <img src="@anhBia" alt="Ảnh bìa @item.Sach.TenSach" />
-                        <div class="my-reservation-content">
-                            <div class="my-reservation-top">
-                                <div>
-                                    <span>Yêu cầu #@item.MaDatTruoc</span>
-                                    <h2>@item.Sach.TenSach</h2>
-                                </div>
-                                <span class="reservation-request-status @statusClass">@statusText</span>
+                    <article class="reader-reservation-card @statusClass">
+                        <a asp-action="Details" asp-route-id="@item.MaDatTruoc" class="reader-reservation-cover">
+                            <img src="@anhBia" alt="Ảnh bìa @item.Sach.TenSach" />
+                            <span>#@item.MaDatTruoc.ToString("D5")</span>
+                        </a>
+                        <div class="reader-reservation-content">
+                            <div class="reader-reservation-title-row">
+                                <div><span>YÊU CẦU ĐẶT TRƯỚC</span><h3>@item.Sach.TenSach</h3></div>
+                                <span class="reader-reservation-status @statusClass"><i class="bi @statusIcon"></i> @statusText</span>
                             </div>
 
-                            <div class="my-reservation-meta">
-                                <span><i class="bi bi-calendar3"></i> Đặt ngày @item.NgayDat.ToString("dd/MM/yyyy")</span>
-                                <span><i class="bi bi-geo-alt"></i> Quầy lưu thông thư viện</span>
-                                <span>
-                                    <i class="bi bi-hourglass-split"></i>
-                                    @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
-                                    {
-                                        <text>Đến nhận trước @item.HanNhanSach?.ToString("dd/MM/yyyy HH:mm")</text>
-                                    }
-                                    else
-                                    {
-                                        <text>Hàng chờ đến @(item.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "khi có thông báo")</text>
-                                    }
-                                </span>
+                            @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                            {
+                                <div class="reader-reservation-ready-note"><i class="bi bi-stars"></i><div><strong>Sách đang được giữ cho bạn</strong><span>Vui lòng đến quầy lưu thông trước <b>@item.HanNhanSach?.ToString("HH:mm · dd/MM/yyyy")</b>.</span></div></div>
+                            }
+
+                            <div class="reader-reservation-info">
+                                <div><span><i class="bi bi-calendar-plus"></i></span><p><small>NGÀY ĐẶT</small><strong>@item.NgayDat.ToString("dd/MM/yyyy")</strong></p></div>
+                                <div><span><i class="bi bi-geo-alt"></i></span><p><small>ĐỊA ĐIỂM NHẬN</small><strong>Quầy lưu thông</strong></p></div>
+                                <div><span><i class="bi bi-clock"></i></span><p><small>@(item.TrangThai == TrangThaiDatTruoc.DaCoSach ? "HẠN NHẬN SÁCH" : "THỜI HẠN CHỜ")</small><strong>@(item.TrangThai == TrangThaiDatTruoc.DaCoSach ? item.HanNhanSach?.ToString("dd/MM/yyyy") : item.NgayHetHanDat?.ToString("dd/MM/yyyy") ?? "Theo thông báo")</strong></p></div>
                                 @if (item.TrangThai == TrangThaiDatTruoc.DaCoSach)
                                 {
-                                    <span><i class="bi bi-upc-scan"></i> Mã vạch được giữ: @item.BanSaoDuocGiu?.MaVach</span>
+                                    <div><span><i class="bi bi-upc-scan"></i></span><p><small>MÃ BẢN SAO GIỮ</small><strong>@(item.BanSaoDuocGiu?.MaVach ?? "Đang cập nhật")</strong></p></div>
                                 }
                             </div>
 
-                            <div class="my-reservation-actions">
-                                <a asp-action="Details"
-                                       asp-route-id="@item.MaDatTruoc"
-                                       class="btn btn-sm btn-outline-primary">
-                                    Xem chi tiết
-                                </a>
-
-                                @if (item.TrangThai == TrangThaiDatTruoc.DangCho ||
-                                                                     item.TrangThai == TrangThaiDatTruoc.DaCoSach)
+                            <div class="reader-reservation-actions">
+                                <a asp-action="Details" asp-route-id="@item.MaDatTruoc" class="details"><i class="bi bi-eye"></i> Xem chi tiết</a>
+                                @if (canCancel)
                                 {
-                                    <form asp-action="Huy"
-                                          asp-route-id="@item.MaDatTruoc"
-                                          method="post"
-                                          onsubmit="return confirm('Bạn chắc chắn muốn hủy yêu cầu này?');">
+                                    <form asp-action="Huy" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Bạn chắc chắn muốn hủy yêu cầu đặt trước này?');">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            Hủy yêu cầu
-                                        </button>
+                                        <button type="submit"><i class="bi bi-x-circle"></i> Hủy yêu cầu</button>
                                     </form>
                                 }
                             </div>
@@ -124,9 +129,9 @@
             </div>
         }
     </div>
-</main>
 
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
-{
-    <partial name="_Pagination" model="pagination" />
-}
+    @if (ViewData["Pagination"] is PaginationViewModel pagination)
+    {
+        <partial name="_Pagination" model="pagination" />
+    }
+</section>

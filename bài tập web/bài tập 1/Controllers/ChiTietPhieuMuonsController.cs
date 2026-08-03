@@ -40,6 +40,10 @@ namespace bài_tập_1.Controllers
             var query = _context.ChiTietPhieuMuon
                 .Include(c => c.BanSao)
                     .ThenInclude(b => b.Sach)
+                        .ThenInclude(s => s.TheLoai)
+                .Include(c => c.BanSao)
+                    .ThenInclude(b => b.Sach)
+                        .ThenInclude(s => s.NhaXuatBan)
                 .Include(c => c.PhieuMuon)
                     .ThenInclude(p => p.DocGia)
                 .Include(c => c.PhieuPhat)

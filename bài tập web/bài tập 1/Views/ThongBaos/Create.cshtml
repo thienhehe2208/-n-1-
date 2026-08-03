@@ -1,0 +1,24 @@
+@model bài_tập_1.Models.ViewModels.TaoThongBaoViewModel
+@{
+    ViewData["Title"] = "Soạn thông báo";
+}
+<section class="notification-compose-page">
+    <a asp-action="Index" class="notification-back"><i class="bi bi-arrow-left"></i> Quay lại trung tâm thông báo</a>
+    <div class="notification-compose-grid">
+        <div class="notification-compose-card">
+            <div class="compose-heading"><span><i class="bi bi-pencil-square"></i></span><div><small>THÔNG BÁO MỚI</small><h1>Soạn nội dung gửi đi</h1><p>Thông báo sẽ xuất hiện ngay trong hộp thư của tài khoản nhận.</p></div></div>
+            <form asp-action="Create" method="post" class="compose-form">
+                @Html.AntiForgeryToken()<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div><label asp-for="TieuDe"></label><input asp-for="TieuDe" placeholder="Ví dụ: Thay đổi lịch mở cửa thư viện" /><span asp-validation-for="TieuDe"></span></div>
+                <div><label asp-for="NoiDung"></label><textarea asp-for="NoiDung" rows="7" placeholder="Viết nội dung rõ ràng, ngắn gọn và hữu ích..."></textarea><span asp-validation-for="NoiDung"></span></div>
+                <div class="compose-row"><div><label asp-for="DoiTuong"></label><select asp-for="DoiTuong"><option value="TatCa">Tất cả tài khoản</option><option value="DocGia">Chỉ độc giả</option><option value="NhanVien">Chỉ nhân viên</option></select></div><div><label asp-for="Loai"></label><select asp-for="Loai"><option value="info">Thông tin</option><option value="success">Tin tốt</option><option value="warning">Quan trọng</option><option value="danger">Khẩn cấp</option></select></div></div>
+                <div><label asp-for="LienKet"></label><input asp-for="LienKet" placeholder="/Saches (không bắt buộc)" /><small>Chỉ dùng đường dẫn nội bộ trong hệ thống.</small><span asp-validation-for="LienKet"></span></div>
+                <div class="compose-actions"><a asp-action="Index">Hủy bỏ</a><button type="submit"><i class="bi bi-send"></i> Gửi thông báo</button></div>
+            </form>
+        </div>
+        <aside class="compose-guide"><span><i class="bi bi-lightbulb"></i></span><h2>Mẹo viết thông báo hiệu quả</h2><ul><li>Tiêu đề ngắn gọn, nêu đúng nội dung chính.</li><li>Chọn đúng nhóm nhận để tránh làm phiền.</li><li>Dùng mức “Khẩn cấp” cho sự việc thực sự quan trọng.</li><li>Thêm liên kết khi người nhận cần thao tác tiếp.</li></ul><div><i class="bi bi-shield-check"></i><p><strong>Phân phối an toàn</strong><br />Mỗi tài khoản có bản ghi riêng để theo dõi trạng thái đã đọc.</p></div></aside>
+    </div>
+</section>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -40,6 +40,22 @@ namespace bài_tập_1.Data
                 .HasForeignKey(p => p.MaDocGia)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<ThongBao>()
+                .HasIndex(t => new { t.MaDocGia, t.MaSuKien })
+                .IsUnique()
+                .HasFilter("[MaDocGia] IS NOT NULL");
+
+            modelBuilder.Entity<ThongBao>()
+                .HasIndex(t => new { t.MaNhanVien, t.MaSuKien })
+                .IsUnique()
+                .HasFilter("[MaNhanVien] IS NOT NULL");
+
+            modelBuilder.Entity<ThongBao>()
+                .HasOne(t => t.NhanVien)
+                .WithMany()
+                .HasForeignKey(t => t.MaNhanVien)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<YeuCauMuonOnline>()
                 .HasIndex(y => y.MaXacNhan)
                 .IsUnique();

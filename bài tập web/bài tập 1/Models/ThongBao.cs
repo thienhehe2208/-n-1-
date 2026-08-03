@@ -4,16 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bài_tập_1.Models
 {
-    [Index(nameof(MaDocGia), nameof(MaSuKien), IsUnique = true)]
     public class ThongBao
     {
         [Key]
         public int MaThongBao { get; set; }
 
-        public int MaDocGia { get; set; }
+        public int? MaDocGia { get; set; }
 
         [ForeignKey(nameof(MaDocGia))]
-        public DocGia DocGia { get; set; } = null!;
+        public DocGia? DocGia { get; set; }
+
+        public int? MaNhanVien { get; set; }
+
+        [ForeignKey(nameof(MaNhanVien))]
+        public NhanVien? NhanVien { get; set; }
+
+        public int? MaBanTin { get; set; }
 
         [Required, MaxLength(100)]
         public string MaSuKien { get; set; } = string.Empty;
@@ -33,5 +39,12 @@ namespace bài_tập_1.Models
         public DateTime NgayTao { get; set; } = DateTime.Now;
 
         public bool DaDoc { get; set; }
+
+        public bool LaThongBaoAdmin { get; set; }
+
+        [MaxLength(20)]
+        public string DoiTuong { get; set; } = string.Empty;
+
+        public int SoNguoiNhan { get; set; }
     }
 }

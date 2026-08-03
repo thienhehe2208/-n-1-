@@ -18,17 +18,20 @@ namespace bài_tập_1.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly DatTruocService _datTruocService;
         private readonly DocGiaEligibilityService _eligibilityService;
+        private readonly MuonOnlineService _muonOnlineService;
 
         public DatTruocsController(
             bài_tập_1Context context,
             UserManager<IdentityUser> userManager,
             DatTruocService datTruocService,
-            DocGiaEligibilityService eligibilityService)
+            DocGiaEligibilityService eligibilityService,
+            MuonOnlineService muonOnlineService)
         {
             _context = context;
             _userManager = userManager;
             _datTruocService = datTruocService;
             _eligibilityService = eligibilityService;
+            _muonOnlineService = muonOnlineService;
         }
 
         [Authorize(Roles = "Admin,NhanVien")]
@@ -38,6 +41,7 @@ namespace bài_tập_1.Controllers
             int page = 1)
         {
             await _datTruocService.XuLyHetHanAsync();
+            await _muonOnlineService.XuLyHetHanAsync();
 
             var query = _context.DatTruoc
                 .Include(d => d.DocGia)
@@ -53,6 +57,19 @@ namespace bài_tập_1.Controllers
             ViewData["HoanThanh"] = await query.CountAsync(d =>
                 d.TrangThai == TrangThaiDatTruoc.HoanThanh);
 
+            var onlineQuery = _context.YeuCauMuonOnline
+                .Include(y => y.DocGia)
+                .Include(y => y.Sach)
+                .Include(y => y.BanSao)
+                .Include(y => y.PhieuMuon)
+                .AsNoTracking()
+                .AsQueryable();
+
+            ViewData["MuonOnlineChoNhan"] = await onlineQuery.CountAsync(y =>
+                y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
+            ViewData["MuonOnlineHomNay"] = await onlineQuery.CountAsync(y =>
+                y.NgayTao.Date == DateTime.Today);
+
             if (!string.IsNullOrWhiteSpace(q))
             {
                 var keyword = q.Trim();
@@ -61,6 +78,11 @@ namespace bài_tập_1.Controllers
                     d.Sach.TenSach.Contains(keyword) ||
                     (d.BanSaoDuocGiu != null &&
                      d.BanSaoDuocGiu.MaVach.Contains(keyword)));
+                onlineQuery = onlineQuery.Where(y =>
+                    y.DocGia.HoTen.Contains(keyword) ||
+                    y.Sach.TenSach.Contains(keyword) ||
+                    y.MaXacNhan.Contains(keyword) ||
+                    y.BanSao.MaVach.Contains(keyword));
             }
 
             query = trangThai switch
@@ -79,6 +101,12 @@ namespace bài_tập_1.Controllers
 
             ViewData["Search"] = q;
             ViewData["Status"] = trangThai;
+            ViewData["YeuCauMuonOnline"] = await onlineQuery
+                .OrderBy(y => y.TrangThai != TrangThaiYeuCauMuonOnline.ChoNhan)
+                .ThenBy(y => y.HanNhanSach)
+                .ThenByDescending(y => y.NgayTao)
+                .Take(20)
+                .ToListAsync();
 
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
@@ -234,6 +262,13 @@ namespace bài_tập_1.Controllers
                 .Include(d => d.BanSaoDuocGiu)
                 .Where(d => d.MaDocGia == docGia.MaDocGia)
                 .AsNoTracking();
+            ViewData["TongDatTruoc"] = await query.CountAsync();
+            ViewData["DangCho"] = await query.CountAsync(d =>
+                d.TrangThai == TrangThaiDatTruoc.DangCho);
+            ViewData["SanSangNhan"] = await query.CountAsync(d =>
+                d.TrangThai == TrangThaiDatTruoc.DaCoSach);
+            ViewData["DaHoanThanh"] = await query.CountAsync(d =>
+                d.TrangThai == TrangThaiDatTruoc.HoanThanh);
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
             var items = await query

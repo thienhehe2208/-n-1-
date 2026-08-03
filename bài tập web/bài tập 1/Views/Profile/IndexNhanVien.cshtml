@@ -37,7 +37,7 @@
                 <div class="profile-panel-heading"><span><i class="bi bi-shield-lock"></i></span><div><h2>Tài khoản và bảo mật</h2><p>Thông tin đăng nhập được bảo vệ bởi ASP.NET Identity.</p></div></div>
                 <div class="profile-security-list">
                     <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-envelope-at"></i></span><div><small>Email đăng nhập</small><strong>@Model.Email</strong></div><span class="profile-verified"><i class="bi bi-patch-check-fill"></i> Đã xác minh</span></div>
-                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-key"></i></span><div><small>Mật khẩu</small><strong class="profile-password">●●●●●●●●●●</strong></div><span class="profile-security-note"><i class="bi bi-lock"></i> Được mã hóa an toàn</span></div>
+                    <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-key"></i></span><div><small>Mật khẩu</small><strong class="profile-password">●●●●●●●●●●</strong></div><a asp-action="ChangePassword" class="profile-change-password"><i class="bi bi-pencil-square"></i> Đổi mật khẩu</a></div>
                     <div class="profile-security-row"><span class="profile-security-icon"><i class="bi bi-telephone"></i></span><div><small>Số điện thoại</small><strong>@(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "Chưa cập nhật" : Model.SoDienThoai)</strong></div></div>
                 </div>
             </article>

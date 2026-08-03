@@ -14,16 +14,60 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly PhieuMuonService _phieuMuonService;
 
         public ProfileController(
             bài_tập_1Context context,
             UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
             PhieuMuonService phieuMuonService)
         {
             _context = context;
             _userManager = userManager;
+            _signInManager = signInManager;
             _phieuMuonService = phieuMuonService;
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View(new ChangePasswordViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(
+            ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Challenge();
+
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                model.MatKhauHienTai,
+                model.MatKhauMoi);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    var message = error.Code == "PasswordMismatch"
+                        ? "Mật khẩu hiện tại không chính xác."
+                        : error.Description;
+                    ModelState.AddModelError(string.Empty, message);
+                }
+
+                return View(model);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["Success"] = "Đổi mật khẩu thành công. Phiên đăng nhập của bạn đã được cập nhật.";
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Index()
