@@ -1,58 +1,65 @@
-﻿@model IEnumerable<bài_tập_1.Models.NhaXuatBan>
-
+@model IEnumerable<bài_tập_1.Models.NhaXuatBan>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Nhà xuất bản"; var keyword = ViewData["TuKhoa"]?.ToString(); var total = (int?)ViewData["TongNhaXuatBan"] ?? 0; var books = (int?)ViewData["TongDauSach"] ?? 0; var contacts = (int?)ViewData["CoThongTinLienHe"] ?? 0; var canManage = User.IsInRole("Admin") || User.IsInRole("NhanVien");
 }
+<section class="publisher-page">
+    <header class="publisher-hero"><div class="publisher-hero__content"><span><i class="bi bi-buildings"></i></span><div><small>QUẢN LÝ DANH MỤC</small><h1>Nhà xuất bản</h1><p>Quản lý đối tác phát hành và thông tin liên hệ của các nhà xuất bản trong thư viện.</p></div></div>@if (canManage) {
+        <a asp-action="Create"><i class="bi bi-plus-lg"></i> Thêm nhà xuất bản</a>
+    }
+</header>
+<div class="publisher-stats"><article><span class="blue"><i class="bi bi-building"></i></span><div><small>TỔNG NHÀ XUẤT BẢN</small><strong>@total</strong><p>Đối tác đang quản lý</p></div></article><article><span class="green"><i class="bi bi-journals"></i></span><div><small>TỔNG ĐẦU SÁCH</small><strong>@books</strong><p>Trong toàn bộ kho sách</p></div></article><article><span class="amber"><i class="bi bi-person-lines-fill"></i></span><div><small>CÓ THÔNG TIN LIÊN HỆ</small><strong>@contacts</strong><p>Email hoặc số điện thoại</p></div></article></div>
+<section class="publisher-panel">
+    <div class="publisher-toolbar"><div><h2>Danh sách nhà xuất bản</h2><p>@(string.IsNullOrWhiteSpace(keyword) ? $"Hiển thị thông tin {total} đối tác phát hành" : $"Kết quả tìm kiếm cho “{keyword}”")</p></div><form asp-action="Index" method="get" role="search"><i class="bi bi-search"></i><input type="search" name="q" value="@keyword" placeholder="Tên, email, số điện thoại..." />@if (!string.IsNullOrWhiteSpace(keyword)) {
+        <a asp-action="Index" title="Xóa tìm kiếm"><i class="bi bi-x-lg"></i></a>
+    }
+    <button type="submit">Tìm kiếm</button></form></div>
+    @if (Model.Any())
+    {
+        <div class="publisher-table-wrap">
+            <table class="publisher-table">
+                <thead><tr><th>Nhà xuất bản</th><th>Thông tin liên hệ</th><th>Địa chỉ</th><th>Đầu sách</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var initial = string.IsNullOrWhiteSpace(item.TenNXB) ? "NXB" : item.TenNXB.Substring(0, 1).ToUpperInvariant();
+                        <tr>
+                            <td><a class="publisher-name" asp-action="Details" asp-route-id="@item.MaNXB"><span>@initial</span><div><strong>@item.TenNXB</strong><small>NXB-@item.MaNXB.ToString("D4")</small></div></a></td>
+                            <td><div class="publisher-contact">@if (!string.IsNullOrWhiteSpace(item.Email)) {
+                                <a href="mailto:@item.Email"><i class="bi bi-envelope"></i> @item.Email</a>
+                            } else
+                            {
 
-<h1>Index</h1>
+                                <span><i class="bi bi-envelope"></i> Chưa có email</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.SoDienThoai))
+                            {
+                                <a href="tel:@item.SoDienThoai"><i class="bi bi-telephone"></i> @item.SoDienThoai</a>
+                            }
+                            else
+                            {
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenNXB)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiaChi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenNXB)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DiaChi)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaNXB">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaNXB">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaNXB">Delete</a>
-            </td>
-        </tr>
+                                <span><i class="bi bi-telephone"></i> Chưa có số điện thoại</span>
+                            }
+                        </div></td>
+                        <td><span class="publisher-address"><i class="bi bi-geo-alt"></i> @(string.IsNullOrWhiteSpace(item.DiaChi) ? "Chưa cập nhật" : item.DiaChi)</span></td>
+                        <td><span class="publisher-book-count"><i class="bi bi-book"></i><strong>@item.DanhSachSach.Count</strong> đầu sách</span></td>
+                        <td><div class="publisher-actions"><a asp-action="Details" asp-route-id="@item.MaNXB" title="Xem chi tiết"><i class="bi bi-eye"></i></a>@if (canManage) {
+                            <a asp-action="Edit" asp-route-id="@item.MaNXB" title="Chỉnh sửa"><i class="bi bi-pencil-square"></i></a><a asp-action="Delete" asp-route-id="@item.MaNXB" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a>
+                        }
+                    </div></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+        } else
+{
+
+    <div class="publisher-empty"><span><i class="bi bi-building-x"></i></span><h2>Không tìm thấy nhà xuất bản</h2><p>Hãy thử một từ khóa khác hoặc quay lại danh sách đầy đủ.</p><a asp-action="Index">Xem tất cả nhà xuất bản</a></div>
 }
-    </tbody>
-</table>
-
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
+</section>
+    @if (ViewData["Pagination"] is PaginationViewModel pagination)
 {
     <partial name="_Pagination" model="pagination" />
 }
+</section>

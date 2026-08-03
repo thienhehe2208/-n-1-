@@ -71,6 +71,9 @@ namespace bài_tập_1.Controllers
             ViewData["Search"] = q;
             ViewData["Status"] = trangThai;
             ViewData["Moi"] = await _context.PhanHoi.CountAsync(p => p.TrangThai == "Mới");
+            ViewData["Tong"] = await _context.PhanHoi.CountAsync();
+            ViewData["DaTraLoi"] = await _context.PhanHoi.CountAsync(p => p.NoiDungTraLoi != null);
+            ViewData["DangXuLy"] = await _context.PhanHoi.CountAsync(p => p.TrangThai == "Đang xử lý");
 
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
@@ -113,6 +116,39 @@ namespace bài_tập_1.Controllers
             await _context.SaveChangesAsync();
             TempData["Success"] = "Đã cập nhật trạng thái phản hồi.";
             return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [Authorize(Roles = "Admin,NhanVien")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TraLoi(int id, string noiDung)
+        {
+            noiDung = noiDung?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(noiDung))
+                return BadRequest(new { message = "Vui lòng nhập nội dung trả lời." });
+            if (noiDung.Length > 2000)
+                return BadRequest(new { message = "Nội dung trả lời không được vượt quá 2.000 ký tự." });
+
+            var phanHoi = await _context.PhanHoi.FindAsync(id);
+            if (phanHoi == null)
+                return NotFound(new { message = "Không tìm thấy phản hồi cần trả lời." });
+
+            phanHoi.NoiDungTraLoi = noiDung;
+            phanHoi.NgayTraLoi = DateTime.Now;
+            phanHoi.NguoiTraLoi = User.Identity?.Name ?? "Nhân viên thư viện";
+            phanHoi.TrangThai = "Đã xử lý";
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Đã lưu câu trả lời cho độc giả.",
+                id = phanHoi.MaPhanHoi,
+                answer = phanHoi.NoiDungTraLoi,
+                answeredAt = phanHoi.NgayTraLoi.Value.ToString("HH:mm · dd/MM/yyyy"),
+                answeredBy = phanHoi.NguoiTraLoi,
+                status = phanHoi.TrangThai
+            });
         }
     }
 }

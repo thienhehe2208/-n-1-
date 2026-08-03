@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bài_tập_1.Data;
 
@@ -11,9 +12,10 @@ using bài_tập_1.Data;
 namespace bài_tập_1.Migrations
 {
     [DbContext(typeof(bài_tập_1Context))]
-    partial class bài_tập_1ContextModelSnapshot : ModelSnapshot
+    [Migration("20260803074646_AddPhanHoiReplyFields")]
+    partial class AddPhanHoiReplyFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

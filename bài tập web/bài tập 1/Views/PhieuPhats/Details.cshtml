@@ -1,4 +1,5 @@
-﻿@model bài_tập_1.Models.PhieuPhat
+@model bài_tập_1.Models.PhieuPhat
+@using bài_tập_1.Models
 
 @{
     ViewData["Title"] = "Chi tiết phiếu phạt";
@@ -9,79 +10,124 @@
         LyDoPhat.MatSach => "Làm mất sách",
         _ => Model.LyDo.ToString()
     };
-    var status = Model.TrangThai switch
+    var reasonIcon = Model.LyDo switch
+    {
+        LyDoPhat.TraTre => "bi-clock-history",
+        LyDoPhat.HuHong => "bi-tools",
+        _ => "bi-exclamation-triangle"
+    };
+    var statusText = Model.TrangThai switch
     {
         TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
         TrangThaiPhieuPhat.DaDong => "Đã đóng",
         TrangThaiPhieuPhat.DaHuy => "Đã hủy",
         _ => Model.TrangThai.ToString()
     };
+    var statusClass = Model.TrangThai switch
+    {
+        TrangThaiPhieuPhat.ChuaDong => "unpaid",
+        TrangThaiPhieuPhat.DaDong => "paid",
+        _ => "cancelled"
+    };
+    var detail = Model.ChiTietPhieuMuon;
+    var loan = detail.PhieuMuon;
+    var reader = loan.DocGia;
+    var copy = detail.BanSao;
+    var overdueDays = detail.NgayTra.HasValue
+        ? Math.Max(0, (detail.NgayTra.Value.Date - loan.NgayHenTra.Date).Days)
+        : 0;
+    var conditionText = detail.TinhTrangKhiTra switch
+    {
+        TinhTrangKhiTra.BinhThuong => "Bình thường",
+        TinhTrangKhiTra.HuHong => "Hư hỏng",
+        TinhTrangKhiTra.Mat => "Bị mất",
+        _ => "Chưa xác định"
+    };
+    var initial = string.IsNullOrWhiteSpace(reader.HoTen) ? "DG" : reader.HoTen.Trim()[0].ToString().ToUpper();
 }
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between">
-            <div>
-                <h2>Phiếu phạt #PP@Model.MaPhieuPhat.ToString("D4")</h2>
-                <p class="text-muted">@status</p>
-            </div>
-            <strong class="fs-3 text-danger">
-                @Model.SoTien.ToString("N0") đ
-            </strong>
+<section class="fine-detail-page">
+    <nav class="fine-detail-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-arrow-left"></i> Danh sách phiếu phạt</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>#PP-@Model.MaPhieuPhat.ToString("D5")</span>
+    </nav>
+
+    <header class="fine-detail-hero @statusClass">
+        <div class="fine-detail-hero__title">
+            <span class="fine-detail-hero__icon"><i class="bi bi-receipt-cutoff"></i></span>
+            <div><small>CHI TIẾT PHIẾU PHẠT</small><h1>#PP-@Model.MaPhieuPhat.ToString("D5")</h1><p>Lập lúc @Model.NgayLap.ToString("HH:mm · dd/MM/yyyy")</p></div>
         </div>
+        <div class="fine-detail-hero__amount"><small>SỐ TIỀN PHẠT</small><strong>@Model.SoTien.ToString("N0") ₫</strong><span class="fine-detail-state @statusClass"><i></i> @statusText</span></div>
+    </header>
 
-        <dl class="row">
-            <dt class="col-sm-3">Độc giả</dt>
-            <dd class="col-sm-9">
-                @Model.ChiTietPhieuMuon.PhieuMuon.DocGia.HoTen
-            </dd>
+    <div class="fine-detail-layout">
+        <main class="fine-detail-main">
+            <section class="fine-detail-card fine-detail-violation">
+                <div class="fine-detail-heading"><span><i class="bi @reasonIcon"></i></span><div><small>THÔNG TIN VI PHẠM</small><h2>@reason</h2></div></div>
+                <div class="fine-detail-violation-grid">
+                    <div><span>Lý do ghi nhận</span><strong>@reason</strong></div>
+                    <div><span>Số tiền xử lý</span><strong class="money">@Model.SoTien.ToString("N0") ₫</strong></div>
+                    <div><span>Ngày lập phiếu</span><strong>@Model.NgayLap.ToString("dd/MM/yyyy")</strong></div>
+                    <div><span>Trạng thái hiện tại</span><strong>@statusText</strong></div>
+                </div>
+                @if (Model.LyDo == LyDoPhat.TraTre)
+                {
+                    <div class="fine-detail-alert"><i class="bi bi-clock-history"></i><div><strong>Trả trễ @overdueDays ngày</strong><span>Hạn trả @loan.NgayHenTra.ToString("dd/MM/yyyy") · Trả thực tế @detail.NgayTra?.ToString("dd/MM/yyyy")</span></div></div>
+                }
+                else
+                {
+                    <div class="fine-detail-alert"><i class="bi bi-shield-exclamation"></i><div><strong>Tình trạng khi trả: @conditionText</strong><span>Bản sao đã được cập nhật trạng thái kho sau khi tiếp nhận.</span></div></div>
+                }
+            </section>
 
-            <dt class="col-sm-3">Sách</dt>
-            <dd class="col-sm-9">
-                @Model.ChiTietPhieuMuon.BanSao.Sach.TenSach
-                (@Model.ChiTietPhieuMuon.BanSao.MaVach)
-            </dd>
+            <section class="fine-detail-card fine-detail-book-card">
+                <div class="fine-detail-heading"><span><i class="bi bi-book"></i></span><div><small>TÀI LIỆU LIÊN QUAN</small><h2>Thông tin sách và lượt mượn</h2></div><a asp-controller="ChiTietPhieuMuons" asp-action="Details" asp-route-id="@Model.MaChiTiet">Xem lượt mượn <i class="bi bi-arrow-up-right"></i></a></div>
+                <div class="fine-detail-book">
+                    <span class="fine-detail-book__icon"><i class="bi bi-journal-bookmark"></i></span>
+                    <div class="fine-detail-book__title"><small>TÊN SÁCH</small><strong>@copy.Sach.TenSach</strong><span><i class="bi bi-upc-scan"></i> @copy.MaVach</span></div>
+                    <div class="fine-detail-book__code"><small>PHIẾU MƯỢN</small><strong>#PM-@detail.MaPhieuMuon.ToString("D5")</strong></div>
+                </div>
+                <div class="fine-detail-dates">
+                    <div><span class="blue"><i class="bi bi-calendar-plus"></i></span><p><small>NGÀY MƯỢN</small><strong>@loan.NgayMuon.ToString("dd/MM/yyyy")</strong></p></div>
+                    <i class="bi bi-arrow-right"></i>
+                    <div><span class="amber"><i class="bi bi-calendar-event"></i></span><p><small>HẠN TRẢ</small><strong>@loan.NgayHenTra.ToString("dd/MM/yyyy")</strong></p></div>
+                    <i class="bi bi-arrow-right"></i>
+                    <div><span class="green"><i class="bi bi-calendar-check"></i></span><p><small>NGÀY TRẢ</small><strong>@(detail.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")</strong></p></div>
+                </div>
+            </section>
+        </main>
 
-            <dt class="col-sm-3">Lý do</dt>
-            <dd class="col-sm-9">@reason</dd>
+        <aside class="fine-detail-sidebar">
+            <section class="fine-detail-card fine-detail-reader-card">
+                <div class="fine-detail-side-heading"><i class="bi bi-person-vcard"></i><h2>Thông tin độc giả</h2></div>
+                <div class="fine-detail-reader"><span>@initial</span><div><strong>@reader.HoTen</strong><small>DG-@loan.MaDocGia.ToString("D5")</small></div></div>
+                <a asp-controller="DocGias" asp-action="Details" asp-route-id="@loan.MaDocGia">Xem hồ sơ độc giả <i class="bi bi-arrow-right"></i></a>
+            </section>
 
-            <dt class="col-sm-3">Ngày lập</dt>
-            <dd class="col-sm-9">
-                @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
-            </dd>
-        </dl>
+            <section class="fine-detail-card fine-detail-payment-card @statusClass">
+                <div class="fine-detail-side-heading"><i class="bi bi-wallet2"></i><h2>Trạng thái thanh toán</h2></div>
+                <span class="fine-detail-payment-status"><i></i> @statusText</span>
+                <p>@(Model.TrangThai == TrangThaiPhieuPhat.ChuaDong ? "Khoản phạt đang được ghi nhận trong công nợ của độc giả." : Model.TrangThai == TrangThaiPhieuPhat.DaDong ? "Khoản phạt đã được xác nhận thanh toán hoàn tất." : "Phiếu đã được hủy và chỉ lưu lại trong lịch sử nghiệp vụ.")</p>
+            </section>
 
+            <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@detail.MaPhieuMuon" class="fine-detail-related"><i class="bi bi-file-earmark-text"></i><span><small>PHIẾU MƯỢN LIÊN QUAN</small><strong>#PM-@detail.MaPhieuMuon.ToString("D5")</strong></span><i class="bi bi-chevron-right"></i></a>
+        </aside>
+    </div>
+
+    <footer class="fine-detail-actions">
+        <a asp-action="Index" class="fine-detail-btn fine-detail-btn--ghost"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
         @if (Model.TrangThai == TrangThaiPhieuPhat.ChuaDong)
         {
-            <div class="d-flex gap-2">
-                <form asp-action="ThanhToan"
-                      asp-route-id="@Model.MaPhieuPhat"
-                      method="post">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-success">
-                        Xác nhận đã thanh toán
-                    </button>
-                </form>
-
-                <a asp-action="Edit"
-                       asp-route-id="@Model.MaPhieuPhat"
-                       class="btn btn-outline-primary">
-                    Sửa
-                </a>
-
-                <form asp-action="Huy"
-                      asp-route-id="@Model.MaPhieuPhat"
-                      method="post"
-                      onsubmit="return confirm('Bạn có chắc muốn hủy phiếu phạt?');">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-outline-danger">
-                        Hủy phiếu
-                    </button>
-                </form>
-            </div>
+            <a asp-action="Edit" asp-route-id="@Model.MaPhieuPhat" class="fine-detail-btn fine-detail-btn--edit"><i class="bi bi-pencil"></i> Chỉnh sửa</a>
+            <form asp-action="Huy" asp-route-id="@Model.MaPhieuPhat" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy phiếu phạt này?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="fine-detail-btn fine-detail-btn--cancel"><i class="bi bi-x-circle"></i> Hủy phiếu</button>
+            </form>
+            <form asp-action="ThanhToan" asp-route-id="@Model.MaPhieuPhat" method="post" onsubmit="return confirm('Xác nhận độc giả đã thanh toán @Model.SoTien.ToString("N0") đồng?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="fine-detail-btn fine-detail-btn--pay"><i class="bi bi-check2-circle"></i> Xác nhận đã thanh toán</button>
+            </form>
         }
-
-        <a asp-action="Index"
-           class="btn btn-link mt-3">Quay lại danh sách</a>
-    </div>
-</div>
+    </footer>
+</section>

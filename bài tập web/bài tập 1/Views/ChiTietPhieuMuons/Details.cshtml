@@ -1,5 +1,6 @@
 @model bài_tập_1.Models.ChiTietPhieuMuon
 @using bài_tập_1.Models
+
 @{
     ViewData["Title"] = "Chi tiết lượt mượn";
     var daTra = Model.NgayTra.HasValue;
@@ -8,72 +9,163 @@
         (Model.NgayTra!.Value.Date > Model.PhieuMuon.NgayHenTra.Date ||
          Model.TinhTrangKhiTra is TinhTrangKhiTra.HuHong or TinhTrangKhiTra.Mat);
     var statusText = daTra ? "Đã hoàn trả" : quaHan ? "Đang quá hạn" : "Đang mượn";
-    var statusClass = daTra ? "returned" : quaHan ? "overdue" : "borrowing";
-    var conditionText = Model.TinhTrangKhiTra switch { TinhTrangKhiTra.BinhThuong => "Bình thường", TinhTrangKhiTra.HuHong => "Hư hỏng", TinhTrangKhiTra.Mat => "Bị mất", _ => "Chưa đánh giá" };
-    var conditionClass = Model.TinhTrangKhiTra switch { TinhTrangKhiTra.BinhThuong => "normal", TinhTrangKhiTra.HuHong => "damaged", TinhTrangKhiTra.Mat => "lost", _ => "pending" };
-    var anhBia = string.IsNullOrWhiteSpace(Model.BanSao.Sach.AnhBia) ? "/images/books/banner.jpg" : Model.BanSao.Sach.AnhBia;
-    var soNgay = (Model.PhieuMuon.NgayHenTra.Date - DateTime.Today).Days;
+    var statusClass = daTra ? "loan-item-status--returned" : quaHan ? "loan-item-status--overdue" : "";
+    var conditionText = Model.TinhTrangKhiTra switch
+    {
+        TinhTrangKhiTra.BinhThuong => "Bình thường",
+        TinhTrangKhiTra.HuHong => "Hư hỏng",
+        TinhTrangKhiTra.Mat => "Bị mất",
+        _ => "Chưa đánh giá"
+    };
+    var conditionClass = Model.TinhTrangKhiTra switch
+    {
+        TinhTrangKhiTra.BinhThuong => "loan-item-condition--good",
+        TinhTrangKhiTra.HuHong => "loan-item-condition--warning",
+        TinhTrangKhiTra.Mat => "loan-item-condition--danger",
+        _ => "loan-item-condition--neutral"
+    };
+    var anhBia = string.IsNullOrWhiteSpace(Model.BanSao.Sach.AnhBia)
+        ? "/images/books/banner.jpg"
+        : Model.BanSao.Sach.AnhBia;
+    var soNgayConLai = (Model.PhieuMuon.NgayHenTra.Date - DateTime.Today).Days;
 }
 
 <section class="loan-item-detail-page">
-    <nav class="loan-item-breadcrumb"><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon"><i class="bi bi-arrow-left"></i> Phiếu #PM-@Model.MaPhieuMuon.ToString("D5")</a><i class="bi bi-chevron-right"></i><span>Chi tiết bản sao</span></nav>
+    <nav class="loan-item-breadcrumb" aria-label="Điều hướng">
+        <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon">
+            <i class="bi bi-arrow-left"></i> Phiếu #PM-@Model.MaPhieuMuon.ToString("D5")
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Chi tiết lượt mượn</span>
+    </nav>
 
-    <header class="loan-item-hero @statusClass">
-        <div class="loan-item-hero-book">
-            <span class="loan-item-hero-icon"><i class="bi bi-upc-scan"></i></span>
-            <div><span>CHI TIẾT LƯỢT MƯỢN</span><h1>#CT-@Model.MaChiTiet.ToString("D5")</h1><p>Bản sao <strong>@Model.BanSao.MaVach</strong> · Phiếu #PM-@Model.MaPhieuMuon.ToString("D5")</p></div>
+    <header class="loan-item-hero">
+        <div class="loan-item-hero__content">
+            <span class="loan-item-hero__eyebrow">QUẢN LÝ LƯU THÔNG</span>
+            <h1>Chi tiết lượt mượn #CT-@Model.MaChiTiet.ToString("D5")</h1>
+            <p>Bản sao <strong>@Model.BanSao.MaVach</strong> thuộc phiếu mượn #PM-@Model.MaPhieuMuon.ToString("D5")</p>
+            <span class="loan-item-status @statusClass">
+                <i class="bi @(daTra ? "bi-check-circle" : quaHan ? "bi-exclamation-circle" : "bi-clock-history")"></i>
+                @statusText
+            </span>
         </div>
-        <div class="loan-item-hero-side"><span class="loan-item-status @statusClass"><i></i>@statusText</span><div class="loan-item-actions-top">
-            @if (!daTra){<a asp-action="TraSach" asp-route-id="@Model.MaChiTiet" class="return"><i class="bi bi-arrow-return-left"></i> Tiếp nhận trả sách</a>}
-            else if(Model.PhieuPhat!=null){<a asp-controller="PhieuPhats" asp-action="Details" asp-route-id="@Model.PhieuPhat.MaPhieuPhat" class="fine"><i class="bi bi-receipt"></i> Xem phiếu phạt</a>}
-            else if(canCreateFine){<a asp-controller="PhieuPhats" asp-action="Create" asp-route-maChiTiet="@Model.MaChiTiet" class="fine"><i class="bi bi-plus-circle"></i> Lập phiếu phạt</a>}
-        </div></div>
+        <div class="loan-item-hero__actions">
+            @if (!daTra)
+            {
+                <a asp-action="TraSach" asp-route-id="@Model.MaChiTiet" class="loan-item-action loan-item-action--primary">
+                    <i class="bi bi-arrow-return-left"></i> Tiếp nhận trả sách
+                </a>
+            }
+            else if (Model.PhieuPhat != null)
+            {
+                <a asp-controller="PhieuPhats" asp-action="Details" asp-route-id="@Model.PhieuPhat.MaPhieuPhat" class="loan-item-action loan-item-action--primary">
+                    <i class="bi bi-receipt"></i> Xem phiếu phạt
+                </a>
+            }
+            else if (canCreateFine)
+            {
+                <a asp-controller="PhieuPhats" asp-action="Create" asp-route-maChiTiet="@Model.MaChiTiet" class="loan-item-action loan-item-action--primary">
+                    <i class="bi bi-plus-circle"></i> Lập phiếu phạt
+                </a>
+            }
+            <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon" class="loan-item-action">
+                <i class="bi bi-file-earmark-text"></i> Xem phiếu mượn
+            </a>
+        </div>
     </header>
 
     <div class="loan-item-layout">
         <main class="loan-item-main">
-            <article class="loan-item-panel loan-item-book-card">
-                <div class="loan-item-book-cover"><img src="@anhBia" alt="Bìa sách @Model.BanSao.Sach.TenSach" /><span><i class="bi bi-qr-code"></i> @Model.BanSao.MaVach</span></div>
-                <div class="loan-item-book-info">
-                    <span class="loan-item-book-kicker">TÀI LIỆU ĐANG LƯU THÔNG</span><h2>@Model.BanSao.Sach.TenSach</h2>
-                    <div class="loan-item-book-tags"><span><i class="bi bi-tags"></i> @(Model.BanSao.Sach.TheLoai?.TenTheLoai ?? "Chưa phân loại")</span><span><i class="bi bi-translate"></i> @(string.IsNullOrWhiteSpace(Model.BanSao.Sach.NgonNgu) ? "Chưa cập nhật" : Model.BanSao.Sach.NgonNgu)</span></div>
-                    <div class="loan-item-book-facts">
-                        <div><small>MÃ SÁCH</small><strong>S-@Model.BanSao.MaSach.ToString("D5")</strong></div><div><small>ISBN</small><strong>@(string.IsNullOrWhiteSpace(Model.BanSao.Sach.ISBN) ? "—" : Model.BanSao.Sach.ISBN)</strong></div><div><small>NHÀ XUẤT BẢN</small><strong>@(Model.BanSao.Sach.NhaXuatBan?.TenNXB ?? "—")</strong></div><div><small>VỊ TRÍ KỆ</small><strong>@(string.IsNullOrWhiteSpace(Model.BanSao.ViTriKe) ? "Chưa cập nhật" : Model.BanSao.ViTriKe)</strong></div>
+            <section class="loan-item-book">
+                <div class="loan-item-cover">
+                    <img src="@anhBia" alt="Bìa sách @Model.BanSao.Sach.TenSach" />
+                </div>
+                <div>
+                    <div class="loan-item-book__meta">
+                        <span class="loan-item-chip"><i class="bi bi-upc-scan"></i> @Model.BanSao.MaVach</span>
+                        <span class="loan-item-chip"><i class="bi bi-tags"></i> @(Model.BanSao.Sach.TheLoai?.TenTheLoai ?? "Chưa phân loại")</span>
                     </div>
-                    @if(!string.IsNullOrWhiteSpace(Model.BanSao.Sach.MoTa)){<p class="loan-item-description">@Model.BanSao.Sach.MoTa</p>}
+                    <h2>@Model.BanSao.Sach.TenSach</h2>
+                    @if (!string.IsNullOrWhiteSpace(Model.BanSao.Sach.MoTa))
+                    {
+                        <p class="loan-item-book__description">@Model.BanSao.Sach.MoTa</p>
+                    }
+                    <div class="loan-item-facts">
+                        <div class="loan-item-fact"><span>Mã sách</span><strong>S-@Model.BanSao.MaSach.ToString("D5")</strong></div>
+                        <div class="loan-item-fact"><span>ISBN</span><strong>@(string.IsNullOrWhiteSpace(Model.BanSao.Sach.ISBN) ? "—" : Model.BanSao.Sach.ISBN)</strong></div>
+                        <div class="loan-item-fact"><span>Nhà xuất bản</span><strong>@(Model.BanSao.Sach.NhaXuatBan?.TenNXB ?? "—")</strong></div>
+                        <div class="loan-item-fact"><span>Ngôn ngữ</span><strong>@(string.IsNullOrWhiteSpace(Model.BanSao.Sach.NgonNgu) ? "Chưa cập nhật" : Model.BanSao.Sach.NgonNgu)</strong></div>
+                    </div>
                 </div>
-            </article>
+            </section>
 
-            <article class="loan-item-panel">
-                <div class="loan-item-panel-heading"><span><i class="bi bi-clipboard-data"></i></span><div><small>THÔNG TIN NGHIỆP VỤ</small><h2>Trạng thái lượt mượn</h2><p>Dữ liệu giao nhận của bản sao trong phiếu.</p></div></div>
-                <div class="loan-item-transaction-grid">
-                    <div><span class="icon blue"><i class="bi bi-calendar-plus"></i></span><p><small>NGÀY MƯỢN</small><strong>@Model.PhieuMuon.NgayMuon.ToString("HH:mm · dd/MM/yyyy")</strong></p></div>
-                    <div><span class="icon amber"><i class="bi bi-calendar-event"></i></span><p><small>HẠN TRẢ</small><strong>@Model.PhieuMuon.NgayHenTra.ToString("dd/MM/yyyy")</strong>@if(!daTra){<em class="@(quaHan ? "danger" : "")">@(quaHan ? $"Quá hạn {-soNgay} ngày" : $"Còn {soNgay} ngày")</em>}</p></div>
-                    <div><span class="icon green"><i class="bi bi-calendar-check"></i></span><p><small>NGÀY TRẢ THỰC TẾ</small><strong>@(Model.NgayTra?.ToString("HH:mm · dd/MM/yyyy") ?? "Chưa trả sách")</strong></p></div>
-                    <div><span class="icon purple"><i class="bi bi-shield-check"></i></span><p><small>TÌNH TRẠNG KHI TRẢ</small><strong class="loan-item-condition @conditionClass">@conditionText</strong></p></div>
+            <section class="loan-item-section">
+                <h2 class="loan-item-section__title"><i class="bi bi-calendar3"></i> Thông tin mượn và trả</h2>
+                <div class="loan-item-timeline">
+                    <div class="loan-item-time">
+                        <span>Ngày mượn</span>
+                        <strong>@Model.PhieuMuon.NgayMuon.ToString("dd/MM/yyyy")</strong>
+                        <small>Ngày bắt đầu lưu hành</small>
+                    </div>
+                    <div class="loan-item-time @(quaHan ? "loan-item-time--danger" : "")">
+                        <span>Hạn trả</span>
+                        <strong>@Model.PhieuMuon.NgayHenTra.ToString("dd/MM/yyyy")</strong>
+                        @if (!daTra)
+                        {
+                            <small>@(quaHan ? $"Quá hạn {-soNgayConLai} ngày" : $"Còn {soNgayConLai} ngày")</small>
+                        }
+                    </div>
+                    <div class="loan-item-time @(daTra ? "loan-item-time--success" : "")">
+                        <span>Ngày trả thực tế</span>
+                        <strong>@(Model.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả sách")</strong>
+                        <small>@(daTra ? "Đã hoàn tất tiếp nhận" : "Đang chờ hoàn trả")</small>
+                    </div>
                 </div>
-                <div class="loan-item-note"><span><i class="bi bi-chat-left-text"></i></span><div><small>GHI CHÚ NGHIỆP VỤ</small><p>@(string.IsNullOrWhiteSpace(Model.GhiChu) ? "Không có ghi chú cho lượt mượn này." : Model.GhiChu)</p></div></div>
-            </article>
+            </section>
+
+            <section class="loan-item-section">
+                <h2 class="loan-item-section__title"><i class="bi bi-shield-check"></i> Kết quả tiếp nhận</h2>
+                <span class="loan-item-condition @conditionClass"><i class="bi bi-clipboard-check"></i> @conditionText</span>
+                <div class="loan-item-note">
+                    <strong><i class="bi bi-chat-left-text"></i> Ghi chú nghiệp vụ</strong><br />
+                    @(string.IsNullOrWhiteSpace(Model.GhiChu) ? "Không có ghi chú cho lượt mượn này." : Model.GhiChu)
+                </div>
+            </section>
         </main>
 
         <aside class="loan-item-sidebar">
-            <article class="loan-item-panel loan-item-reader-card">
-                <div class="loan-item-side-heading"><span><i class="bi bi-person-vcard"></i></span><div><small>NGƯỜI MƯỢN</small><h2>Thông tin độc giả</h2></div></div>
-                <div class="loan-item-reader"><span>@(string.IsNullOrWhiteSpace(Model.PhieuMuon.DocGia.HoTen) ? "DG" : Model.PhieuMuon.DocGia.HoTen.Trim()[0].ToString().ToUpper())</span><div><strong>@Model.PhieuMuon.DocGia.HoTen</strong><small>DG-@Model.PhieuMuon.MaDocGia.ToString("D5")</small></div></div>
-                <a asp-controller="DocGias" asp-action="Details" asp-route-id="@Model.PhieuMuon.MaDocGia"><i class="bi bi-person"></i> Xem hồ sơ độc giả <i class="bi bi-arrow-right"></i></a>
-            </article>
+            <section class="loan-item-side-card">
+                <h2 class="loan-item-side-card__title"><i class="bi bi-person-vcard"></i> Thông tin độc giả</h2>
+                <div class="loan-item-person">
+                    <span class="loan-item-avatar">@(string.IsNullOrWhiteSpace(Model.PhieuMuon.DocGia.HoTen) ? "DG" : Model.PhieuMuon.DocGia.HoTen.Trim()[0].ToString().ToUpper())</span>
+                    <div><strong>@Model.PhieuMuon.DocGia.HoTen</strong><span>DG-@Model.PhieuMuon.MaDocGia.ToString("D5")</span></div>
+                </div>
+                <a asp-controller="DocGias" asp-action="Details" asp-route-id="@Model.PhieuMuon.MaDocGia" class="loan-item-side-link">
+                    Xem hồ sơ độc giả <i class="bi bi-arrow-right"></i>
+                </a>
+            </section>
 
-            <article class="loan-item-panel loan-item-copy-card">
-                <div class="loan-item-side-heading"><span><i class="bi bi-box-seam"></i></span><div><small>BẢN SAO THƯ VIỆN</small><h2>Thông tin lưu kho</h2></div></div>
-                <dl><div><dt>Mã bản sao</dt><dd>BS-@Model.BanSao.MaBanSao.ToString("D5")</dd></div><div><dt>Mã vạch</dt><dd><code>@Model.BanSao.MaVach</code></dd></div><div><dt>Vị trí kệ</dt><dd>@(string.IsNullOrWhiteSpace(Model.BanSao.ViTriKe) ? "—" : Model.BanSao.ViTriKe)</dd></div><div><dt>Trạng thái kho</dt><dd><span class="loan-item-copy-status">@Model.BanSao.TinhTrang</span></dd></div></dl>
-            </article>
+            <section class="loan-item-side-card">
+                <h2 class="loan-item-side-card__title"><i class="bi bi-box-seam"></i> Thông tin bản sao</h2>
+                <div class="loan-item-info-list">
+                    <div class="loan-item-info-row"><span>Mã bản sao</span><strong>BS-@Model.BanSao.MaBanSao.ToString("D5")</strong></div>
+                    <div class="loan-item-info-row"><span>Mã vạch</span><strong>@Model.BanSao.MaVach</strong></div>
+                    <div class="loan-item-info-row"><span>Vị trí kệ</span><strong>@(string.IsNullOrWhiteSpace(Model.BanSao.ViTriKe) ? "—" : Model.BanSao.ViTriKe)</strong></div>
+                    <div class="loan-item-info-row"><span>Trạng thái kho</span><strong>@Model.BanSao.TinhTrang</strong></div>
+                </div>
+            </section>
 
-            @if(Model.PhieuPhat!=null)
+            @if (Model.PhieuPhat != null)
             {
-                <article class="loan-item-panel loan-item-fine-card"><span><i class="bi bi-exclamation-triangle"></i></span><div><small>PHÁT SINH PHIẾU PHẠT</small><h3>#PP-@Model.PhieuPhat.MaPhieuPhat.ToString("D5")</h3><p>@Model.PhieuPhat.LyDo · @Model.PhieuPhat.SoTien.ToString("N0") ₫</p><a asp-controller="PhieuPhats" asp-action="Details" asp-route-id="@Model.PhieuPhat.MaPhieuPhat">Xem chi tiết <i class="bi bi-arrow-right"></i></a></div></article>
+                <section class="loan-item-side-card loan-item-fine-card">
+                    <h2 class="loan-item-side-card__title"><i class="bi bi-exclamation-triangle"></i> Phiếu phạt phát sinh</h2>
+                    <div class="loan-item-fine-amount">@Model.PhieuPhat.SoTien.ToString("N0") ₫</div>
+                    <p>#PP-@Model.PhieuPhat.MaPhieuPhat.ToString("D5") · @Model.PhieuPhat.LyDo</p>
+                    <a asp-controller="PhieuPhats" asp-action="Details" asp-route-id="@Model.PhieuPhat.MaPhieuPhat" class="loan-item-side-link">
+                        Xem chi tiết phiếu phạt <i class="bi bi-arrow-right"></i>
+                    </a>
+                </section>
             }
-
-            <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon" class="loan-item-back"><i class="bi bi-file-earmark-text"></i><span><strong>Quay lại phiếu mượn</strong><small>#PM-@Model.MaPhieuMuon.ToString("D5")</small></span><i class="bi bi-chevron-right"></i></a>
         </aside>
     </div>
 </section>

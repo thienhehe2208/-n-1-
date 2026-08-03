@@ -22,9 +22,19 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách tác giả - ai cũng xem được
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(string? q, int page = 1)
         {
-            var query = _context.TacGia.AsNoTracking();
+            var source = _context.TacGia.AsNoTracking();
+            ViewData["TongTacGia"] = await source.CountAsync();
+            ViewData["TongLienKetSach"] = await source
+                .SelectMany(t => t.SachTacGias)
+                .CountAsync();
+            ViewData["SoQuocTich"] = await source.Where(t => !string.IsNullOrEmpty(t.QuocTich)).Select(t => t.QuocTich).Distinct().CountAsync();
+            q = q?.Trim();
+            var query = source.Include(t => t.SachTacGias).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(q))
+                query = query.Where(t => t.HoTen.Contains(q) || t.QuocTich.Contains(q) || t.TieuSu.Contains(q));
+            ViewData["TuKhoa"] = q;
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
             return View(await query.OrderBy(t => t.HoTen)
@@ -82,11 +92,20 @@ namespace bài_tập_1.Controllers
                 return NotFound();
             }
 
-            var tacGia = await _context.TacGia.FindAsync(id);
+            var tacGia = await _context.TacGia
+                .Include(t => t.SachTacGias)
+                .ThenInclude(st => st.Sach)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.MaTacGia == id);
             if (tacGia == null)
             {
                 return NotFound();
             }
+            ViewData["SachCuaTacGia"] = tacGia.SachTacGias
+                .Where(st => st.Sach != null)
+                .Select(st => st.Sach.TenSach)
+                .OrderBy(name => name)
+                .ToList();
             return View(tacGia);
         }
 
@@ -100,6 +119,14 @@ namespace bài_tập_1.Controllers
             {
                 return NotFound();
             }
+
+            tacGia.HoTen = tacGia.HoTen?.Trim() ?? string.Empty;
+            tacGia.QuocTich = tacGia.QuocTich?.Trim() ?? string.Empty;
+            tacGia.TieuSu = tacGia.TieuSu?.Trim() ?? string.Empty;
+            if (tacGia.NgaySinh.HasValue && tacGia.NgaySinh.Value.Date > DateTime.Today)
+                ModelState.AddModelError(nameof(tacGia.NgaySinh), "Ngày sinh không thể lớn hơn ngày hiện tại.");
+            if (tacGia.NgaySinh.HasValue && tacGia.NgaySinh.Value.Date < DateTime.Today.AddYears(-120))
+                ModelState.AddModelError(nameof(tacGia.NgaySinh), "Ngày sinh không hợp lệ (tuổi không được vượt quá 120).");
 
             if (ModelState.IsValid)
             {
@@ -119,8 +146,15 @@ namespace bài_tập_1.Controllers
                         throw;
                     }
                 }
+                TempData["Success"] = $"Đã cập nhật hồ sơ tác giả {tacGia.HoTen}.";
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["SachCuaTacGia"] = await _context.TacGia
+                .Where(t => t.MaTacGia == id)
+                .SelectMany(t => t.SachTacGias)
+                .Select(st => st.Sach.TenSach)
+                .OrderBy(name => name)
+                .ToListAsync();
             return View(tacGia);
         }
 

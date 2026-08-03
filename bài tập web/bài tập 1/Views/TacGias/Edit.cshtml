@@ -1,49 +1,43 @@
-﻿@model bài_tập_1.Models.TacGia
-
+@model bài_tập_1.Models.TacGia
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa tác giả"; var titles = ViewData["SachCuaTacGia"] as IEnumerable<string> ?? Enumerable.Empty<string>(); var parts = Model.HoTen?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>(); var initials = parts.Length > 1 ? $"{parts[0][0]}{parts[^1][0]}" : (parts.Length == 1 ? parts[0].Substring(0, Math.Min(2, parts[0].Length)) : "TG");
 }
-
-<h1>Edit</h1>
-
-<h4>TacGia</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaTacGia" />
-            <div class="form-group">
-                <label asp-for="HoTen" class="control-label"></label>
-                <input asp-for="HoTen" class="form-control" />
-                <span asp-validation-for="HoTen" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgaySinh" class="control-label"></label>
-                <input asp-for="NgaySinh" class="form-control" />
-                <span asp-validation-for="NgaySinh" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="QuocTich" class="control-label"></label>
-                <input asp-for="QuocTich" class="form-control" />
-                <span asp-validation-for="QuocTich" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TieuSu" class="control-label"></label>
-                <input asp-for="TieuSu" class="form-control" />
-                <span asp-validation-for="TieuSu" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<section class="author-editor-page">
+    <nav class="author-editor-breadcrumb"><a asp-action="Index"><i class="bi bi-arrow-left"></i> Danh mục tác giả</a><i class="bi bi-chevron-right"></i><span>TG-@Model.MaTacGia.ToString("D4")</span></nav>
+    <header class="author-editor-hero"><div><span><i class="bi bi-feather"></i></span><div><small>HỒ SƠ TÁC GIẢ</small><h1>Chỉnh sửa thông tin tác giả</h1><p>Cập nhật thông tin định danh, tiểu sử và dữ liệu giới thiệu tác giả.</p></div></div><strong>TG-@Model.MaTacGia.ToString("D4")</strong></header>
+    <form asp-action="Edit" asp-route-id="@Model.MaTacGia" method="post" class="author-editor-form">
+        <input type="hidden" asp-for="MaTacGia" /><div asp-validation-summary="ModelOnly" class="author-editor-validation"></div>
+        <div class="author-editor-layout">
+            <main>
+                <section class="author-editor-card">
+                    <div class="author-editor-heading"><span><i class="bi bi-person-vcard"></i></span><div><h2>Thông tin cơ bản</h2><p>Các thông tin dùng để nhận diện tác giả trong thư viện.</p></div></div>
+                    <div class="author-editor-grid"><div class="author-editor-field full"><label asp-for="HoTen">Họ và tên <em>*</em></label><div><i class="bi bi-person"></i><input asp-for="HoTen" data-author-name placeholder="Nhập đầy đủ họ tên tác giả" /></div><span asp-validation-for="HoTen"></span></div><div class="author-editor-field"><label asp-for="NgaySinh">Ngày sinh</label><div><i class="bi bi-calendar3"></i><input asp-for="NgaySinh" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" /></div><span asp-validation-for="NgaySinh"></span></div><div class="author-editor-field"><label asp-for="QuocTich">Quốc tịch</label><div><i class="bi bi-globe2"></i><input asp-for="QuocTich" data-author-country placeholder="Ví dụ: Việt Nam" /></div><span asp-validation-for="QuocTich"></span></div></div>
+                </section>
+                <section class="author-editor-card"><div class="author-editor-heading"><span><i class="bi bi-file-earmark-text"></i></span><div><h2>Tiểu sử và giới thiệu</h2><p>Nội dung ngắn gọn giúp độc giả hiểu thêm về tác giả.</p></div></div><div class="author-editor-field"><label asp-for="TieuSu">Tiểu sử</label><textarea asp-for="TieuSu" data-author-bio rows="7" maxlength="2000" placeholder="Nhập quá trình hoạt động, phong cách sáng tác hoặc thành tựu nổi bật..."></textarea><div class="author-editor-counter"><span asp-validation-for="TieuSu"></span><small><b data-bio-count>0</b>/2000 ký tự</small></div></div></section>
+                <footer class="author-editor-actions"><a asp-action="Index"><i class="bi bi-x-lg"></i> Hủy thay đổi</a><button type="submit"><i class="bi bi-check2-circle"></i> Lưu hồ sơ tác giả</button></footer>
+            </main>
+            <aside>
+                <section class="author-editor-card author-editor-preview"><span class="author-editor-avatar" data-author-avatar>@initials.ToUpperInvariant()</span><small>XEM TRƯỚC HỒ SƠ</small><h2 data-author-preview-name>@Model.HoTen</h2><p><i class="bi bi-geo-alt-fill"></i> <span data-author-preview-country>@(string.IsNullOrWhiteSpace(Model.QuocTich) ? "Chưa cập nhật quốc tịch" : Model.QuocTich)</span></p><div><span>Mã tác giả</span><strong>TG-@Model.MaTacGia.ToString("D4")</strong></div><div><span>Số đầu sách</span><strong>@titles.Count()</strong></div></section>
+                <section class="author-editor-card author-editor-books"><h2><i class="bi bi-journals"></i> Tác phẩm trong thư viện</h2>@if (titles.Any()) {
+                    <ul>@foreach (var title in titles.Take(5)) {
+                        <li><i class="bi bi-book"></i><span>@title</span></li>
+                    }
+                </ul>@if (titles.Count() > 5) {
+                <small>Và @(titles.Count() - 5) đầu sách khác</small>
+            }
+        } else
+        {
+            <p>Chưa có đầu sách nào được liên kết với tác giả này.</p>
+        }
+    </section>
+    <section class="author-editor-tip"><i class="bi bi-lightbulb-fill"></i><p>Thông tin rõ ràng và tiểu sử súc tích sẽ giúp độc giả tìm hiểu tác giả dễ dàng hơn.</p></section>
+</aside>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+</form>
+</section>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>(()=>{const name=document.querySelector('[data-author-name]'),country=document.querySelector('[data-author-country]'),bio=document.querySelector('[data-author-bio]'),avatar=document.querySelector('[data-author-avatar]'),previewName=document.querySelector('[data-author-preview-name]'),previewCountry=document.querySelector('[data-author-preview-country]'),count=document.querySelector('[data-bio-count]');const initials=value=>{const p=value.trim().split(/\s+/).filter(Boolean);return !p.length?'TG':(p.length===1?p[0].slice(0,2):p[0][0]+p[p.length-1][0]).toUpperCase()};const update=()=>{avatar.textContent=initials(name.value);previewName.textContent=name.value.trim()||'Tên tác giả';previewCountry.textContent=country.value.trim()||'Chưa cập nhật quốc tịch';count.textContent=bio.value.length};[name,country,bio].forEach(el=>el?.addEventListener('input',update));update()})();</script>
 }

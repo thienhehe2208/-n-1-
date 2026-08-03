@@ -129,7 +129,10 @@ namespace bài_tập_1.Controllers
                 return NotFound();
             }
 
-            var banSao = await _context.BanSao.FindAsync(id);
+            var banSao = await _context.BanSao
+                .Include(b => b.Sach)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.MaBanSao == id);
             if (banSao == null)
             {
                 return NotFound();

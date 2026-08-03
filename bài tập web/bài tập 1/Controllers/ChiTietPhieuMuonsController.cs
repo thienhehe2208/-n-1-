@@ -110,6 +110,10 @@ namespace bài_tập_1.Controllers
             var chiTiet = await _context.ChiTietPhieuMuon
                 .Include(c => c.BanSao)
                     .ThenInclude(b => b.Sach)
+                        .ThenInclude(s => s.TheLoai)
+                .Include(c => c.BanSao)
+                    .ThenInclude(b => b.Sach)
+                        .ThenInclude(s => s.NhaXuatBan)
                 .Include(c => c.PhieuMuon)
                     .ThenInclude(p => p.DocGia)
                 .Include(c => c.PhieuPhat)
@@ -133,6 +137,7 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> Create(
             ThemSachVaoPhieuViewModel model)
         {
+            model.GhiChu = model.GhiChu?.Trim() ?? string.Empty;
             await using var transaction =
                 await _context.Database.BeginTransactionAsync(
                     IsolationLevel.Serializable);
@@ -199,7 +204,7 @@ namespace bài_tập_1.Controllers
                     MaBanSao = banSao!.MaBanSao,
                     NgayTra = null,
                     TinhTrangKhiTra = null,
-                    GhiChu = model.GhiChu.Trim()
+                    GhiChu = model.GhiChu
                 });
 
             banSao.TinhTrang = TinhTrangBanSao.DangMuon;
@@ -452,6 +457,9 @@ namespace bài_tập_1.Controllers
                     MoTa = b.Sach.TenSach + " - " + b.MaVach
                 })
                 .ToListAsync();
+
+            ViewData["SoPhieuHopLe"] = phieuMuons.Count;
+            ViewData["SoBanSaoSanCo"] = banSaos.Count;
 
             ViewData["MaPhieuMuon"] = new SelectList(
                 phieuMuons,

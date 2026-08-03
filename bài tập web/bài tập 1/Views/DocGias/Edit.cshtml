@@ -1,70 +1,161 @@
-﻿@model bài_tập_1.Models.ViewModels.EditDocGiaViewModel
+@model bài_tập_1.Models.ViewModels.EditDocGiaViewModel
+@using bài_tập_1.Models
 
 @{
-    ViewData["Title"] = "Sửa độc giả";
+    ViewData["Title"] = "Chỉnh sửa hồ sơ độc giả";
+    var initial = string.IsNullOrWhiteSpace(Model.HoTen) ? "DG" : Model.HoTen.Trim()[0].ToString().ToUpper();
+    var cardExpired = Model.NgayHetHanThe.Date < DateTime.Today;
+    var daysRemaining = (Model.NgayHetHanThe.Date - DateTime.Today).Days;
 }
 
-<h1>Sửa độc giả</h1>
-<p class="text-muted">
-    Email và số điện thoại sẽ được đồng bộ với tài khoản đăng nhập.
-</p>
+<section class="reader-edit-page">
+    <nav class="reader-edit-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-arrow-left"></i> Danh sách độc giả</a>
+        <i class="bi bi-chevron-right"></i>
+        <a asp-action="Details" asp-route-id="@Model.MaDocGia">DG-@Model.MaDocGia.ToString("D5")</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Chỉnh sửa</span>
+    </nav>
 
-<div class="row">
-    <div class="col-lg-8">
-        <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaDocGia" />
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="HoTen" class="form-label"></label>
-                    <input asp-for="HoTen" class="form-control" />
-                    <span asp-validation-for="HoTen" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="SoDienThoai" class="form-label"></label>
-                    <input asp-for="SoDienThoai" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgaySinh" class="form-label"></label>
-                    <input asp-for="NgaySinh" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="GioiTinh" class="form-label"></label>
-                    <select asp-for="GioiTinh" class="form-select">
-                        <option value="">-- Chọn giới tính --</option>
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                        <option value="Khác">Khác</option>
-                    </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="TrangThai" class="form-label"></label>
-                    <select asp-for="TrangThai" class="form-select"
-                            asp-items="Html.GetEnumSelectList<TrangThaiDocGia>()"></select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgayDangKy" class="form-label"></label>
-                    <input asp-for="NgayDangKy" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgayHetHanThe" class="form-label"></label>
-                    <input asp-for="NgayHetHanThe" class="form-control" />
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label asp-for="DiaChi" class="form-label"></label>
-                    <input asp-for="DiaChi" class="form-control" />
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
-        </form>
-    </div>
-</div>
+    <header class="reader-edit-hero">
+        <div class="reader-edit-hero__profile">
+            <span class="reader-edit-hero__avatar">@initial</span>
+            <div><small>QUẢN LÝ HỒ SƠ ĐỘC GIẢ</small><h1>Chỉnh sửa thông tin</h1><p>Cập nhật hồ sơ và trạng thái sử dụng thẻ thư viện.</p></div>
+        </div>
+        <div class="reader-edit-hero__id"><span>MÃ ĐỘC GIẢ</span><strong>DG-@Model.MaDocGia.ToString("D5")</strong></div>
+    </header>
+
+    <form asp-action="Edit" asp-route-id="@Model.MaDocGia" method="post" class="reader-edit-form">
+        <input type="hidden" asp-for="MaDocGia" />
+        <div asp-validation-summary="ModelOnly" class="reader-edit-validation" role="alert"></div>
+
+        <div class="reader-edit-layout">
+            <main class="reader-edit-main">
+                <section class="reader-edit-card reader-edit-section">
+                    <div class="reader-edit-heading">
+                        <span><i class="bi bi-person"></i></span>
+                        <div><h2>Thông tin cá nhân</h2><p>Thông tin nhận diện cơ bản của độc giả.</p></div>
+                    </div>
+                    <div class="reader-edit-grid">
+                        <div class="reader-edit-field reader-edit-field--wide">
+                            <label asp-for="HoTen"><i class="bi bi-person-badge"></i> Họ và tên <em>*</em></label>
+                            <input asp-for="HoTen" placeholder="Nhập họ tên đầy đủ" />
+                            <span asp-validation-for="HoTen" class="reader-edit-error"></span>
+                        </div>
+                        <div class="reader-edit-field">
+                            <label asp-for="NgaySinh"><i class="bi bi-calendar3"></i> Ngày sinh</label>
+                            <input asp-for="NgaySinh" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="NgaySinh" class="reader-edit-error"></span>
+                        </div>
+                        <div class="reader-edit-field">
+                            <label asp-for="GioiTinh"><i class="bi bi-gender-ambiguous"></i> Giới tính</label>
+                            <select asp-for="GioiTinh">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="GioiTinh" class="reader-edit-error"></span>
+                        </div>
+                        <div class="reader-edit-field reader-edit-field--wide">
+                            <label asp-for="DiaChi"><i class="bi bi-geo-alt"></i> Địa chỉ</label>
+                            <input asp-for="DiaChi" placeholder="Nhập địa chỉ liên hệ" />
+                            <span asp-validation-for="DiaChi" class="reader-edit-error"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="reader-edit-card reader-edit-section">
+                    <div class="reader-edit-heading">
+                        <span><i class="bi bi-envelope-at"></i></span>
+                        <div><h2>Thông tin liên hệ</h2><p>Email và số điện thoại được đồng bộ với tài khoản đăng nhập.</p></div>
+                    </div>
+                    <div class="reader-edit-sync-note"><i class="bi bi-arrow-repeat"></i><span>Thay đổi tại đây cũng sẽ cập nhật thông tin đăng nhập tương ứng của độc giả.</span></div>
+                    <div class="reader-edit-grid">
+                        <div class="reader-edit-field">
+                            <label asp-for="Email"><i class="bi bi-envelope"></i> Email <em>*</em></label>
+                            <input asp-for="Email" type="email" placeholder="vidu@email.com" />
+                            <span asp-validation-for="Email" class="reader-edit-error"></span>
+                        </div>
+                        <div class="reader-edit-field">
+                            <label asp-for="SoDienThoai"><i class="bi bi-telephone"></i> Số điện thoại</label>
+                            <input asp-for="SoDienThoai" type="tel" placeholder="Nhập số điện thoại" />
+                            <span asp-validation-for="SoDienThoai" class="reader-edit-error"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="reader-edit-card reader-edit-section">
+                    <div class="reader-edit-heading">
+                        <span><i class="bi bi-person-vcard"></i></span>
+                        <div><h2>Thông tin thẻ thư viện</h2><p>Quản lý thời hạn và quyền sử dụng tài khoản.</p></div>
+                    </div>
+                    <div class="reader-edit-grid">
+                        <div class="reader-edit-field">
+                            <label asp-for="NgayDangKy"><i class="bi bi-calendar-plus"></i> Ngày đăng ký</label>
+                            <input asp-for="NgayDangKy" type="date" />
+                            <span asp-validation-for="NgayDangKy" class="reader-edit-error"></span>
+                        </div>
+                        <div class="reader-edit-field">
+                            <label asp-for="NgayHetHanThe"><i class="bi bi-calendar-x"></i> Ngày hết hạn thẻ</label>
+                            <input asp-for="NgayHetHanThe" type="date" />
+                            <span asp-validation-for="NgayHetHanThe" class="reader-edit-error"></span>
+                        </div>
+                        <fieldset class="reader-edit-field reader-edit-field--wide reader-edit-status-field">
+                            <legend><i class="bi bi-shield-check"></i> Trạng thái tài khoản</legend>
+                            <div class="reader-edit-status-options">
+                                <label class="reader-edit-status reader-edit-status--active">
+                                    <input asp-for="TrangThai" type="radio" value="@TrangThaiDocGia.HoatDong" />
+                                    <span><i class="bi bi-check-circle"></i></span>
+                                    <div><strong>Hoạt động</strong><small>Được phép đăng nhập, mượn và đặt trước sách</small></div>
+                                    <i class="bi bi-check-lg"></i>
+                                </label>
+                                <label class="reader-edit-status reader-edit-status--locked">
+                                    <input asp-for="TrangThai" type="radio" value="@TrangThaiDocGia.Khoa" />
+                                    <span><i class="bi bi-lock"></i></span>
+                                    <div><strong>Khóa tài khoản</strong><small>Ngừng đăng nhập và thực hiện giao dịch thư viện</small></div>
+                                    <i class="bi bi-check-lg"></i>
+                                </label>
+                            </div>
+                            <span asp-validation-for="TrangThai" class="reader-edit-error"></span>
+                        </fieldset>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="reader-edit-sidebar">
+                <section class="reader-edit-card reader-edit-preview">
+                    <span class="reader-edit-preview__avatar">@initial</span>
+                    <h2>@(string.IsNullOrWhiteSpace(Model.HoTen) ? "Chưa cập nhật họ tên" : Model.HoTen)</h2>
+                    <p>DG-@Model.MaDocGia.ToString("D5")</p>
+                    <span class="reader-edit-preview__state @(Model.TrangThai == TrangThaiDocGia.HoatDong ? "active" : "locked")"><i></i> @(Model.TrangThai == TrangThaiDocGia.HoatDong ? "Đang hoạt động" : "Đang bị khóa")</span>
+                    <div class="reader-edit-preview__info"><span><i class="bi bi-envelope"></i> @(string.IsNullOrWhiteSpace(Model.Email) ? "Chưa có email" : Model.Email)</span><span><i class="bi bi-telephone"></i> @(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "Chưa có số điện thoại" : Model.SoDienThoai)</span></div>
+                    <a asp-action="Details" asp-route-id="@Model.MaDocGia">Xem hồ sơ đầy đủ <i class="bi bi-arrow-right"></i></a>
+                </section>
+
+                <section class="reader-edit-card reader-edit-card-status @(cardExpired ? "expired" : "valid")">
+                    <div><span><i class="bi @(cardExpired ? "bi-exclamation-triangle" : "bi-shield-check")"></i></span><div><small>THỜI HẠN THẺ</small><strong>@(cardExpired ? "Đã hết hạn" : "Còn hiệu lực")</strong></div></div>
+                    <p>Hết hạn ngày <strong>@Model.NgayHetHanThe.ToString("dd/MM/yyyy")</strong></p>
+                    @if (!cardExpired)
+                    {
+                        <small>Còn @daysRemaining ngày sử dụng</small>
+                    }
+                </section>
+
+                <section class="reader-edit-card reader-edit-help">
+                    <h2><i class="bi bi-info-circle"></i> Lưu ý khi cập nhật</h2>
+                    <ul><li>Kiểm tra email và số điện thoại trước khi lưu.</li><li>Khóa tài khoản sẽ ngăn độc giả đăng nhập.</li><li>Thời hạn thẻ ảnh hưởng quyền mượn và đặt sách.</li></ul>
+                </section>
+            </aside>
+        </div>
+
+        <footer class="reader-edit-actions">
+            <a asp-action="Details" asp-route-id="@Model.MaDocGia" class="reader-edit-btn reader-edit-btn--ghost"><i class="bi bi-x-lg"></i> Hủy thay đổi</a>
+            <span><i class="bi bi-shield-lock"></i> Thông tin được đồng bộ an toàn với tài khoản</span>
+            <button type="submit" class="reader-edit-btn reader-edit-btn--save"><i class="bi bi-check2-circle"></i> Lưu thay đổi</button>
+        </footer>
+    </form>
+</section>
 
 @section Scripts {
     @{

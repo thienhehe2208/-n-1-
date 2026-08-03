@@ -1,66 +1,42 @@
-﻿@model bài_tập_1.Models.ViewModels.ThemSachVaoPhieuViewModel
-
+@model bài_tập_1.Models.ViewModels.ThemSachVaoPhieuViewModel
 @{
-    ViewData["Title"] = "Thêm sách vào phiếu";
+    ViewData["Title"] = "Thêm sách vào phiếu"; var validLoans = (int?)ViewData["SoPhieuHopLe"] ?? 0; var availableCopies = (int?)ViewData["SoBanSaoSanCo"] ?? 0;
 }
-
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h2 class="card-title">Thêm sách vào phiếu mượn</h2>
-        <p class="text-muted">
-            Danh sách chỉ hiển thị phiếu còn hiệu lực và bản sao đang sẵn có.
-        </p>
-
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger"></div>
-
-            <div class="mb-3">
-                <label asp-for="MaPhieuMuon" class="form-label"></label>
-                <select asp-for="MaPhieuMuon"
-                        asp-items="ViewBag.MaPhieuMuon"
-                        class="form-select">
-                    <option value="">-- Chọn phiếu mượn --</option>
-                </select>
-                <span asp-validation-for="MaPhieuMuon"
-                      class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="MaBanSao" class="form-label"></label>
-                <select asp-for="MaBanSao"
-                        asp-items="ViewBag.MaBanSao"
-                        class="form-select">
-                    <option value="">-- Chọn sách và mã vạch --</option>
-                </select>
-                <span asp-validation-for="MaBanSao"
-                      class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="GhiChu" class="form-label"></label>
-                <textarea asp-for="GhiChu"
-                          class="form-control"
-                          rows="3"></textarea>
-                <span asp-validation-for="GhiChu"
-                      class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-                Thêm sách
-            </button>
-            <a asp-controller="PhieuMuons"
-                   asp-action="Details"
-                   asp-route-id="@Model.MaPhieuMuon"
-                   class="btn btn-outline-secondary">
-                Quay lại phiếu
-            </a>
-        </form>
-    </div>
-</div>
-
+<section class="loan-item-create-page">
+    <nav class="loan-item-create-breadcrumb"><a asp-controller="PhieuMuons" asp-action="Index"><i class="bi bi-arrow-left"></i> Quản lý phiếu mượn</a><i class="bi bi-chevron-right"></i><span>Thêm sách vào phiếu</span></nav>
+    <header class="loan-item-create-hero"><div><span><i class="bi bi-journal-plus"></i></span><div><small>NGHIỆP VỤ LƯU THÔNG</small><h1>Thêm sách vào phiếu mượn</h1><p>Chọn phiếu hợp lệ và bản sao sẵn có để ghi nhận lượt mượn tại quầy.</p></div></div><div class="loan-item-create-hero__stats"><span><strong>@validLoans</strong><small>Phiếu hợp lệ</small></span><span><strong>@availableCopies</strong><small>Bản sao sẵn có</small></span></div></header>
+    <form asp-action="Create" method="post" class="loan-item-create-form">
+        <div asp-validation-summary="ModelOnly" class="loan-item-create-validation"></div>
+        <div class="loan-item-create-layout">
+            <main>
+                <section class="loan-item-create-card">
+                    <div class="loan-item-create-heading"><span>01</span><div><h2>Chọn phiếu mượn</h2><p>Chỉ hiển thị phiếu còn hạn và độc giả có thẻ đang hoạt động.</p></div></div>
+                    <div class="loan-item-create-field"><label asp-for="MaPhieuMuon"><i class="bi bi-receipt"></i> Phiếu mượn <em>*</em></label><div class="loan-item-create-select"><i class="bi bi-person-check"></i><select asp-for="MaPhieuMuon" asp-items="ViewBag.MaPhieuMuon" data-loan-select><option value="">-- Chọn phiếu mượn và độc giả --</option></select><i class="bi bi-chevron-down"></i></div><span asp-validation-for="MaPhieuMuon"></span></div>
+                </section>
+                <section class="loan-item-create-card">
+                    <div class="loan-item-create-heading"><span>02</span><div><h2>Chọn bản sao</h2><p>Mỗi bản sao được nhận diện bằng tên sách và mã vạch duy nhất.</p></div></div>
+                    <div class="loan-item-create-field"><label asp-for="MaBanSao"><i class="bi bi-upc-scan"></i> Sách và mã vạch <em>*</em></label><div class="loan-item-create-select"><i class="bi bi-book"></i><select asp-for="MaBanSao" asp-items="ViewBag.MaBanSao" data-copy-select><option value="">-- Chọn bản sao đang sẵn có --</option></select><i class="bi bi-chevron-down"></i></div><span asp-validation-for="MaBanSao"></span><small><i class="bi bi-shield-check"></i> Trạng thái sẽ được kiểm tra lại ngay trước khi lưu.</small></div>
+                </section>
+                <section class="loan-item-create-card">
+                    <div class="loan-item-create-heading"><span>03</span><div><h2>Ghi chú nghiệp vụ</h2><p>Thông tin bổ sung cho lượt mượn, không bắt buộc.</p></div></div>
+                    <div class="loan-item-create-field"><label asp-for="GhiChu"><i class="bi bi-chat-left-text"></i> Ghi chú</label><textarea asp-for="GhiChu" rows="4" maxlength="250" data-note placeholder="Ví dụ: Sách nguyên vẹn khi bàn giao..."></textarea><div class="loan-item-create-counter"><span asp-validation-for="GhiChu"></span><small><b data-note-count>0</b>/250 ký tự</small></div></div>
+                </section>
+                <footer class="loan-item-create-actions"><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon"><i class="bi bi-x-lg"></i> Hủy thao tác</a><button type="submit" @(validLoans == 0 || availableCopies == 0 ? "disabled" : null)><i class="bi bi-plus-circle"></i> Xác nhận thêm sách</button></footer>
+            </main>
+            <aside>
+                <section class="loan-item-create-card loan-item-create-summary"><span class="loan-item-create-summary__icon"><i class="bi bi-clipboard-check"></i></span><small>KIỂM TRA TRƯỚC KHI LƯU</small><h2>Thông tin lượt mượn</h2><div><span>Phiếu được chọn</span><strong data-loan-preview>Chưa chọn phiếu mượn</strong></div><div><span>Bản sao được chọn</span><strong data-copy-preview>Chưa chọn bản sao</strong></div><div><span>Trạng thái sau khi thêm</span><strong class="borrowing"><i></i> Đang mượn</strong></div></section>
+                @if (validLoans == 0 || availableCopies == 0)
+                {
+                    <section class="loan-item-create-alert"><i class="bi bi-exclamation-triangle-fill"></i><div><strong>Chưa thể tạo lượt mượn</strong><p>@(validLoans == 0 ? "Không có phiếu mượn hợp lệ để thêm sách." : "Kho hiện không còn bản sao sẵn có.")</p></div></section>
+                }
+                <section class="loan-item-create-card loan-item-create-rules"><h2><i class="bi bi-shield-lock"></i> Kiểm tra tự động</h2><ul><li>Hiệu lực và trạng thái thẻ độc giả</li><li>Hạn mức mượn của tài khoản</li><li>Trạng thái thực tế của bản sao</li><li>Ngăn hai giao dịch mượn cùng lúc</li></ul></section>
+            </aside>
+        </div>
+    </form>
+</section>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>(()=>{const loan=document.querySelector('[data-loan-select]'),copy=document.querySelector('[data-copy-select]'),note=document.querySelector('[data-note]'),loanPreview=document.querySelector('[data-loan-preview]'),copyPreview=document.querySelector('[data-copy-preview]'),count=document.querySelector('[data-note-count]');const text=select=>select?.selectedIndex>0?select.options[select.selectedIndex].text:'Chưa chọn';const update=()=>{loanPreview.textContent=loan?.selectedIndex>0?text(loan):'Chưa chọn phiếu mượn';copyPreview.textContent=copy?.selectedIndex>0?text(copy):'Chưa chọn bản sao';count.textContent=note?.value.length||0};[loan,copy,note].forEach(el=>el?.addEventListener('input',update));update()})();</script>
 }

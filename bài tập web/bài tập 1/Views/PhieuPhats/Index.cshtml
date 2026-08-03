@@ -1,4 +1,5 @@
-﻿@model IEnumerable<bài_tập_1.Models.PhieuPhat>
+@model IEnumerable<bài_tập_1.Models.PhieuPhat>
+@using bài_tập_1.Models
 
 @{
     ViewData["Title"] = "Quản lý phiếu phạt";
@@ -10,160 +11,128 @@
     var debt = (decimal?)ViewData["TongNo"] ?? 0;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2>Quản lý phiếu phạt</h2>
-        <p class="text-muted mb-0">
-            Theo dõi các khoản phạt trả trễ, hư hỏng và mất sách.
-        </p>
-    </div>
-    <a asp-action="Create" class="btn btn-primary">
-        Lập phiếu phạt
-    </a>
-</div>
+<section class="fine-list-page">
+    <header class="fine-list-hero">
+        <div class="fine-list-hero__content">
+            <span>QUẢN LÝ VI PHẠM &amp; CÔNG NỢ</span>
+            <h1>Phiếu phạt thư viện</h1>
+            <p>Theo dõi các khoản phạt do trả trễ, hư hỏng hoặc làm mất tài liệu.</p>
+        </div>
+        <a asp-action="Create" class="fine-list-create"><i class="bi bi-plus-lg"></i> Lập phiếu phạt</a>
+    </header>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card card-body">
-            <small>Tổng phiếu</small>
-            <strong class="fs-4">@total</strong>
-        </div>
+    <div class="fine-list-stats">
+        <article class="fine-list-stat fine-list-stat--total">
+            <span><i class="bi bi-receipt"></i></span>
+            <div><small>TỔNG PHIẾU</small><strong>@total</strong><p>Toàn bộ hồ sơ vi phạm</p></div>
+        </article>
+        <article class="fine-list-stat fine-list-stat--unpaid">
+            <span><i class="bi bi-exclamation-circle"></i></span>
+            <div><small>CHƯA ĐÓNG</small><strong>@unpaid</strong><p>Cần tiếp tục xử lý</p></div>
+        </article>
+        <article class="fine-list-stat fine-list-stat--paid">
+            <span><i class="bi bi-check-circle"></i></span>
+            <div><small>ĐÃ ĐÓNG</small><strong>@paid</strong><p>Đã hoàn tất thanh toán</p></div>
+        </article>
+        <article class="fine-list-stat fine-list-stat--debt">
+            <span><i class="bi bi-cash-stack"></i></span>
+            <div><small>TỔNG TIỀN CHƯA THU</small><strong>@debt.ToString("N0") ₫</strong><p>Công nợ đang chờ thanh toán</p></div>
+        </article>
     </div>
-    <div class="col-md-3">
-        <div class="card card-body">
-            <small>Chưa đóng</small>
-            <strong class="fs-4 text-danger">@unpaid</strong>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card card-body">
-            <small>Đã đóng</small>
-            <strong class="fs-4 text-success">@paid</strong>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card card-body">
-            <small>Tổng tiền chưa thu</small>
-            <strong class="fs-4">@debt.ToString("N0") đ</strong>
-        </div>
-    </div>
-</div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <form asp-action="Index" method="get" class="row g-2 mb-3">
-            <div class="col-md-7">
-                <input type="search"
-                       name="q"
-                       value="@keyword"
-                       class="form-control"
-                       placeholder="Tên độc giả, sách, mã vạch hoặc mã phiếu..." />
-            </div>
-            <div class="col-md-3">
-                <select name="trangThai" class="form-select">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="unpaid"
-                            selected="@(status == "unpaid" ? "selected" : null)">Chưa đóng</option>
-                    <option value="paid"
-                            selected="@(status == "paid" ? "selected" : null)">Đã đóng</option>
-                    <option value="cancelled"
-                            selected="@(status == "cancelled" ? "selected" : null)">Đã hủy</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    Lọc
-                </button>
-            </div>
-        </form>
+    <section class="fine-list-card">
+        <div class="fine-list-toolbar">
+            <form asp-action="Index" method="get" class="fine-list-search">
+                <input type="hidden" name="trangThai" value="@status" />
+                <i class="bi bi-search"></i>
+                <input type="search" name="q" value="@keyword" placeholder="Tìm độc giả, sách, mã vạch hoặc mã phiếu..." aria-label="Tìm kiếm phiếu phạt" />
+                @if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    <a asp-action="Index" asp-route-trangThai="@status" title="Xóa từ khóa"><i class="bi bi-x-circle"></i></a>
+                }
+                <button type="submit">Tìm kiếm</button>
+            </form>
+        </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Mã phiếu</th>
-                        <th>Độc giả</th>
-                        <th>Sách</th>
-                        <th>Lý do</th>
-                        <th>Số tiền</th>
-                        <th>Ngày lập</th>
-                        <th>Trạng thái</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        var reason = item.LyDo switch
+        <nav class="fine-list-tabs" aria-label="Lọc trạng thái">
+            <a asp-action="Index" asp-route-q="@keyword" class="@(status == "" ? "active" : "")"><i class="bi bi-grid"></i> Tất cả <span>@total</span></a>
+            <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="unpaid" class="@(status == "unpaid" ? "active" : "")"><i class="bi bi-hourglass-split"></i> Chưa đóng <span>@unpaid</span></a>
+            <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="paid" class="@(status == "paid" ? "active" : "")"><i class="bi bi-check2-circle"></i> Đã đóng <span>@paid</span></a>
+            <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="cancelled" class="@(status == "cancelled" ? "active" : "")"><i class="bi bi-slash-circle"></i> Đã hủy</a>
+        </nav>
+
+        @if (Model.Any())
+        {
+            <div class="fine-list-table-wrap">
+                <table class="fine-list-table">
+                    <thead>
+                        <tr><th>Phiếu phạt</th><th>Độc giả</th><th>Tài liệu vi phạm</th><th>Lý do</th><th>Số tiền</th><th>Ngày lập</th><th>Trạng thái</th><th><span class="visually-hidden">Thao tác</span></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
                         {
-                            LyDoPhat.TraTre => "Trả trễ",
-                            LyDoPhat.HuHong => "Hư hỏng",
-                            LyDoPhat.MatSach => "Mất sách",
-                            _ => item.LyDo.ToString()
-                        };
-                        var statusText = item.TrangThai switch
-                        {
-                            TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
-                            TrangThaiPhieuPhat.DaDong => "Đã đóng",
-                            TrangThaiPhieuPhat.DaHuy => "Đã hủy",
-                            _ => item.TrangThai.ToString()
-                        };
-                        var badge = item.TrangThai switch
-                        {
-                            TrangThaiPhieuPhat.ChuaDong => "bg-danger",
-                            TrangThaiPhieuPhat.DaDong => "bg-success",
-                            _ => "bg-secondary"
-                        };
+                            var reason = item.LyDo switch
+                            {
+                                LyDoPhat.TraTre => "Trả sách trễ hạn",
+                                LyDoPhat.HuHong => "Làm hư hỏng sách",
+                                LyDoPhat.MatSach => "Làm mất sách",
+                                _ => item.LyDo.ToString()
+                            };
+                            var reasonIcon = item.LyDo switch
+                            {
+                                LyDoPhat.TraTre => "bi-clock-history",
+                                LyDoPhat.HuHong => "bi-tools",
+                                _ => "bi-exclamation-triangle"
+                            };
+                            var stateClass = item.TrangThai switch
+                            {
+                                TrangThaiPhieuPhat.ChuaDong => "unpaid",
+                                TrangThaiPhieuPhat.DaDong => "paid",
+                                _ => "cancelled"
+                            };
+                            var stateText = item.TrangThai switch
+                            {
+                                TrangThaiPhieuPhat.ChuaDong => "Chưa đóng",
+                                TrangThaiPhieuPhat.DaDong => "Đã đóng",
+                                _ => "Đã hủy"
+                            };
+                            var readerName = item.ChiTietPhieuMuon.PhieuMuon.DocGia.HoTen;
+                            var initial = string.IsNullOrWhiteSpace(readerName) ? "DG" : readerName.Trim()[0].ToString().ToUpper();
 
-                        <tr>
-                            <td>#PP@item.MaPhieuPhat.ToString("D4")</td>
-                            <td>
-                                @item.ChiTietPhieuMuon.PhieuMuon.DocGia.HoTen
-                            </td>
-                            <td>
-                                @item.ChiTietPhieuMuon.BanSao.Sach.TenSach
-                                <small class="d-block text-muted">
-                                    @item.ChiTietPhieuMuon.BanSao.MaVach
-                                </small>
-                            </td>
-                            <td>@reason</td>
-                            <td>@item.SoTien.ToString("N0") đ</td>
-                            <td>@item.NgayLap.ToString("dd/MM/yyyy")</td>
-                            <td>
-                                <span class="badge @badge">@statusText</span>
-                            </td>
-                            <td>
-                                <a asp-action="Details"
-                                       asp-route-id="@item.MaPhieuPhat"
-                                       class="btn btn-sm btn-outline-secondary">
-                                    Chi tiết
-                                </a>
-                                @if (item.TrangThai ==
-                                                                    TrangThaiPhieuPhat.ChuaDong)
-                                {
-                                    <a asp-action="Edit"
-                                           asp-route-id="@item.MaPhieuPhat"
-                                           class="btn btn-sm btn-outline-primary">
-                                        Sửa
-                                    </a>
+                            <tr>
+                                <td><a asp-action="Details" asp-route-id="@item.MaPhieuPhat" class="fine-list-code">#PP-@item.MaPhieuPhat.ToString("D5")</a><small>CT-@item.MaChiTiet.ToString("D5")</small></td>
+                                <td><div class="fine-list-reader"><span>@initial</span><div><strong>@readerName</strong><small>Độc giả thư viện</small></div></div></td>
+                                <td><div class="fine-list-book"><strong>@item.ChiTietPhieuMuon.BanSao.Sach.TenSach</strong><small><i class="bi bi-upc-scan"></i> @item.ChiTietPhieuMuon.BanSao.MaVach</small></div></td>
+                                <td><span class="fine-list-reason"><i class="bi @reasonIcon"></i> @reason</span></td>
+                                <td><strong class="fine-list-amount">@item.SoTien.ToString("N0") ₫</strong></td>
+                                <td><div class="fine-list-date"><strong>@item.NgayLap.ToString("dd/MM/yyyy")</strong><small>@item.NgayLap.ToString("HH:mm")</small></div></td>
+                                <td><span class="fine-list-state @stateClass"><i></i> @stateText</span></td>
+                                <td><div class="fine-list-actions"><a asp-action="Details" asp-route-id="@item.MaPhieuPhat" title="Xem chi tiết"><i class="bi bi-eye"></i></a>@if(item.TrangThai == TrangThaiPhieuPhat.ChuaDong){
+                                    <a asp-action="Edit" asp-route-id="@item.MaPhieuPhat" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>
                                 }
-                            </td>
+                            </div></td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-
-        @if (!Model.Any())
-        {
-            <p class="text-muted text-center mb-0">
-                Không có phiếu phạt phù hợp.
-            </p>
-        }
-    </div>
-</div>
+    }
+        else
+    {
+        <div class="fine-list-empty">
+            <span><i class="bi bi-receipt"></i></span>
+            <h2>Không tìm thấy phiếu phạt</h2>
+            <p>@(string.IsNullOrWhiteSpace(keyword) && string.IsNullOrWhiteSpace(status) ? "Hiện chưa có phiếu phạt nào trong hệ thống." : "Hãy thử thay đổi từ khóa hoặc trạng thái tìm kiếm.")</p>
+            @if (!string.IsNullOrWhiteSpace(keyword) || !string.IsNullOrWhiteSpace(status))
+            {
+                <a asp-action="Index"><i class="bi bi-arrow-counterclockwise"></i> Xóa bộ lọc</a>
+            }
+        </div>
+    }
+</section>
 
 @if (ViewData["Pagination"] is PaginationViewModel pagination)
 {
     <partial name="_Pagination" model="pagination" />
 }
+</section>

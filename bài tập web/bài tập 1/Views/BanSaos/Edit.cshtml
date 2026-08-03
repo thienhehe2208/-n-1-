@@ -1,53 +1,82 @@
-﻿@model bài_tập_1.Models.BanSao
+@model bài_tập_1.Models.BanSao
+@using bài_tập_1.Models
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa bản sao";
+    var statusText = Model.TinhTrang switch
+    {
+        TinhTrangBanSao.SanCo => "Sẵn có",
+        TinhTrangBanSao.DangMuon => "Đang mượn",
+        TinhTrangBanSao.HuHong => "Hư hỏng",
+        TinhTrangBanSao.ThanhLy => "Đã thanh lý",
+        TinhTrangBanSao.Mat => "Bị mất",
+        TinhTrangBanSao.DaGiu => "Đang được giữ",
+        _ => Model.TinhTrang.ToString()
+    };
+    var statusClass = Model.TinhTrang switch
+    {
+        TinhTrangBanSao.SanCo => "available",
+        TinhTrangBanSao.DangMuon => "borrowed",
+        TinhTrangBanSao.DaGiu => "reserved",
+        _ => "incident"
+    };
 }
 
-<h1>Edit</h1>
+<section class="copy-edit-page">
+    <nav class="copy-edit-breadcrumb" aria-label="Điều hướng"><a asp-action="Index"><i class="bi bi-arrow-left"></i> Quản lý kho sách</a><i class="bi bi-chevron-right"></i><a asp-action="Details" asp-route-id="@Model.MaBanSao">BS-@Model.MaBanSao.ToString("D5")</a><i class="bi bi-chevron-right"></i><span>Chỉnh sửa</span></nav>
 
-<h4>BanSao</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaBanSao" />
-            <div class="form-group">
-                <label asp-for="MaSach" class="control-label"></label>
-                <select asp-for="MaSach" class="form-control" asp-items="ViewBag.MaSach"></select>
-                <span asp-validation-for="MaSach" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaVach" class="control-label"></label>
-                <input asp-for="MaVach" class="form-control" />
-                <span asp-validation-for="MaVach" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TinhTrang" class="control-label"></label>
-                <select asp-for="TinhTrang"
-                        asp-items="Html.GetEnumSelectList<TinhTrangBanSao>()"
-                        class="form-control"></select>
-                <span asp-validation-for="TinhTrang" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ViTriKe" class="control-label"></label>
-                <input asp-for="ViTriKe" class="form-control" />
-                <span asp-validation-for="ViTriKe" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+    <header class="copy-edit-hero">
+        <span class="copy-edit-hero__icon"><i class="bi bi-upc-scan"></i></span>
+        <div><small>QUẢN LÝ BẢN SAO</small><h1>Chỉnh sửa thông tin kho</h1><p>Cập nhật mã vạch, vị trí lưu trữ và trạng thái lưu thông.</p></div>
+        <div class="copy-edit-hero__code"><span>MÃ BẢN SAO</span><strong>BS-@Model.MaBanSao.ToString("D5")</strong></div>
+    </header>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <form asp-action="Edit" asp-route-id="@Model.MaBanSao" method="post" class="copy-edit-form">
+        <input type="hidden" asp-for="MaBanSao" />
+        <div asp-validation-summary="ModelOnly" class="copy-edit-validation"></div>
+        <div class="copy-edit-layout">
+            <main class="copy-edit-main">
+                <section class="copy-edit-card copy-edit-section">
+                    <div class="copy-edit-heading"><span><i class="bi bi-book"></i></span><div><h2>Thông tin đầu sách</h2><p>Xác định đầu sách mà bản sao này thuộc về.</p></div></div>
+                    <div class="copy-edit-field"><label asp-for="MaSach"><i class="bi bi-journal-bookmark"></i> Đầu sách <em>*</em></label><div class="copy-edit-select"><i class="bi bi-search"></i><select asp-for="MaSach" asp-items="ViewBag.MaSach"></select></div><span asp-validation-for="MaSach"></span><small><i class="bi bi-info-circle"></i> Không thể đổi đầu sách khi bản sao đang được mượn hoặc được giữ.</small></div>
+                </section>
+
+                <section class="copy-edit-card copy-edit-section">
+                    <div class="copy-edit-heading"><span><i class="bi bi-box-seam"></i></span><div><h2>Nhận diện và lưu kho</h2><p>Thông tin dùng để quét và tìm bản sao trên kệ.</p></div></div>
+                    <div class="copy-edit-grid">
+                        <div class="copy-edit-field"><label asp-for="MaVach"><i class="bi bi-upc-scan"></i> Mã vạch <em>*</em></label><div class="copy-edit-input-icon"><i class="bi bi-qr-code"></i><input asp-for="MaVach" placeholder="Nhập mã vạch duy nhất" /></div><span asp-validation-for="MaVach"></span><small>Mỗi bản sao phải có một mã vạch riêng biệt.</small></div>
+                        <div class="copy-edit-field"><label asp-for="ViTriKe"><i class="bi bi-bookshelf"></i> Vị trí kệ</label><div class="copy-edit-input-icon"><i class="bi bi-geo-alt"></i><input asp-for="ViTriKe" placeholder="Ví dụ: Kệ A2 - Tầng 3" /></div><span asp-validation-for="ViTriKe"></span><small>Ghi rõ khu vực, kệ và tầng để dễ tìm kiếm.</small></div>
+                    </div>
+                </section>
+
+                <section class="copy-edit-card copy-edit-section">
+                    <div class="copy-edit-heading"><span><i class="bi bi-arrow-repeat"></i></span><div><h2>Trạng thái lưu thông</h2><p>Trạng thái quyết định khả năng cho mượn của bản sao.</p></div></div>
+                    <div class="copy-edit-field"><label asp-for="TinhTrang"><i class="bi bi-shield-check"></i> Trạng thái hiện tại</label><div class="copy-edit-select"><i class="bi bi-activity"></i><select asp-for="TinhTrang" asp-items="Html.GetEnumSelectList<TinhTrangBanSao>()"></select></div><span asp-validation-for="TinhTrang"></span></div>
+                    <div class="copy-edit-status-guide">
+                        <div class="available"><i class="bi bi-check-circle"></i><span><strong>Sẵn có</strong><small>Có thể cho mượn</small></span></div>
+                        <div class="borrowed"><i class="bi bi-arrow-left-right"></i><span><strong>Đang mượn / Đã giữ</strong><small>Hệ thống đang lưu hành</small></span></div>
+                        <div class="incident"><i class="bi bi-exclamation-triangle"></i><span><strong>Hư hỏng / Mất / Thanh lý</strong><small>Không thể cho mượn</small></span></div>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="copy-edit-sidebar">
+                <section class="copy-edit-card copy-edit-preview">
+                    <span class="copy-edit-preview__icon"><i class="bi bi-book"></i></span><small>BẢN SAO THƯ VIỆN</small><h2>@(Model.Sach?.TenSach ?? "Đầu sách hiện tại")</h2><code>@Model.MaVach</code>
+                    <span class="copy-edit-state @statusClass"><i></i> @statusText</span>
+                    <dl><div><dt>Mã bản sao</dt><dd>BS-@Model.MaBanSao.ToString("D5")</dd></div><div><dt>Vị trí kệ</dt><dd>@(string.IsNullOrWhiteSpace(Model.ViTriKe) ? "Chưa cập nhật" : Model.ViTriKe)</dd></div></dl>
+                    <a asp-action="Details" asp-route-id="@Model.MaBanSao">Xem chi tiết bản sao <i class="bi bi-arrow-right"></i></a>
+                </section>
+                <section class="copy-edit-card copy-edit-warning"><h2><i class="bi bi-exclamation-circle"></i> Lưu ý nghiệp vụ</h2><ul><li>Trạng thái đang mượn hoặc đã giữ được bảo vệ bởi hệ thống.</li><li>Đổi mã vạch có thể ảnh hưởng quy trình quét sách.</li><li>Chỉ chọn “Sẵn có” khi bản sao thực sự ở trong kho.</li></ul></section>
+            </aside>
+        </div>
+        <footer class="copy-edit-actions"><a asp-action="Details" asp-route-id="@Model.MaBanSao"><i class="bi bi-x-lg"></i> Hủy thay đổi</a><span><i class="bi bi-shield-lock"></i> Dữ liệu được kiểm tra trước khi cập nhật</span><button type="submit"><i class="bi bi-check2-circle"></i> Lưu thay đổi</button></footer>
+    </form>
+</section>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
 }

@@ -1,58 +1,61 @@
-﻿@model IEnumerable<bài_tập_1.Models.TacGia>
-
+@model IEnumerable<bài_tập_1.Models.TacGia>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tác giả"; var keyword = ViewData["TuKhoa"]?.ToString(); var total = (int?)ViewData["TongTacGia"] ?? 0; var bookLinks = (int?)ViewData["TongLienKetSach"] ?? 0; var nationalities = (int?)ViewData["SoQuocTich"] ?? 0; var canManage = User.IsInRole("Admin") || User.IsInRole("NhanVien");
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.HoTen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgaySinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.QuocTich)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TieuSu)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgaySinh)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.QuocTich)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TieuSu)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaTacGia">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaTacGia">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaTacGia">Delete</a>
-            </td>
-        </tr>
+<section class="author-directory-page">
+    <header class="author-directory-hero">
+        <div><span class="author-directory-kicker"><i class="bi bi-feather"></i> KHO TRI THỨC THƯ VIỆN</span><h1>Danh mục tác giả</h1><p>Khám phá và quản lý thông tin những tác giả đã góp phần tạo nên kho sách của thư viện.</p></div>@if (canManage) {
+        <a asp-action="Create"><i class="bi bi-person-plus"></i> Thêm tác giả mới</a>
+    }
+</header>
+<div class="author-directory-stats"><article><i class="bi bi-people-fill"></i><div><strong>@total</strong><span>Tác giả trong hệ thống</span></div></article><article><i class="bi bi-book-half"></i><div><strong>@bookLinks</strong><span>Liên kết đầu sách</span></div></article><article><i class="bi bi-globe-asia-australia"></i><div><strong>@nationalities</strong><span>Quốc tịch khác nhau</span></div></article></div>
+<div class="author-directory-toolbar">
+    <div><h2>@(string.IsNullOrWhiteSpace(keyword) ? "Tất cả tác giả" : "Kết quả tìm kiếm")</h2><p>@(string.IsNullOrWhiteSpace(keyword) ? $"Đang hiển thị danh mục gồm {total} tác giả" : $"Các tác giả phù hợp với “{keyword}”")</p></div><form asp-action="Index" method="get" role="search">
+    <i class="bi bi-search"></i><input type="search" name="q" value="@keyword" placeholder="Tìm theo tên, quốc tịch, tiểu sử..." />@if (!string.IsNullOrWhiteSpace(keyword)) {
+    <a asp-action="Index" aria-label="Xóa tìm kiếm"><i class="bi bi-x-lg"></i></a>
 }
-    </tbody>
-</table>
+<button type="submit">Tìm tác giả</button>
+</form>
+</div>
+@if (Model.Any())
+{
+    <div class="author-directory-grid">
+        @foreach (var item in Model)
+        {
+            var parts = item.HoTen.Split(' ', StringSplitOptions.RemoveEmptyEntries); var initials = parts.Length > 1 ? $"{parts[0][0]}{parts[^1][0]}" : (parts.Length == 1 ? parts[0].Substring(0, Math.Min(2, parts[0].Length)) : "TG"); var age = item.NgaySinh.HasValue ? DateTime.Today.Year - item.NgaySinh.Value.Year - (item.NgaySinh.Value.Date > DateTime.Today.AddYears(-(DateTime.Today.Year - item.NgaySinh.Value.Year)) ? 1 : 0) : (int?)null;
+            <article class="author-profile-card">
+                <div class="author-profile-card__top"><span class="author-avatar">@initials.ToUpperInvariant()</span><div><span class="author-id">TG-@item.MaTacGia.ToString("D4")</span><h2>@if (canManage) {
+                    <a asp-action="Edit" asp-route-id="@item.MaTacGia">@item.HoTen</a>
+                } else
+                {
+
+                    <a asp-action="Details" asp-route-id="@item.MaTacGia">@item.HoTen</a>
+                }
+            </h2><p><i class="bi bi-geo-alt-fill"></i> @(string.IsNullOrWhiteSpace(item.QuocTich) ? "Chưa cập nhật quốc tịch" : item.QuocTich)</p></div></div>
+            <div class="author-profile-meta"><span><i class="bi bi-calendar3"></i><small>Ngày sinh</small><strong>@(item.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa rõ")</strong></span><span><i class="bi bi-hourglass-split"></i><small>Độ tuổi</small><strong>@(age.HasValue ? $"{age} tuổi" : "Chưa rõ")</strong></span><span><i class="bi bi-journal-text"></i><small>Tác phẩm</small><strong>@item.SachTacGias.Count đầu sách</strong></span></div>
+            <div class="author-profile-bio"><span>TIỂU SỬ</span><p>@(string.IsNullOrWhiteSpace(item.TieuSu) ? "Thông tin tiểu sử của tác giả đang được cập nhật." : item.TieuSu)</p></div>
+            <footer>
+                @if (canManage)
+                {
+                    <a class="author-view author-edit-main" asp-action="Edit" asp-route-id="@item.MaTacGia"><i class="bi bi-pencil-square"></i> Xem &amp; chỉnh sửa</a>
+                    <div><a asp-action="Delete" asp-route-id="@item.MaTacGia" class="danger" title="Xóa tác giả"><i class="bi bi-trash3"></i></a></div>
+                }
+                else
+                {
+                    <a class="author-view" asp-action="Details" asp-route-id="@item.MaTacGia"><i class="bi bi-person-vcard"></i> Xem hồ sơ</a>
+                }
+            </footer>
+        </article>
+    }
+</div>
+    } else
+{
+
+    <div class="author-directory-empty"><span><i class="bi bi-person-x"></i></span><h2>Không tìm thấy tác giả</h2><p>Không có hồ sơ phù hợp với từ khóa bạn đang tìm kiếm.</p><a asp-action="Index">Xem tất cả tác giả</a></div>
+}
 
 @if (ViewData["Pagination"] is PaginationViewModel pagination)
 {
     <partial name="_Pagination" model="pagination" />
 }
+</section>

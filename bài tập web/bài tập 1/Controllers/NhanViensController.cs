@@ -22,11 +22,33 @@ namespace bài_tập_1.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(string? q, int page = 1)
         {
             var query = _context.NhanVien
                 .Include(n => n.User)
-                .AsNoTracking();
+                .AsNoTracking()
+                .AsQueryable();
+
+            ViewData["TongNhanVien"] = await query.CountAsync();
+            ViewData["ChucVu"] = await query
+                .Where(n => n.ChucVu != "")
+                .Select(n => n.ChucVu)
+                .Distinct()
+                .CountAsync();
+            ViewData["MoiTrongNam"] = await query.CountAsync(n =>
+                n.NgayVaoLam.Year == DateTime.Today.Year);
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var keyword = q.Trim();
+                query = query.Where(n =>
+                    n.HoTen.Contains(keyword) ||
+                    n.Email.Contains(keyword) ||
+                    n.SoDienThoai.Contains(keyword) ||
+                    n.ChucVu.Contains(keyword));
+            }
+
+            ViewData["Search"] = q;
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
             var nhanViens = await query.OrderBy(n => n.HoTen)

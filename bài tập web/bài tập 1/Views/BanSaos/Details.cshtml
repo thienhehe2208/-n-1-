@@ -1,42 +1,33 @@
-﻿@model bài_tập_1.Models.BanSao
-
+@model bài_tập_1.Models.BanSao
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết bản sao";
+    var statusText = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "Sẵn có", TinhTrangBanSao.DangMuon => "Đang mượn", TinhTrangBanSao.DaGiu => "Đã giữ", TinhTrangBanSao.HuHong => "Hư hỏng", TinhTrangBanSao.Mat => "Thất lạc", TinhTrangBanSao.ThanhLy => "Đã thanh lý", _ => Model.TinhTrang.ToString() };
+    var statusClass = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "available", TinhTrangBanSao.DangMuon => "borrowed", TinhTrangBanSao.DaGiu => "reserved", _ => "incident" };
+    var statusIcon = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "bi-check-circle-fill", TinhTrangBanSao.DangMuon => "bi-arrow-left-right", TinhTrangBanSao.DaGiu => "bi-bookmark-check-fill", TinhTrangBanSao.HuHong => "bi-tools", TinhTrangBanSao.Mat => "bi-question-circle-fill", _ => "bi-archive-fill" };
 }
-
-<h1>Details</h1>
-
-<div>
-    <h4>BanSao</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Sach)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Sach.TenSach)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaVach)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaVach)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TinhTrang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TinhTrang)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ViTriKe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ViTriKe)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaBanSao">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+<section class="copy-details-page">
+    <nav class="copy-edit-breadcrumb" aria-label="Điều hướng"><a asp-action="Index"><i class="bi bi-arrow-left"></i> Quản lý kho sách</a><i class="bi bi-chevron-right"></i><span>BS-@Model.MaBanSao.ToString("D5")</span></nav>
+    <header class="copy-details-hero">
+        <div class="copy-details-hero__content"><span class="copy-details-hero__icon"><i class="bi bi-upc-scan"></i></span><div><small>HỒ SƠ BẢN SAO</small><h1>Chi tiết bản sao</h1><p>Theo dõi nhận diện, vị trí lưu kho và khả năng lưu thông của tài liệu.</p></div></div>
+        <span class="copy-details-status @statusClass"><i class="bi @statusIcon"></i> @statusText</span>
+    </header>
+    <div class="copy-details-layout">
+        <main class="copy-details-main">
+            <section class="copy-details-card copy-details-book"><div class="copy-details-book__cover"><i class="bi bi-book-half"></i></div><div class="copy-details-book__content"><span>ĐẦU SÁCH</span><h2>@(Model.Sach?.TenSach ?? "Chưa xác định đầu sách")</h2><p><i class="bi bi-collection"></i> Mã đầu sách: <strong>S-@Model.MaSach.ToString("D5")</strong></p></div></section>
+            <section class="copy-details-card copy-details-section">
+                <div class="copy-edit-heading"><span><i class="bi bi-info-circle"></i></span><div><h2>Thông tin nhận diện</h2><p>Các thông tin phục vụ tra cứu và quản lý bản sao trong kho.</p></div></div>
+                <div class="copy-details-info-grid">
+                    <article><span><i class="bi bi-hash"></i> Mã bản sao</span><strong>BS-@Model.MaBanSao.ToString("D5")</strong><small>Mã định danh trên hệ thống</small></article>
+                    <article><span><i class="bi bi-upc-scan"></i> Mã vạch</span><strong class="barcode">@Model.MaVach</strong><small>Dùng để quét khi mượn và trả sách</small></article>
+                    <article><span><i class="bi bi-geo-alt"></i> Vị trí lưu kho</span><strong>@(string.IsNullOrWhiteSpace(Model.ViTriKe) ? "Chưa cập nhật" : Model.ViTriKe)</strong><small>Khu vực tìm bản sao trên kệ</small></article>
+                    <article><span><i class="bi bi-activity"></i> Tình trạng</span><strong class="state @statusClass"><i></i> @statusText</strong><small>Khả năng lưu thông hiện tại</small></article>
+                </div>
+            </section>
+            <section class="copy-details-card copy-details-note @statusClass"><i class="bi @statusIcon"></i><div><strong>@(Model.TinhTrang == TinhTrangBanSao.SanCo ? "Bản sao có thể được cho mượn" : "Bản sao hiện không sẵn sàng để cho mượn")</strong><p>@(Model.TinhTrang == TinhTrangBanSao.SanCo ? "Hãy kiểm tra đúng mã vạch và vị trí kệ trước khi lập phiếu mượn." : "Trạng thái sẽ được cập nhật theo quy trình nghiệp vụ hoặc bởi người có quyền quản lý kho.")</p></div></section>
+        </main>
+        <aside class="copy-details-sidebar">
+            <section class="copy-details-card copy-details-identity"><span class="copy-details-identity__icon"><i class="bi bi-qr-code-scan"></i></span><small>MÃ QUẢN LÝ</small><h2>BS-@Model.MaBanSao.ToString("D5")</h2><code>@Model.MaVach</code><div><span>Tình trạng</span><strong class="@statusClass">@statusText</strong></div><div><span>Vị trí</span><strong>@(string.IsNullOrWhiteSpace(Model.ViTriKe) ? "Chưa cập nhật" : Model.ViTriKe)</strong></div></section>
+            <section class="copy-details-card copy-details-actions"><h2>Thao tác quản lý</h2><p>Cập nhật thông tin khi bản sao thay đổi vị trí hoặc tình trạng.</p><a class="primary" asp-action="Edit" asp-route-id="@Model.MaBanSao"><i class="bi bi-pencil-square"></i> Chỉnh sửa bản sao</a><a asp-action="Index"><i class="bi bi-list-ul"></i> Quay lại danh sách</a></section>
+        </aside>
+    </div>
+</section>

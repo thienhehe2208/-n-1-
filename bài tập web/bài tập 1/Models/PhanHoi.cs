@@ -23,5 +23,13 @@ namespace bài_tập_1.Models
 
         [Required, MaxLength(30)]
         public string TrangThai { get; set; } = "Mới";
+
+        [MaxLength(2000)]
+        public string? NoiDungTraLoi { get; set; }
+
+        public DateTime? NgayTraLoi { get; set; }
+
+        [MaxLength(150)]
+        public string? NguoiTraLoi { get; set; }
     }
 }

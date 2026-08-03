@@ -22,9 +22,17 @@ namespace bài_tập_1.Controllers
         }
 
         // Danh sách NXB - ai cũng xem được
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(string? q, int page = 1)
         {
-            var query = _context.NhaXuatBan.AsNoTracking();
+            var source = _context.NhaXuatBan.AsNoTracking();
+            ViewData["TongNhaXuatBan"] = await source.CountAsync();
+            ViewData["TongDauSach"] = await _context.Sach.AsNoTracking().CountAsync();
+            ViewData["CoThongTinLienHe"] = await source.CountAsync(n => !string.IsNullOrEmpty(n.Email) || !string.IsNullOrEmpty(n.SoDienThoai));
+            q = q?.Trim();
+            var query = source.Include(n => n.DanhSachSach).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(q))
+                query = query.Where(n => n.TenNXB.Contains(q) || n.DiaChi.Contains(q) || n.Email.Contains(q) || n.SoDienThoai.Contains(q));
+            ViewData["TuKhoa"] = q;
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
             return View(await query.OrderBy(n => n.TenNXB)

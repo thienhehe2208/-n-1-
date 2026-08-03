@@ -1,54 +1,27 @@
 @model IEnumerable<bài_tập_1.Models.PhanHoi>
+@{ ViewData["Title"] = "Phản hồi bạn đọc"; var search = ViewData["Search"]?.ToString(); var status = ViewData["Status"]?.ToString(); var total = (int?)ViewData["Tong"] ?? 0; var fresh = (int?)ViewData["Moi"] ?? 0; var processing = (int?)ViewData["DangXuLy"] ?? 0; var answered = (int?)ViewData["DaTraLoi"] ?? 0; }
+<section class="feedback-admin-page">
+    <header class="feedback-admin-hero"><div><span><i class="bi bi-chat-square-heart"></i></span><div><small>TRUNG TÂM HỖ TRỢ</small><h1>Phản hồi bạn đọc</h1><p>Tiếp nhận, theo dõi và trả lời ý kiến của độc giả từ một nơi duy nhất.</p></div></div><div><strong>@fresh</strong><span>Phản hồi mới<br />cần xử lý</span></div></header>
+    <div class="feedback-admin-stats"><article><i class="bi bi-inbox"></i><div><strong>@total</strong><span>Tổng phản hồi</span></div></article><article class="new"><i class="bi bi-envelope-exclamation"></i><div><strong data-new-count>@fresh</strong><span>Chưa xử lý</span></div></article><article class="processing"><i class="bi bi-hourglass-split"></i><div><strong>@processing</strong><span>Đang xử lý</span></div></article><article class="answered"><i class="bi bi-check2-circle"></i><div><strong data-answered-count>@answered</strong><span>Đã trả lời</span></div></article></div>
+    <section class="feedback-admin-panel">
+        <div class="feedback-admin-toolbar"><div><h2>Hộp thư phản hồi</h2><p>Ưu tiên phản hồi mới và chưa được trả lời.</p></div><form method="get"><div><i class="bi bi-search"></i><input name="q" value="@search" placeholder="Tên, email hoặc nội dung..." /></div><select name="trangThai"><option value="">Tất cả trạng thái</option><option value="Mới" selected="@(status == "Mới")">Mới</option><option value="Đang xử lý" selected="@(status == "Đang xử lý")">Đang xử lý</option><option value="Đã xử lý" selected="@(status == "Đã xử lý")">Đã xử lý</option></select><button type="submit"><i class="bi bi-funnel"></i> Lọc</button></form></div>
+        @if (Model.Any()) { <div class="feedback-admin-list">
+        @foreach (var item in Model) { var stateClass = item.TrangThai == "Mới" ? "new" : item.TrangThai == "Đang xử lý" ? "processing" : "answered"; var initials = string.Join("", item.HoTen.Split(' ', StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(x => x[0])).ToUpperInvariant();
+            <article class="feedback-admin-item" data-feedback-item="@item.MaPhanHoi">
+                <div class="feedback-admin-avatar">@(string.IsNullOrEmpty(initials) ? "DG" : initials)</div>
+                <div class="feedback-admin-content"><div class="feedback-admin-sender"><div><h3>@item.HoTen</h3><a href="mailto:@item.Email">@item.Email</a></div><span class="feedback-admin-status @stateClass" data-feedback-status><i></i>@item.TrangThai</span></div><p class="feedback-admin-message">@item.NoiDung</p>
+                    @if (!string.IsNullOrWhiteSpace(item.NoiDungTraLoi)) { <div class="feedback-admin-answer" data-feedback-answer><span><i class="bi bi-reply-fill"></i> ĐÃ TRẢ LỜI</span><p data-answer-text>@item.NoiDungTraLoi</p><small><i class="bi bi-person-check"></i> <b data-answer-by>@item.NguoiTraLoi</b> · <time data-answer-time>@item.NgayTraLoi?.ToString("HH:mm · dd/MM/yyyy")</time></small></div> } else { <div class="feedback-admin-answer" data-feedback-answer hidden><span><i class="bi bi-reply-fill"></i> ĐÃ TRẢ LỜI</span><p data-answer-text></p><small><i class="bi bi-person-check"></i> <b data-answer-by></b> · <time data-answer-time></time></small></div> }
+                    <footer><span><i class="bi bi-clock"></i> @item.NgayGui.ToString("HH:mm · dd/MM/yyyy") <b>#PH-@item.MaPhanHoi.ToString("D4")</b></span><div><a asp-action="Details" asp-route-id="@item.MaPhanHoi"><i class="bi bi-eye"></i> Chi tiết</a><button type="button" data-reply-open data-id="@item.MaPhanHoi" data-name="@item.HoTen" data-email="@item.Email" data-message="@item.NoiDung" data-answer="@item.NoiDungTraLoi"><i class="bi bi-reply"></i> @(string.IsNullOrWhiteSpace(item.NoiDungTraLoi) ? "Trả lời" : "Sửa trả lời")</button></div></footer>
+                </div>
+            </article>
+        }
+        </div> } else { <div class="feedback-admin-empty"><span><i class="bi bi-chat-square-dots"></i></span><h2>Không tìm thấy phản hồi</h2><p>Hãy thử thay đổi từ khóa hoặc bộ lọc trạng thái.</p><a asp-action="Index">Xem tất cả phản hồi</a></div> }
+    </section>
+    @if (ViewData["Pagination"] is PaginationViewModel pagination) { <partial name="_Pagination" model="pagination" /> }
+</section>
+<div class="feedback-reply-token" hidden>@Html.AntiForgeryToken()</div>
+<script>const feedbackFetch=window.fetch.bind(window);window.fetch=(input,init={})=>{init.headers={...(init.headers||{}),'RequestVerificationToken':document.querySelector('.feedback-reply-token input').value};return feedbackFetch(input,init)};</script>
 
-@{
-    ViewData["Title"] = "Phản hồi bạn đọc";
-    var search = ViewData["Search"]?.ToString();
-    var status = ViewData["Status"]?.ToString();
-}
+<div class="feedback-reply-modal" data-reply-modal aria-hidden="true"><button class="feedback-reply-backdrop" type="button" data-reply-close aria-label="Đóng"></button><section class="feedback-reply-dialog" role="dialog" aria-modal="true" aria-labelledby="replyTitle"><header><div><span><i class="bi bi-reply-all-fill"></i></span><div><small>PHẢN HỒI ĐỘC GIẢ</small><h2 id="replyTitle">Soạn câu trả lời</h2></div></div><button type="button" data-reply-close aria-label="Đóng"><i class="bi bi-x-lg"></i></button></header><div class="feedback-reply-recipient"><span data-reply-avatar>DG</span><div><small>GỬI ĐẾN</small><strong data-reply-name>Độc giả</strong><p data-reply-email></p></div></div><blockquote><i class="bi bi-quote"></i><p data-reply-message></p></blockquote><form data-reply-form><input name="__RequestVerificationToken" type="hidden" value="@Html.AntiForgeryToken()" /><input type="hidden" name="id" data-reply-id /><label for="replyContent">Nội dung trả lời <em>*</em></label><textarea id="replyContent" name="noiDung" rows="7" maxlength="2000" data-reply-content placeholder="Nhập nội dung phản hồi rõ ràng, lịch sự và hữu ích..."></textarea><div class="feedback-reply-meta"><span data-reply-error></span><small><b data-reply-count>0</b>/2000 ký tự</small></div><div class="feedback-reply-note"><i class="bi bi-info-circle-fill"></i> Câu trả lời sẽ được lưu vào hệ thống và phản hồi được đánh dấu “Đã xử lý”.</div><footer><button type="button" data-reply-close>Hủy</button><button type="submit" data-reply-submit><i class="bi bi-send"></i><span>Lưu câu trả lời</span></button></footer></form></section></div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h1 class="h3 mb-1">Phản hồi bạn đọc</h1>
-        <p class="text-muted mb-0">Có @ViewData["Moi"] phản hồi mới cần xử lý.</p>
-    </div>
-</div>
-
-<form method="get" class="row g-2 mb-3">
-    <div class="col-md-6">
-        <input class="form-control" name="q" value="@search" placeholder="Tìm theo tên, email hoặc nội dung..." />
-    </div>
-    <div class="col-md-3">
-        <select class="form-select" name="trangThai">
-            <option value="">Tất cả trạng thái</option>
-            <option value="Mới" selected="@(status == "Mới")">Mới</option>
-            <option value="Đang xử lý" selected="@(status == "Đang xử lý")">Đang xử lý</option>
-            <option value="Đã xử lý" selected="@(status == "Đã xử lý")">Đã xử lý</option>
-        </select>
-    </div>
-    <div class="col-md-3"><button class="btn btn-primary w-100" type="submit">Lọc phản hồi</button></div>
-</form>
-
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead><tr><th>Người gửi</th><th>Nội dung</th><th>Ngày gửi</th><th>Trạng thái</th><th></th></tr></thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td><strong>@item.HoTen</strong><br /><small>@item.Email</small></td>
-                        <td>@(item.NoiDung.Length > 100 ? item.NoiDung[..100] + "…" : item.NoiDung)</td>
-                        <td>@item.NgayGui.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td><span class="badge bg-secondary">@item.TrangThai</span></td>
-                        <td><a asp-action="Details" asp-route-id="@item.MaPhanHoi" class="btn btn-sm btn-outline-primary">Xem</a></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
-{
-    <partial name="_Pagination" model="pagination" />
-}
+@section Scripts { <script>(()=>{const modal=document.querySelector('[data-reply-modal]'),form=document.querySelector('[data-reply-form]'),content=document.querySelector('[data-reply-content]'),error=document.querySelector('[data-reply-error]'),count=document.querySelector('[data-reply-count]'),submit=document.querySelector('[data-reply-submit]');let active=null;const initials=n=>n.trim().split(/\s+/).slice(-2).map(x=>x[0]).join('').toUpperCase()||'DG';const close=()=>{modal.classList.remove('is-open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('feedback-modal-open');active?.focus()};document.querySelectorAll('[data-reply-open]').forEach(btn=>btn.addEventListener('click',()=>{active=btn;form.querySelector('[data-reply-id]').value=btn.dataset.id;modal.querySelector('[data-reply-name]').textContent=btn.dataset.name;modal.querySelector('[data-reply-email]').textContent=btn.dataset.email;modal.querySelector('[data-reply-message]').textContent=btn.dataset.message;modal.querySelector('[data-reply-avatar]').textContent=initials(btn.dataset.name);content.value=btn.dataset.answer||'';count.textContent=content.value.length;error.textContent='';modal.classList.add('is-open');modal.setAttribute('aria-hidden','false');document.body.classList.add('feedback-modal-open');setTimeout(()=>content.focus(),100)}));modal.querySelectorAll('[data-reply-close]').forEach(x=>x.addEventListener('click',close));content.addEventListener('input',()=>{count.textContent=content.value.length;error.textContent=''});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('is-open'))close()});form.addEventListener('submit',async e=>{e.preventDefault();if(!content.value.trim()){error.textContent='Vui lòng nhập nội dung trả lời.';content.focus();return}submit.disabled=true;submit.querySelector('span').textContent='Đang lưu...';try{const data=new FormData(form),response=await fetch('@Url.Action("TraLoi", "PhanHois")',{method:'POST',body:data,headers:{'X-Requested-With':'XMLHttpRequest'}});const result=await response.json();if(!response.ok)throw new Error(result.message||'Không thể lưu câu trả lời.');const item=document.querySelector(`[data-feedback-item="${result.id}"]`),box=item.querySelector('[data-feedback-answer]');box.hidden=false;box.querySelector('[data-answer-text]').textContent=result.answer;box.querySelector('[data-answer-by]').textContent=result.answeredBy;box.querySelector('[data-answer-time]').textContent=result.answeredAt;const state=item.querySelector('[data-feedback-status]');state.className='feedback-admin-status answered';state.innerHTML='<i></i>'+result.status;active.dataset.answer=result.answer;active.innerHTML='<i class="bi bi-reply"></i> Sửa trả lời';close()}catch(ex){error.textContent=ex.message}finally{submit.disabled=false;submit.querySelector('span').textContent='Lưu câu trả lời'}})})();</script> }

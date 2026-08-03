@@ -2,39 +2,61 @@
 
 @{
     ViewData["Title"] = "Quản lý nhân viên";
+    var keyword = ViewData["Search"]?.ToString();
+    var total = (int?)ViewData["TongNhanVien"] ?? 0;
+    var positions = (int?)ViewData["ChucVu"] ?? 0;
+    var newThisYear = (int?)ViewData["MoiTrongNam"] ?? 0;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div><h1 class="h3 mb-1">Quản lý nhân viên</h1><p class="text-muted mb-0">Quản lý tài khoản và hồ sơ nhân viên thư viện.</p></div>
-    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-person-plus"></i> Thêm nhân viên</a>
-</div>
+<section class="staff-list-page">
+    <header class="staff-list-hero">
+        <div><span>QUẢN TRỊ NHÂN SỰ</span><h1>Đội ngũ thư viện</h1><p>Quản lý hồ sơ, tài khoản và thông tin công tác của nhân viên.</p></div>
+        <a asp-action="Create"><i class="bi bi-person-plus"></i> Thêm nhân viên</a>
+    </header>
 
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead><tr><th>Mã</th><th>Họ tên</th><th>Liên hệ</th><th>Chức vụ</th><th>Ngày vào làm</th><th></th></tr></thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>NV-@item.MaNhanVien.ToString("D5")</td>
-                        <td><strong>@item.HoTen</strong></td>
-                        <td>@item.Email<br /><small class="text-muted">@item.SoDienThoai</small></td>
-                        <td>@item.ChucVu</td>
-                        <td>@item.NgayVaoLam.ToString("dd/MM/yyyy")</td>
-                        <td class="text-nowrap">
-                            <a asp-action="Details" asp-route-id="@item.MaNhanVien" class="btn btn-sm btn-outline-secondary">Chi tiết</a>
-                            <a asp-action="Edit" asp-route-id="@item.MaNhanVien" class="btn btn-sm btn-outline-primary">Sửa</a>
-                            <a asp-action="Delete" asp-route-id="@item.MaNhanVien" class="btn btn-sm btn-outline-danger">Xóa</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="staff-list-stats">
+        <article><span class="blue"><i class="bi bi-people"></i></span><div><small>TỔNG NHÂN VIÊN</small><strong>@total</strong><p>Tài khoản trong hệ thống</p></div></article>
+        <article><span class="purple"><i class="bi bi-briefcase"></i></span><div><small>NHÓM CHỨC VỤ</small><strong>@positions</strong><p>Vị trí công tác khác nhau</p></div></article>
+        <article><span class="green"><i class="bi bi-person-check"></i></span><div><small>NHÂN SỰ MỚI NĂM NAY</small><strong>@newThisYear</strong><p>Bắt đầu làm việc trong @DateTime.Today.Year</p></div></article>
     </div>
-</div>
 
-@if (ViewData["Pagination"] is PaginationViewModel pagination)
-{
-    <partial name="_Pagination" model="pagination" />
-}
+    <section class="staff-list-card">
+        <div class="staff-list-toolbar">
+            <form asp-action="Index" method="get"><i class="bi bi-search"></i><input type="search" name="q" value="@keyword" placeholder="Tìm theo tên, email, số điện thoại hoặc chức vụ..." />@if(!string.IsNullOrWhiteSpace(keyword)){
+                <a asp-action="Index"><i class="bi bi-x-circle"></i></a>
+            }
+            <button type="submit">Tìm kiếm</button></form>
+            <span><i class="bi bi-shield-lock"></i> Chỉ quản trị viên có quyền quản lý nhân sự</span>
+        </div>
+        @if (Model.Any())
+        {
+            <div class="staff-list-table-wrap">
+                <table class="staff-list-table">
+                    <thead><tr><th>Nhân viên</th><th>Thông tin liên hệ</th><th>Chức vụ</th><th>Ngày vào làm</th><th>Tài khoản</th><th></th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var initial = string.IsNullOrWhiteSpace(item.HoTen) ? "NV" : item.HoTen.Trim()[0].ToString().ToUpper();
+                            <tr>
+                                <td><div class="staff-list-person"><span>@initial</span><div><strong>@item.HoTen</strong><small>NV-@item.MaNhanVien.ToString("D5")</small></div></div></td>
+                                <td><div class="staff-list-contact"><span><i class="bi bi-envelope"></i> @item.Email</span><small><i class="bi bi-telephone"></i> @(string.IsNullOrWhiteSpace(item.SoDienThoai) ? "Chưa cập nhật" : item.SoDienThoai)</small></div></td>
+                                <td><span class="staff-list-position"><i class="bi bi-briefcase"></i> @(string.IsNullOrWhiteSpace(item.ChucVu) ? "Nhân viên" : item.ChucVu)</span></td>
+                                <td><div class="staff-list-date"><strong>@item.NgayVaoLam.ToString("dd/MM/yyyy")</strong><small>@((DateTime.Today - item.NgayVaoLam.Date).Days / 365) năm công tác</small></div></td>
+                                <td><span class="staff-list-account"><i></i> Đã kích hoạt</span></td>
+                                <td><div class="staff-list-actions"><a asp-action="Details" asp-route-id="@item.MaNhanVien" title="Chi tiết"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@item.MaNhanVien" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a><a asp-action="Delete" asp-route-id="@item.MaNhanVien" class="delete" title="Xóa"><i class="bi bi-trash"></i></a></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="staff-list-empty"><span><i class="bi bi-people"></i></span><h2>Không tìm thấy nhân viên</h2><p>Không có hồ sơ phù hợp với từ khóa hiện tại.</p><a asp-action="Index">Xóa bộ lọc</a></div>
+        }
+    </section>
+    @if (ViewData["Pagination"] is PaginationViewModel pagination)
+    {
+        <partial name="_Pagination" model="pagination" />
+    }
+</section>
