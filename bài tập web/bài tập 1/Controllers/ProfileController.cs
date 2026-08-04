@@ -259,6 +259,11 @@ namespace bài_tập_1.Controllers
             {
                 "borrowing" => query.Where(p =>
                     p.ChiTietPhieuMuons.Any(c => c.NgayTra == null)),
+                "overdue" => query.Where(p =>
+                    p.ChiTietPhieuMuons.Any(c => c.NgayTra == null) &&
+                    p.NgayHenTra < homNay),
+                "returned" => query.Where(p =>
+                    !p.ChiTietPhieuMuons.Any(c => c.NgayTra == null)),
                 "fines" => query.Where(p =>
                     p.ChiTietPhieuMuons.Any(c =>
                         c.PhieuPhat != null &&

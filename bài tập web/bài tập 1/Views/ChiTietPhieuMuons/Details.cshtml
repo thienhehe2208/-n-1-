@@ -33,7 +33,7 @@
 <section class="loan-item-detail-page">
     <nav class="loan-item-breadcrumb" aria-label="Điều hướng">
         <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon">
-            <i class="bi bi-arrow-left"></i> Phiếu #PM-@Model.MaPhieuMuon.ToString("D5")
+            <i class="bi bi-arrow-left"></i> Phiếu #PM-@(Model.MaPhieuMuon.ToString("D5"))
         </a>
         <i class="bi bi-chevron-right"></i>
         <span>Chi tiết lượt mượn</span>
@@ -42,8 +42,8 @@
     <header class="loan-item-hero">
         <div class="loan-item-hero__content">
             <span class="loan-item-hero__eyebrow">QUẢN LÝ LƯU THÔNG</span>
-            <h1>Chi tiết lượt mượn #CT-@Model.MaChiTiet.ToString("D5")</h1>
-            <p>Bản sao <strong>@Model.BanSao.MaVach</strong> thuộc phiếu mượn #PM-@Model.MaPhieuMuon.ToString("D5")</p>
+            <h1>Chi tiết bản ghi sách CT-@(Model.MaChiTiet.ToString("D5"))</h1>
+            <p>Bản sao <strong>@Model.BanSao.MaVach</strong> thuộc phiếu mượn #PM-@(Model.MaPhieuMuon.ToString("D5"))</p>
             <span class="loan-item-status @statusClass">
                 <i class="bi @(daTra ? "bi-check-circle" : quaHan ? "bi-exclamation-circle" : "bi-clock-history")"></i>
                 @statusText
@@ -52,8 +52,8 @@
         <div class="loan-item-hero__actions">
             @if (!daTra)
             {
-                <a asp-action="TraSach" asp-route-id="@Model.MaChiTiet" class="loan-item-action loan-item-action--primary">
-                    <i class="bi bi-arrow-return-left"></i> Tiếp nhận trả sách
+                <a asp-controller="PhieuMuons" asp-action="TraSach" asp-route-id="@Model.MaPhieuMuon" class="loan-item-action loan-item-action--primary">
+                    <i class="bi bi-arrow-return-left"></i> Trả toàn bộ phiếu
                 </a>
             }
             else if (Model.PhieuPhat != null)
@@ -160,7 +160,7 @@
                 <section class="loan-item-side-card loan-item-fine-card">
                     <h2 class="loan-item-side-card__title"><i class="bi bi-exclamation-triangle"></i> Phiếu phạt phát sinh</h2>
                     <div class="loan-item-fine-amount">@Model.PhieuPhat.SoTien.ToString("N0") ₫</div>
-                    <p>#PP-@Model.PhieuPhat.MaPhieuPhat.ToString("D5") · @Model.PhieuPhat.LyDo</p>
+                    <p>#PP-@(Model.PhieuPhat.MaPhieuPhat.ToString("D5")) · @Model.PhieuPhat.LyDo</p>
                     <a asp-controller="PhieuPhats" asp-action="Details" asp-route-id="@Model.PhieuPhat.MaPhieuPhat" class="loan-item-side-link">
                         Xem chi tiết phiếu phạt <i class="bi bi-arrow-right"></i>
                     </a>

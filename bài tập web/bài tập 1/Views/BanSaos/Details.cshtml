@@ -4,8 +4,16 @@
     var statusText = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "Sẵn có", TinhTrangBanSao.DangMuon => "Đang mượn", TinhTrangBanSao.DaGiu => "Đã giữ", TinhTrangBanSao.HuHong => "Hư hỏng", TinhTrangBanSao.Mat => "Thất lạc", TinhTrangBanSao.ThanhLy => "Đã thanh lý", _ => Model.TinhTrang.ToString() };
     var statusClass = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "available", TinhTrangBanSao.DangMuon => "borrowed", TinhTrangBanSao.DaGiu => "reserved", _ => "incident" };
     var statusIcon = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "bi-check-circle-fill", TinhTrangBanSao.DangMuon => "bi-arrow-left-right", TinhTrangBanSao.DaGiu => "bi-bookmark-check-fill", TinhTrangBanSao.HuHong => "bi-tools", TinhTrangBanSao.Mat => "bi-question-circle-fill", _ => "bi-archive-fill" };
+    var onlineHold = ViewData["YeuCauMuonOnlineDangGiu"] as YeuCauMuonOnline;
+    var reservationHold = ViewData["DatTruocDangGiu"] as DatTruoc;
+    var stateNoteTitle = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "Bản sao có thể được cho mượn", TinhTrangBanSao.DaGiu => "Bản sao đang được giữ cho một độc giả", _ => "Bản sao hiện không sẵn sàng để cho mượn" };
+    var stateNoteText = Model.TinhTrang switch { TinhTrangBanSao.SanCo => "Hãy kiểm tra đúng mã vạch và vị trí kệ trước khi lập phiếu mượn.", TinhTrangBanSao.DaGiu => "Hãy mở phiếu liên kết bên dưới để xác nhận nhận sách, hủy hoặc chờ hết hạn. Trạng thái này không được sửa thủ công, kể cả bằng tài khoản Admin, để tránh lệch dữ liệu.", _ => "Trạng thái sẽ được cập nhật theo đúng quy trình nghiệp vụ quản lý kho." };
 }
 <section class="copy-details-page">
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> @success</div>
+    }
     <nav class="copy-edit-breadcrumb" aria-label="Điều hướng"><a asp-action="Index"><i class="bi bi-arrow-left"></i> Quản lý kho sách</a><i class="bi bi-chevron-right"></i><span>BS-@Model.MaBanSao.ToString("D5")</span></nav>
     <header class="copy-details-hero">
         <div class="copy-details-hero__content"><span class="copy-details-hero__icon"><i class="bi bi-upc-scan"></i></span><div><small>HỒ SƠ BẢN SAO</small><h1>Chi tiết bản sao</h1><p>Theo dõi nhận diện, vị trí lưu kho và khả năng lưu thông của tài liệu.</p></div></div>
@@ -23,7 +31,35 @@
                     <article><span><i class="bi bi-activity"></i> Tình trạng</span><strong class="state @statusClass"><i></i> @statusText</strong><small>Khả năng lưu thông hiện tại</small></article>
                 </div>
             </section>
-            <section class="copy-details-card copy-details-note @statusClass"><i class="bi @statusIcon"></i><div><strong>@(Model.TinhTrang == TinhTrangBanSao.SanCo ? "Bản sao có thể được cho mượn" : "Bản sao hiện không sẵn sàng để cho mượn")</strong><p>@(Model.TinhTrang == TinhTrangBanSao.SanCo ? "Hãy kiểm tra đúng mã vạch và vị trí kệ trước khi lập phiếu mượn." : "Trạng thái sẽ được cập nhật theo quy trình nghiệp vụ hoặc bởi người có quyền quản lý kho.")</p></div></section>
+            <section class="copy-details-card copy-details-note @statusClass"><i class="bi @statusIcon"></i><div><strong>@stateNoteTitle</strong><p>@stateNoteText</p></div></section>
+            @if (onlineHold != null)
+            {
+                <section class="copy-details-card copy-hold-card">
+                    <div class="copy-hold-heading"><span><i class="bi bi-person-check-fill"></i></span><div><small>ĐANG GIỮ THEO PHIẾU ONLINE</small><h2>Bản sao đã được dành cho độc giả</h2></div></div>
+                    <div class="copy-hold-grid">
+                        <article><span>Độc giả</span><strong>@onlineHold.DocGia.HoTen</strong><small>DG-@onlineHold.MaDocGia.ToString("D5")</small></article>
+                        <article><span>Mã xác nhận</span><strong>#MO-@onlineHold.MaXacNhan</strong><small>@(onlineHold.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet ? "Đã duyệt · chờ độc giả nhận" : "Đang chờ thư viện duyệt")</small></article>
+                        <article><span>Ngày hẹn nhận</span><strong>@onlineHold.NgayHenNhan.ToString("dd/MM/yyyy")</strong><small>Giữ đến @onlineHold.HanNhanSach.ToString("HH:mm dd/MM/yyyy")</small></article>
+                    </div>
+                    <a asp-controller="MuonOnline" asp-action="XacNhan" asp-route-ma="@onlineHold.MaXacNhan" class="copy-hold-action"><i class="bi bi-box-arrow-up-right"></i> Mở phiếu và xử lý</a>
+                </section>
+            }
+            else if (reservationHold != null)
+            {
+                <section class="copy-details-card copy-hold-card">
+                    <div class="copy-hold-heading"><span><i class="bi bi-bookmark-check-fill"></i></span><div><small>ĐANG GIỮ THEO ĐẶT TRƯỚC</small><h2>Bản sao đã được phân cho độc giả</h2></div></div>
+                    <div class="copy-hold-grid">
+                        <article><span>Độc giả</span><strong>@reservationHold.DocGia.HoTen</strong><small>DG-@reservationHold.MaDocGia.ToString("D5")</small></article>
+                        <article><span>Mã đặt trước</span><strong>#DT-@reservationHold.MaDatTruoc.ToString("D5")</strong><small>Đã có sách · chờ nhận</small></article>
+                        <article><span>Hạn nhận</span><strong>@(reservationHold.HanNhanSach?.ToString("HH:mm dd/MM/yyyy") ?? "Chưa xác định")</strong><small>Hệ thống tự giải phóng khi hết hạn</small></article>
+                    </div>
+                    <a asp-controller="DatTruocs" asp-action="Details" asp-route-id="@reservationHold.MaDatTruoc" class="copy-hold-action"><i class="bi bi-box-arrow-up-right"></i> Mở yêu cầu đặt trước</a>
+                </section>
+            }
+            else if (Model.TinhTrang == TinhTrangBanSao.DaGiu)
+            {
+                <section class="copy-details-card copy-hold-card is-orphan"><div class="copy-hold-heading"><span><i class="bi bi-exclamation-triangle-fill"></i></span><div><small>CẦN KIỂM TRA DỮ LIỆU</small><h2>Không tìm thấy yêu cầu đang giữ bản sao này</h2><p>Trạng thái có thể bị lệch với dữ liệu nghiệp vụ. Không nên sửa trực tiếp trước khi đối chiếu lịch sử.</p></div></div></section>
+            }
         </main>
         <aside class="copy-details-sidebar">
             <section class="copy-details-card copy-details-identity"><span class="copy-details-identity__icon"><i class="bi bi-qr-code-scan"></i></span><small>MÃ QUẢN LÝ</small><h2>BS-@Model.MaBanSao.ToString("D5")</h2><code>@Model.MaVach</code><div><span>Tình trạng</span><strong class="@statusClass">@statusText</strong></div><div><span>Vị trí</span><strong>@(string.IsNullOrWhiteSpace(Model.ViTriKe) ? "Chưa cập nhật" : Model.ViTriKe)</strong></div></section>

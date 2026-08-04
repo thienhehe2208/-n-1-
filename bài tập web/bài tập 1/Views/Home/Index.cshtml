@@ -50,7 +50,7 @@
                 <section class="content-card" id="sach-moi">
                     <div class="section-heading">
                         <div><span class="section-label">Khám phá</span><h2>Sách mới cập nhật</h2></div>
-                        <a asp-controller="Saches" asp-action="Index">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                        <a asp-controller="Saches" asp-action="Moi">Xem tất cả <i class="bi bi-arrow-right"></i></a>
                     </div>
 
                     @if (!Model.SachMoi.Any())
@@ -101,7 +101,7 @@
                                             }
                                             else
                                             {
-                                                <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@sach.MaSach" class="book-counter-button"><i class="bi bi-qr-code-scan"></i> Mượn online</a>
+                                    <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@sach.MaSach" class="book-counter-button"><i class="bi bi-journal-plus"></i> Mượn online</a>
                                             }
                                         </div>
                                     </div>
@@ -113,55 +113,88 @@
             </div>
 
             <aside class="home-right">
-                <section class="content-card">
-                    <div class="section-heading compact-heading">
-                        <div><span class="section-label">Của bạn</span><h2>Sách đang mượn</h2></div>
-                        @if (User.IsInRole("DocGia"))
-                        {
-                            <a asp-controller="Profile" asp-action="LichSuMuon">Xem tất cả</a>
-                        }
-                    </div>
-                    @if (!Model.SachDangMuon.Any())
-                    {
-                        <div class="empty-message small-empty-message"><i class="bi bi-journal-check"></i><p>Bạn chưa mượn cuốn sách nào.</p></div>
-                    }
-                    else
-                    {
-                        <div class="borrowed-list">
-                            @foreach (var sach in Model.SachDangMuon)
-                            {
-                                var anhBia = string.IsNullOrWhiteSpace(sach.AnhBia) ? anhMacDinh : sach.AnhBia;
-                                <article class="borrowed-item">
-                                    <img src="@anhBia" alt="Ảnh bìa @sach.TenSach" loading="lazy" onerror="this.onerror=null;this.src='@anhMacDinh';" />
-                                    <div class="borrowed-details"><strong>@sach.TenSach</strong><small>Hạn trả: @sach.NgayTra.ToString("dd/MM/yyyy")</small></div>
-                                    <span class="days-badge @(sach.SoNgayConLai < 0 ? "overdue-badge" : "")">@(sach.SoNgayConLai < 0 ? "Quá hạn" : $"Còn {sach.SoNgayConLai} ngày")</span>
-                                </article>
-                            }
+                @if (User.IsInRole("DocGia") && Model.ThongKeCaNhan != null)
+                {
+                    var thongKe = Model.ThongKeCaNhan;
+                    <section class="content-card reader-personal-stats">
+                        <div class="personal-stats-heading">
+                            <div>
+                                <span class="section-label">Hoạt động của bạn</span>
+                                <h2>Thống kê cá nhân</h2>
+                            </div>
+                            <span class="personal-stats-year">@thongKe.Nam</span>
                         </div>
-                    }
-                </section>
+                        <div class="personal-stats-grid">
+                            <article class="stat-blue">
+                                <i class="bi bi-journals"></i>
+                                <strong>@thongKe.SoSachDaMuonTrongNam</strong>
+                                <span>Sách đã mượn trong năm</span>
+                            </article>
+                            <article class="stat-green">
+                                <i class="bi bi-book-half"></i>
+                                <strong>@thongKe.SoSachDangMuon</strong>
+                                <span>Sách đang mượn</span>
+                            </article>
+                            <article class="stat-purple">
+                                <i class="bi bi-check2-circle"></i>
+                                <strong>@thongKe.SoSachTraDungHan</strong>
+                                <span>Lần trả đúng hạn</span>
+                            </article>
+                            <article class="stat-pink">
+                                <i class="bi bi-heart-fill"></i>
+                                <strong>@thongKe.SoSachYeuThich</strong>
+                                <span>Sách yêu thích</span>
+                            </article>
+                        </div>
+                        <a asp-controller="Profile" asp-action="LichSuMuon" class="personal-stats-link">
+                            Xem hoạt động chi tiết <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </section>
 
-                <section class="content-card">
-                    <div class="section-heading compact-heading">
-                        <div><span class="section-label">Cập nhật</span><h2>Thông báo</h2></div>
-                        @if (User.IsInRole("DocGia"))
-                        {
-                            <a asp-controller="ThongBaos" asp-action="Index">Xem tất cả</a>
-                        }
-                    </div>
-                    @if (!Model.ThongBao.Any())
-                    {
-                        <div class="empty-message small-empty-message"><i class="bi bi-bell-slash"></i><p>Chưa có thông báo mới.</p></div>
-                    }
-                    else
-                    {
-                        <div class="notice-list">
-                            @foreach (var item in Model.ThongBao)
-                            {
-                                <article class="notice-item"><i class="bi bi-info-circle-fill"></i><div><p>@item.NoiDung</p><time>@item.NgayThongBao.ToString("dd/MM/yyyy")</time></div></article>
-                            }
+                    <section class="content-card borrowed-card">
+                        <div class="section-heading compact-heading">
+                            <div><span class="section-label">Hiện tại</span><h2>Sách đang mượn</h2></div>
+                            <a asp-controller="Profile" asp-action="LichSuMuon">Xem tất cả</a>
                         </div>
-                    }
+                        @if (!Model.SachDangMuon.Any())
+                        {
+                            <div class="empty-message small-empty-message"><i class="bi bi-journal-check"></i><p>Bạn chưa mượn cuốn sách nào.</p></div>
+                        }
+                        else
+                        {
+                            <div class="borrowed-list">
+                                @foreach (var sach in Model.SachDangMuon)
+                                {
+                                    var anhBia = string.IsNullOrWhiteSpace(sach.AnhBia) ? anhMacDinh : sach.AnhBia;
+                                    <article class="borrowed-item">
+                                        <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach" class="borrowed-image-link">
+                                            <img src="@anhBia" alt="Ảnh bìa @sach.TenSach" loading="lazy"
+                                                 onerror="this.onerror=null;this.src='@anhMacDinh';" />
+                                        </a>
+                                        <div class="borrowed-details">
+                                            <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach"><strong>@sach.TenSach</strong></a>
+                                            <small>Hạn trả: @sach.NgayTra.ToString("dd/MM/yyyy")</small>
+                                        </div>
+                                        <span class="days-badge @(sach.SoNgayConLai < 0 ? "overdue-badge" : "")">@(sach.SoNgayConLai < 0 ? $"Quá {Math.Abs(sach.SoNgayConLai)} ngày" : sach.SoNgayConLai == 0 ? "Hạn hôm nay" : $"Còn {sach.SoNgayConLai} ngày")</span>
+                                    </article>
+                                }
+                            </div>
+                        }
+                    </section>
+                }
+
+                <section class="content-card library-rules-card">
+                    <div class="rules-card-heading">
+                        <span><i class="bi bi-shield-check"></i></span>
+                        <div><small>Hướng dẫn bạn đọc</small><h2>Nội quy thư viện</h2></div>
+                    </div>
+                    <ul>
+                        <li><i class="bi bi-book"></i><span>Mượn tối đa <strong>5 cuốn</strong> trong <strong>30 ngày</strong>.</span></li>
+                        <li><i class="bi bi-arrow-repeat"></i><span>Được gia hạn tối đa <strong>2 lần</strong>, mỗi lần 14 ngày.</span></li>
+                        <li><i class="bi bi-clock-history"></i><span>Trả sách đúng hạn và giữ sách nguyên vẹn.</span></li>
+                        <li><i class="bi bi-person-check"></i><span>Không chia sẻ thẻ hoặc tài khoản cho người khác.</span></li>
+                    </ul>
+                    <a asp-controller="Home" asp-action="Terms">Xem nội quy đầy đủ <i class="bi bi-arrow-right"></i></a>
                 </section>
 
                 <section class="content-card opening-card">

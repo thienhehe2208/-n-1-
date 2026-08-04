@@ -167,8 +167,8 @@
                        asp-action="Index"
                        class="sidebar-item @(currentController == "DatTruocs" ? "active" : "")">
 
-                        <i class="bi bi-bookmark-check"></i>
-                        <span>Đặt trước</span>
+                        <i class="bi bi-inboxes"></i>
+                        <span>Yêu cầu mượn &amp; đặt trước</span>
                     </a>
 
                     <a asp-controller="PhieuPhats"
@@ -275,12 +275,17 @@
                             </button>
                         </form>
 
-                        <a asp-controller="ThongBaos" asp-action="Index"
-                                class="header-notification"
-                                title="Thông báo">
-
-                            <i class="bi bi-bell"></i>
-                        </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @await Component.InvokeAsync("AdminLoanNotification")
+                        }
+                        else
+                        {
+                            <a asp-controller="ThongBaos" asp-action="Index"
+                               class="header-notification" title="Thông báo">
+                                <i class="bi bi-bell"></i>
+                            </a>
+                        }
 
                         <div class="dropdown">
                             <button class="user-menu"
@@ -368,46 +373,36 @@
                     </span>
                 </a>
 
+                <form asp-controller="Saches" asp-action="Index" method="get" class="reader-header-search"
+                      data-book-search data-suggestion-url="@Url.Action("GoiYTimKiem", "Saches")">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="search" name="q" value="@(currentController == "Saches" ? Context.Request.Query["q"] : "")"
+                           placeholder="Tìm tên sách, tác giả, ISBN..." autocomplete="off"
+                           aria-label="Tìm kiếm sách" aria-autocomplete="list" aria-expanded="false"
+                           data-book-search-input />
+                    <button type="submit" aria-label="Tìm kiếm"><i class="bi bi-arrow-right"></i></button>
+                    <div class="book-search-suggestions" data-book-search-results role="listbox"></div>
+                </form>
+
                 <nav class="reader-navigation">
-
-                    <a asp-controller="Profile"
-                       asp-action="LichSuMuon"
-                       asp-route-trangThai="borrowing"
-                       class="reader-record-button reader-loan-button @(currentController == "Profile" && currentAction == "LichSuMuon" && Context.Request.Query["trangThai"] == "borrowing" ? "active" : "")">
-                        <i class="bi bi-journal-check" aria-hidden="true"></i>
-                        <span>Xem phiếu mượn</span>
-                    </a>
-
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <a asp-controller="ThongBaos" asp-action="Index"
-                           class="reader-record-button @(currentController == "ThongBaos" ? "active" : "")">
-                            <i class="bi bi-bell" aria-hidden="true"></i><span>Thông báo</span>
+                        <a asp-controller="Profile"
+                           asp-action="LichSuMuon"
+                           asp-route-trangThai="borrowing"
+                           class="reader-record-button reader-loan-button @(currentController == "Profile" && currentAction == "LichSuMuon" && Context.Request.Query["trangThai"] == "borrowing" ? "active" : "")">
+                            <i class="bi bi-journal-check" aria-hidden="true"></i>
+                            <span>Đang mượn</span>
                         </a>
-                    }
 
-                    <a asp-controller="Profile"
-                       asp-action="PhieuPhatCuaToi"
-                       class="reader-record-button reader-fine-button @(currentController == "Profile" && currentAction == "PhieuPhatCuaToi" ? "active" : "")">
-                        <i class="bi bi-receipt-cutoff" aria-hidden="true"></i>
-                        <span>Xem phiếu phạt</span>
-                    </a>
+                        <a asp-controller="Profile"
+                           asp-action="PhieuPhatCuaToi"
+                           class="reader-record-button reader-fine-button @(currentController == "Profile" && currentAction == "PhieuPhatCuaToi" ? "active" : "")">
+                            <i class="bi bi-receipt-cutoff" aria-hidden="true"></i>
+                            <span>Phiếu phạt</span>
+                        </a>
 
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <form asp-controller="Account"
-                              asp-action="Logout"
-                              method="post"
-                              class="reader-logout-form">
-
-                            @Html.AntiForgeryToken()
-
-                            <button type="submit"
-                                    class="reader-logout-button">
-                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
+                        @await Component.InvokeAsync("ReaderHeader")
                     }
                     else
                     {

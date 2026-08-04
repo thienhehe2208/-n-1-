@@ -1,0 +1,119 @@
+@model IEnumerable<bài_tập_1.Models.Sach>
+
+@{
+    ViewData["Title"] = "Sách mới";
+    var favoriteIds = ViewData["FavoriteIds"] as HashSet<int> ?? new HashSet<int>();
+    var totalResults = (int?)ViewData["TotalResults"] ?? 0;
+    var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
+}
+
+<section class="new-books-page">
+    <header class="new-books-hero">
+        <div>
+            <span><i class="bi bi-stars"></i> Vừa CẬP NHẬT</span>
+            <h1>Sách mới tại thư viện</h1>
+            <p>Khám phá những đầu sách được bổ sung gần đây, sắp xếp theo thời điểm nhập vào hệ thống.</p>
+            <div>
+                <span><strong>@totalResults</strong> đầu sách</span>
+                <span><i class="bi bi-arrow-down"></i> Mới nhất trước</span>
+            </div>
+        </div>
+        <span class="new-books-hero-art" aria-hidden="true"><i class="bi bi-book-half"></i><i class="bi bi-stars"></i></span>
+    </header>
+
+    <div class="new-books-toolbar">
+        <div>
+            <span class="catalog-result-icon"><i class="bi bi-grid"></i></span>
+            <div><h2>Danh sách sách mới</h2><p>Cập nhật liên tục từ kho sách thư viện.</p></div>
+        </div>
+        <a asp-action="Index"><i class="bi bi-collection"></i> Xem toàn bộ kho sách</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="catalog-empty">
+            <span><i class="bi bi-journal-plus"></i></span>
+            <h2>Chưa có sách mới</h2>
+            <p>Các đầu sách mới sẽ xuất hiện tại đây khi được thêm vào kho.</p>
+            <a asp-action="Index">Khám phá kho sách</a>
+        </div>
+    }
+    else
+    {
+        <div class="catalog-grid new-books-grid">
+            @foreach (var item in Model)
+            {
+                var soBanSanCo = item.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
+                var coTheMuon = soBanSanCo > 0;
+                var daYeuThich = favoriteIds.Contains(item.MaSach);
+
+                <article class="catalog-card new-book-card">
+                    @if (!isStaff)
+                    {
+                        if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="YeuThichs" asp-action="Toggle" method="post" class="catalog-favorite-form">
+                                <input type="hidden" name="maSach" value="@item.MaSach" />
+                                <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                <button type="submit" class="catalog-heart-button @(daYeuThich ? "is-favorite" : "")"
+                                        aria-label="@(daYeuThich ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích")">
+                                    <i class="bi @(daYeuThich ? "bi-heart-fill" : "bi-heart")"></i>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="catalog-favorite-form"><a asp-controller="Account" asp-action="Login"
+                                asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"
+                                class="catalog-heart-button" aria-label="Đăng nhập để yêu thích"><i class="bi bi-heart"></i></a></div>
+                        }
+                    }
+
+                    <a asp-action="Details" asp-route-id="@item.MaSach" class="catalog-cover" aria-label="Xem chi tiết @item.TenSach">
+                        <span class="catalog-cover-placeholder" aria-hidden="true"><i class="bi bi-book"></i></span>
+                        @if (!string.IsNullOrWhiteSpace(item.AnhBia))
+                        {
+                            <img src="@item.AnhBia" alt="Bìa sách @item.TenSach" loading="lazy" onerror="this.style.display='none'" />
+                        }
+                        <span class="new-books-badge"><i class="bi bi-stars"></i> Mới</span>
+                        <span class="catalog-availability @(coTheMuon ? "is-available" : "is-unavailable")">
+                            <i class="bi @(coTheMuon ? "bi-check-circle-fill" : "bi-clock-fill")"></i>
+                            @(coTheMuon ? $"Còn {soBanSanCo} bản" : "Tạm hết")
+                        </span>
+                    </a>
+
+                    <div class="catalog-card-body">
+                        <div class="catalog-meta">
+                            <span><i class="bi bi-tag"></i> @item.TheLoai.TenTheLoai</span>
+                            <span><i class="bi bi-calendar3"></i> @(item.NamXuatBan?.ToString() ?? "Chưa rõ")</span>
+                        </div>
+                        <h2><a asp-action="Details" asp-route-id="@item.MaSach">@item.TenSach</a></h2>
+                        <p class="catalog-publisher"><i class="bi bi-building"></i><span>@item.NhaXuatBan.TenNXB</span></p>
+                        <p class="catalog-description">@(string.IsNullOrWhiteSpace(item.MoTa) ? "Thông tin mô tả đang được cập nhật." : item.MoTa)</p>
+                        <div class="catalog-card-footer catalog-library-footer">
+                            <div class="catalog-actions">
+                                <a asp-action="Details" asp-route-id="@item.MaSach" class="catalog-detail-button"><i class="bi bi-eye"></i><span>Chi tiết</span></a>
+                                @if (!isStaff)
+                                {
+                                    if (coTheMuon)
+                                    {
+                                <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@item.MaSach" class="catalog-counter-button"><i class="bi bi-journal-plus"></i><span>Mượn online</span></a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="DatTruocs" asp-action="Create" asp-route-maSach="@item.MaSach" class="catalog-reserve-button"><i class="bi bi-bookmark-plus"></i><span>Đặt trước</span></a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+
+    @if (ViewData["Pagination"] is PaginationViewModel pagination)
+    {
+        <partial name="_Pagination" model="pagination" />
+    }
+</section>

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
@@ -13,16 +12,13 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ThongBaoService _thongBaoService;
 
         public HomeController(
             bài_tập_1Context context,
-            UserManager<IdentityUser> userManager,
-            ThongBaoService thongBaoService)
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _thongBaoService = thongBaoService;
         }
 
         public async Task<IActionResult> Index()
@@ -93,8 +89,6 @@ namespace bài_tập_1.Controllers
             if (docGia == null)
                 return;
 
-            await _thongBaoService.DongBoChoDocGiaAsync(docGia.MaDocGia);
-
             var borrowedItems = await _context.ChiTietPhieuMuon
                 .Include(ct => ct.PhieuMuon)
                 .Include(ct => ct.BanSao)
@@ -120,19 +114,26 @@ namespace bài_tập_1.Controllers
                 };
             }).ToList();
 
-            model.ThongBao = await _context.ThongBao
-                .AsNoTracking()
-                .Where(t => t.MaDocGia == docGia.MaDocGia)
-                .OrderBy(t => t.DaDoc)
-                .ThenByDescending(t => t.NgayTao)
-                .Take(5)
-                .Select(t => new ThongBaoItem
-                {
-                    NoiDung = t.NoiDung,
-                    NgayThongBao = t.NgayTao,
-                    Loai = t.Loai
-                })
-                .ToListAsync();
+            var dauNam = new DateTime(DateTime.Today.Year, 1, 1);
+            var dauNamSau = dauNam.AddYears(1);
+            var chiTietTrongNam = _context.ChiTietPhieuMuon
+                .Where(c =>
+                    c.PhieuMuon.MaDocGia == docGia.MaDocGia &&
+                    c.PhieuMuon.NgayMuon >= dauNam &&
+                    c.PhieuMuon.NgayMuon < dauNamSau);
+
+            model.ThongKeCaNhan = new ThongKeCaNhanItem
+            {
+                Nam = dauNam.Year,
+                SoSachDaMuonTrongNam = await chiTietTrongNam.CountAsync(),
+                SoSachDangMuon = await _context.ChiTietPhieuMuon.CountAsync(c =>
+                    c.PhieuMuon.MaDocGia == docGia.MaDocGia && c.NgayTra == null),
+                SoSachTraDungHan = await chiTietTrongNam.CountAsync(c =>
+                    c.NgayTra != null &&
+                    c.NgayTra.Value.Date <= c.PhieuMuon.NgayHenTra.Date),
+                SoSachYeuThich = await _context.YeuThich.CountAsync(y =>
+                    y.MaDocGia == docGia.MaDocGia)
+            };
         }
 
         private static void ApplyCategoryPresentation(

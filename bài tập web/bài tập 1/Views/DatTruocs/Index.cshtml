@@ -3,9 +3,10 @@
 @model IEnumerable<bài_tập_1.Models.DatTruoc>
 @{
     ViewData["Title"] = "Trung tâm yêu cầu";
-    var onlineRequests = ViewData["YeuCauMuonOnline"] as IEnumerable<YeuCauMuonOnline> ?? Enumerable.Empty<YeuCauMuonOnline>();
+    var onlineRows = ViewData["YeuCauMuonOnline"] as IEnumerable<YeuCauMuonOnline> ?? Enumerable.Empty<YeuCauMuonOnline>();
+    var onlineRequests = onlineRows.GroupBy(x => x.MaXacNhan).ToList();
     var onlinePending = ViewData["MuonOnlineChoNhan"] as int? ?? 0;
-    var onlineToday = ViewData["MuonOnlineHomNay"] as int? ?? 0;
+    var onlineApproved = ViewData["MuonOnlineDaDuyet"] as int? ?? 0;
     var search = ViewData["Search"]?.ToString();
     var status = ViewData["Status"]?.ToString();
 }
@@ -15,7 +16,7 @@
         <div>
             <span class="request-center-kicker"><i class="bi bi-inboxes"></i> QUẢN LÝ LƯU THÔNG</span>
             <h1>Trung tâm yêu cầu sách</h1>
-            <p>Tiếp nhận phiếu mượn online, quản lý hàng chờ đặt trước và bàn giao sách cho độc giả tại một nơi.</p>
+            <p>Tiếp nhận yêu cầu online, quản lý hàng chờ đặt trước và xác nhận độc giả nhận sách tại một nơi.</p>
         </div>
         <a asp-action="Create"><i class="bi bi-plus-lg"></i> Tạo yêu cầu đặt trước</a>
     </header>
@@ -38,8 +39,8 @@
     }
 
     <div class="request-center-stats">
-        <article><span class="blue"><i class="bi bi-qr-code-scan"></i></span><div><small>PHIẾU MƯỢN CHỜ NHẬN</small><strong>@onlinePending</strong><em>Độc giả đã tạo online</em></div></article>
-        <article><span class="cyan"><i class="bi bi-calendar-check"></i></span><div><small>PHIẾU ONLINE HÔM NAY</small><strong>@onlineToday</strong><em>Yêu cầu mới trong ngày</em></div></article>
+        <article><span class="blue"><i class="bi bi-journal-check"></i></span><div><small>YÊU CẦU CHỜ DUYỆT</small><strong>@onlinePending</strong><em>Cần kiểm tra các bản sách</em></div></article>
+        <article><span class="cyan"><i class="bi bi-person-check"></i></span><div><small>ĐÃ DUYỆT · CHỜ NHẬN</small><strong>@onlineApproved</strong><em>Chờ độc giả đến thư viện</em></div></article>
         <article><span class="amber"><i class="bi bi-hourglass-split"></i></span><div><small>ĐẶT TRƯỚC ĐANG CHỜ</small><strong>@ViewData["DangCho"]</strong><em>Chờ bản sao khả dụng</em></div></article>
         <article><span class="green"><i class="bi bi-bookmark-check"></i></span><div><small>ĐANG GIỮ SÁCH</small><strong>@ViewData["DaCoSach"]</strong><em>Sẵn sàng bàn giao</em></div></article>
     </div>
@@ -59,9 +60,16 @@
         }
     </form>
 
+    <form asp-controller="MuonOnline" asp-action="TraCuu" method="get" class="online-code-lookup">
+        <span><i class="bi bi-key"></i></span>
+        <div><strong>Độc giả đã đến nhận sách?</strong><small>Nhập mã độc giả cung cấp để mở phiếu đã được duyệt.</small></div>
+        <input name="ma" autocomplete="off" placeholder="Ví dụ: A1B2C3D4E5" aria-label="Mã xác nhận" required />
+        <button type="submit">Kiểm tra mã</button>
+    </form>
+
     <div class="request-section request-online-section">
         <div class="request-section-heading">
-            <div><span>ƯU TIÊN XỬ LÝ</span><h2><i class="bi bi-qr-code-scan"></i> Phiếu mượn do độc giả tạo</h2><p>Sách đã được giữ; quét hoặc mở mã xác nhận khi độc giả đến nhận.</p></div>
+            <div><span>ƯU TIÊN XỬ LÝ</span><h2><i class="bi bi-journal-check"></i> Phiếu mượn do độc giả tạo</h2><p>Duyệt yêu cầu mới trước; chỉ tạo phiếu mượn sau khi độc giả đến quầy và cung cấp mã.</p></div>
             <span class="request-heading-count">@onlineRequests.Count() phiếu hiển thị</span>
         </div>
         @if (!onlineRequests.Any())
@@ -74,18 +82,21 @@
                 <table class="online-request-table">
                     <thead><tr><th>Mã phiếu</th><th>Độc giả</th><th>Sách được giữ</th><th>Lịch nhận / trả</th><th>Trạng thái</th><th></th></tr></thead>
                     <tbody>
-                        @foreach (var item in onlineRequests)
+                        @foreach (var requestGroup in onlineRequests)
                         {
+                            var item = requestGroup.First();
+                            var bookCount = requestGroup.Count();
                             var pending = item.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan;
-                            var expiredSoon = pending && item.HanNhanSach <= DateTime.Now.AddHours(12);
-                            var stateText = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "Chờ nhận sách", TrangThaiYeuCauMuonOnline.DaNhan => "Đã giao sách", TrangThaiYeuCauMuonOnline.DaHuy => "Đã hủy", _ => "Hết hạn" };
-                            var stateClass = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "pending", TrangThaiYeuCauMuonOnline.DaNhan => "received", _ => "closed" };
+                            var approved = item.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet;
+                            var expiredSoon = (pending || approved) && item.HanNhanSach <= DateTime.Now.AddHours(12);
+                            var stateText = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "Chờ duyệt", TrangThaiYeuCauMuonOnline.DaDuyet => "Đã duyệt · chờ nhận", TrangThaiYeuCauMuonOnline.DaNhan => "Đã nhận sách", TrangThaiYeuCauMuonOnline.DaHuy => "Đã hủy", TrangThaiYeuCauMuonOnline.TuChoi => "Bị từ chối", _ => "Hết hạn" };
+                            var stateClass = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "pending", TrangThaiYeuCauMuonOnline.DaDuyet => "ready", TrangThaiYeuCauMuonOnline.DaNhan => "received", _ => "closed" };
                             <tr class="@(pending ? "is-pending" : "")">
-                                <td><a asp-controller="MuonOnline" asp-action="XacNhan" asp-route-ma="@item.MaXacNhan" class="online-request-code"><i class="bi bi-qr-code"></i><span><strong>#MO-@item.MaXacNhan</strong><small>@item.NgayTao.ToString("HH:mm · dd/MM/yyyy")</small></span></a></td>
+                                <td><a asp-controller="MuonOnline" asp-action="XacNhan" asp-route-ma="@item.MaXacNhan" class="online-request-code"><i class="bi bi-key"></i><span><strong>#MO-@item.MaXacNhan</strong><small>@item.NgayTao.ToString("HH:mm · dd/MM/yyyy")</small></span></a></td>
                                 <td><div class="online-request-reader"><span>@(string.IsNullOrWhiteSpace(item.DocGia.HoTen) ? "DG" : item.DocGia.HoTen.Trim()[0].ToString().ToUpper())</span><div><strong>@item.DocGia.HoTen</strong><small>DG-@item.MaDocGia.ToString("D5")</small></div></div></td>
-                                <td><div class="online-request-book"><span><i class="bi bi-book"></i></span><div><strong>@item.Sach.TenSach</strong><small>Mã vạch: @item.BanSao.MaVach</small></div></div></td>
+                                <td><div class="online-request-book"><span><i class="bi bi-bookshelf"></i></span><div><strong>@bookCount cuốn sách</strong><small>@string.Join(" • ", requestGroup.Select(x => x.Sach.TenSach))</small></div></div></td>
                                 <td><div class="online-request-dates"><span><i class="bi bi-box-arrow-in-down"></i> Nhận @item.NgayHenNhan.ToString("dd/MM/yyyy")</span><span><i class="bi bi-box-arrow-up"></i> Trả @item.NgayHenTra.ToString("dd/MM/yyyy")</span>@if (expiredSoon){
-                                    <em><i class="bi bi-exclamation-triangle"></i> Hạn xác nhận: @item.HanNhanSach.ToString("HH:mm dd/MM")</em>
+                                    <em><i class="bi bi-exclamation-triangle"></i> Hiệu lực đến: @item.HanNhanSach.ToString("HH:mm dd/MM")</em>
                                 }
                             </div></td>
                             <td><span class="online-request-status @stateClass"><i></i>@stateText</span></td>
@@ -133,7 +144,7 @@
                             }
                         </td>
                         <td><div class="reservation-admin-actions"><a asp-action="Details" asp-route-id="@item.MaDatTruoc" title="Chi tiết"><i class="bi bi-eye"></i></a>@if(item.TrangThai==TrangThaiDatTruoc.DaCoSach){
-                            <form asp-action="XacNhanNhanSach" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Xác nhận độc giả đã nhận bản sao này?');">@Html.AntiForgeryToken()<button class="confirm" title="Xác nhận nhận"><i class="bi bi-check2"></i></button></form>
+                            <form asp-action="XacNhanNhanSach" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Xác nhận độc giả đã nhận bản sao này và tạo phiếu mượn?');">@Html.AntiForgeryToken()<button class="confirm confirm-wide" title="Xác nhận nhận sách và tạo phiếu mượn"><i class="bi bi-person-check"></i><span>Nhận &amp; tạo phiếu</span></button></form>
                         }
                         @if (item.TrangThai is TrangThaiDatTruoc.DangCho or TrangThaiDatTruoc.DaCoSach)
                         {

@@ -22,7 +22,8 @@ namespace bài_tập_1.Services
             var expired = await _context.YeuCauMuonOnline
                 .Include(y => y.BanSao)
                 .Where(y =>
-                    y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan &&
+                    (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                     y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet) &&
                     y.HanNhanSach < DateTime.Now)
                 .ToListAsync();
 
@@ -45,7 +46,8 @@ namespace bài_tập_1.Services
                 var conYeuCauOnlineKhac = await _context.YeuCauMuonOnline
                     .AnyAsync(y =>
                         y.MaBanSao == banSao.MaBanSao &&
-                        y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
+                        (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                         y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet));
 
                 if (banSao.TinhTrang != TinhTrangBanSao.DaGiu ||
                     dangDuocDatTruocGiu || conYeuCauOnlineKhac)

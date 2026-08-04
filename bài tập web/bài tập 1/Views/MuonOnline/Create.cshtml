@@ -3,36 +3,75 @@
     ViewData["Title"] = "Tạo phiếu mượn online";
 }
 
-<section class="online-loan-page">
+<section class="online-loan-page multi-online-loan">
     <div class="online-loan-heading">
-        <span><i class="bi bi-qr-code-scan"></i> MƯỢN SÁCH ONLINE</span>
-        <h1>Tạo phiếu nhận sách tại quầy</h1>
-        <p>Hoàn tất thông tin, sau đó mang mã QR đến quầy để nhân viên xác nhận.</p>
+        <span><i class="bi bi-journal-plus"></i> MƯỢN SÁCH ONLINE</span>
+        <h1>Chọn sách cho cùng một phiếu</h1>
+        <p>Bạn có thể chọn tối đa @LibraryRules.SoSachMuonToiDa cuốn. Sau khi gửi, thư viện sẽ kiểm tra và thông báo kết quả duyệt.</p>
     </div>
-    <div class="online-loan-layout">
-        <aside class="online-loan-book">
-            <div class="online-loan-cover"><img src="@(string.IsNullOrWhiteSpace(Model.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : Model.AnhBia)" alt="Bìa sách @Model.TenSach" /></div>
-            <span>SÁCH ĐANG CHỌN</span><h2>@Model.TenSach</h2>
-            <p><i class="bi bi-check-circle-fill"></i> @Model.SoBanSanCo bản đang sẵn có</p>
-        </aside>
-        <form asp-action="Create" method="post" class="online-loan-form">
-            @Html.AntiForgeryToken()
-            <input asp-for="MaSach" type="hidden" />
-            <input asp-for="TenSach" type="hidden" />
-            <input asp-for="AnhBia" type="hidden" />
-            <div asp-validation-summary="ModelOnly" class="online-loan-validation"></div>
-            <div class="online-loan-form-title"><span><i class="bi bi-pencil-square"></i></span><div><h2>Thông tin nhận sách</h2><p>Chọn thời gian phù hợp với bạn.</p></div></div>
+
+    <form asp-action="Create" method="post" class="multi-loan-form">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="online-loan-validation"></div>
+        <span asp-validation-for="MaSachIds" class="text-danger"></span>
+
+        <div class="multi-loan-toolbar">
+            <div class="multi-loan-search"><i class="bi bi-search"></i><input id="bookFilter" type="search" placeholder="Tìm theo tên sách hoặc tác giả..." /></div>
+            <strong>Đã chọn <span id="selectedBookCount">0</span>/@LibraryRules.SoSachMuonToiDa cuốn</strong>
+        </div>
+
+        <div class="multi-loan-books" id="onlineBookList">
+            @foreach (var book in Model.DanhSachSach)
+            {
+                var selected = Model.MaSachIds.Contains(book.MaSach);
+                <label class="multi-loan-book" data-search="@($"{book.TenSach} {book.TacGia}".ToLowerInvariant())">
+                    <input class="book-choice" type="checkbox" name="MaSachIds" value="@book.MaSach" checked="@selected" />
+                    <span class="multi-loan-check"><i class="bi bi-check-lg"></i></span>
+                    <img src="@(string.IsNullOrWhiteSpace(book.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : book.AnhBia)" alt="Bìa sách @book.TenSach" />
+                    <span class="multi-loan-book-info">
+                        <strong>@book.TenSach</strong>
+                        <small>@(string.IsNullOrWhiteSpace(book.TacGia) ? "Chưa cập nhật tác giả" : book.TacGia)</small>
+                        <em><i class="bi bi-check-circle-fill"></i> @book.SoBanSanCo bản sẵn có</em>
+                    </span>
+                </label>
+            }
+        </div>
+
+        <div class="online-loan-form multi-loan-details">
+            <div class="online-loan-form-title"><span><i class="bi bi-calendar2-check"></i></span><div><h2>Thông tin nhận sách</h2><p>Ngày hẹn áp dụng cho toàn bộ sách trong phiếu.</p></div></div>
             <div class="online-loan-field-grid">
                 <div class="online-loan-field"><label asp-for="NgayHenNhan"></label><div><i class="bi bi-calendar-check"></i><input asp-for="NgayHenNhan" /></div><span asp-validation-for="NgayHenNhan"></span></div>
                 <div class="online-loan-field"><label asp-for="NgayHenTra"></label><div><i class="bi bi-calendar-event"></i><input asp-for="NgayHenTra" /></div><span asp-validation-for="NgayHenTra"></span></div>
             </div>
-            <div class="online-loan-field"><label asp-for="GhiChu"></label><textarea asp-for="GhiChu" rows="4" placeholder="Ví dụ: Tôi sẽ đến nhận vào buổi sáng..."></textarea><span asp-validation-for="GhiChu"></span></div>
-            <div class="online-loan-note"><i class="bi bi-info-circle"></i><p>Một bản sách sẽ được giữ cho bạn đến hết ngày hẹn nhận. Phiếu mượn chỉ có hiệu lực sau khi nhân viên quét mã.</p></div>
-            <div class="online-loan-form-actions"><a asp-controller="Saches" asp-action="Details" asp-route-id="@Model.MaSach">Quay lại</a><button type="submit"><i class="bi bi-qr-code"></i> Tạo phiếu mượn</button></div>
-        </form>
-    </div>
+            <div class="online-loan-field"><label asp-for="GhiChu"></label><textarea asp-for="GhiChu" rows="3" placeholder="Ví dụ: Tôi sẽ đến nhận vào buổi sáng..."></textarea><span asp-validation-for="GhiChu"></span></div>
+            <div class="online-loan-note"><i class="bi bi-info-circle"></i><p>Đây là yêu cầu chờ duyệt, chưa phải phiếu mượn. Khi đủ sách, bạn sẽ nhận thông báo và mã đến nhận tại quầy.</p></div>
+            <div class="online-loan-form-actions"><a asp-controller="Saches" asp-action="Index">Tiếp tục xem sách</a><button id="createLoanButton" type="submit"><i class="bi bi-send"></i> Gửi yêu cầu mượn</button></div>
+        </div>
+    </form>
 </section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const choices = [...document.querySelectorAll('.book-choice')];
+            const count = document.getElementById('selectedBookCount');
+            const button = document.getElementById('createLoanButton');
+            const max = @LibraryRules.SoSachMuonToiDa;
+            const update = () => {
+                const selected = choices.filter(x => x.checked).length;
+                count.textContent = selected;
+                choices.forEach(x => x.disabled = !x.checked && selected >= max);
+                button.disabled = selected === 0;
+            };
+            choices.forEach(x => x.addEventListener('change', update));
+            document.getElementById('bookFilter').addEventListener('input', event => {
+                const keyword = event.target.value.trim().toLocaleLowerCase('vi');
+                document.querySelectorAll('.multi-loan-book').forEach(card => {
+                    card.hidden = keyword && !card.dataset.search.includes(keyword);
+                });
+            });
+            update();
+        })();
+    </script>
 }

@@ -10,7 +10,7 @@ namespace bài_tập_1.Models.ViewModels
 
         public List<TheLoaiItem> TheLoaiPhoBien { get; set; } = new();
 
-        public List<ThongBaoItem> ThongBao { get; set; } = new();
+        public ThongKeCaNhanItem? ThongKeCaNhan { get; set; }
     }
 
     public class SachDangMuonItem
@@ -39,12 +39,12 @@ namespace bài_tập_1.Models.ViewModels
         public string LopMau { get; set; } = "category-green";
     }
 
-    public class ThongBaoItem
+    public class ThongKeCaNhanItem
     {
-        public string NoiDung { get; set; } = string.Empty;
-
-        public DateTime NgayThongBao { get; set; }
-
-        public string Loai { get; set; } = "info";
+        public int Nam { get; set; }
+        public int SoSachDaMuonTrongNam { get; set; }
+        public int SoSachDangMuon { get; set; }
+        public int SoSachTraDungHan { get; set; }
+        public int SoSachYeuThich { get; set; }
     }
 }

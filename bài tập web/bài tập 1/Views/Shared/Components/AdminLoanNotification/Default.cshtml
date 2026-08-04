@@ -1,0 +1,36 @@
+@model AdminLoanNotificationViewModel
+
+<div class="dropdown admin-loan-notification">
+    <button class="header-notification" type="button" data-bs-toggle="dropdown"
+            data-bs-auto-close="outside" aria-expanded="false" title="Phiếu mượn online chờ xử lý">
+        <i class="bi bi-bell"></i>
+        @if (Model.TongPhieuChoNhan > 0)
+        {
+            <span class="admin-loan-notification-count">@(Model.TongPhieuChoNhan > 99 ? "99+" : Model.TongPhieuChoNhan)</span>
+        }
+    </button>
+    <div class="dropdown-menu dropdown-menu-end admin-loan-notification-menu">
+        <header>
+            <div><strong>Yêu cầu mượn online</strong><small>@(Model.TongPhieuChoNhan == 0 ? "Không có yêu cầu chờ duyệt" : $"{Model.TongPhieuChoNhan} yêu cầu cần kiểm tra")</small></div>
+            <span><i class="bi bi-journal-check"></i></span>
+        </header>
+        @if (Model.PhieuMoi.Count == 0)
+        {
+            <div class="admin-loan-notification-empty"><i class="bi bi-inbox"></i><span>Yêu cầu mới sẽ xuất hiện tại đây.</span></div>
+        }
+        else
+        {
+            <div class="admin-loan-notification-items">
+                @foreach (var item in Model.PhieuMoi)
+                {
+                    <a asp-controller="MuonOnline" asp-action="XacNhan" asp-route-ma="@item.MaXacNhan">
+                        <span class="admin-loan-notification-icon"><i class="bi bi-key"></i></span>
+                        <span><strong>@item.TenDocGia · @item.TenSaches.Count cuốn</strong><small>@string.Join(" • ", item.TenSaches)</small><time>Gửi lúc @item.NgayTao.ToString("HH:mm dd/MM") · Chờ duyệt</time></span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                }
+            </div>
+        }
+        <a asp-controller="DatTruocs" asp-action="Index" class="admin-loan-notification-all">Mở trung tâm yêu cầu <i class="bi bi-arrow-right"></i></a>
+    </div>
+</div>

@@ -58,13 +58,17 @@ namespace bài_tập_1.Data
 
             modelBuilder.Entity<YeuCauMuonOnline>()
                 .HasIndex(y => y.MaXacNhan)
+                .HasDatabaseName("IX_YeuCauMuonOnline_MaXacNhan");
+
+            modelBuilder.Entity<YeuCauMuonOnline>()
+                .HasIndex(y => new { y.MaXacNhan, y.MaBanSao })
                 .IsUnique();
 
             modelBuilder.Entity<YeuCauMuonOnline>()
                 .HasIndex(y => y.MaBanSao)
                 .HasDatabaseName("UX_YeuCauMuonOnline_BanSaoChoNhan")
                 .IsUnique()
-                .HasFilter("[TrangThai] = 0");
+                .HasFilter("[TrangThai] IN (0, 4)");
 
             modelBuilder.Entity<YeuCauMuonOnline>()
                 .HasOne(y => y.BanSao)

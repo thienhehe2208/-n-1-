@@ -279,6 +279,8 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> ThanhToan(int id)
         {
             var phieuPhat = await _context.PhieuPhat
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.PhieuMuon)
                 .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
 
             if (phieuPhat == null)
@@ -294,11 +296,23 @@ namespace bài_tập_1.Controllers
                     new { id });
             }
 
+            // Phiếu phạt là dữ liệu lịch sử: thanh toán chỉ đổi trạng thái,
+            // tuyệt đối không xóa bản ghi đã tạo khỏi database.
             phieuPhat.TrangThai = TrangThaiPhieuPhat.DaDong;
+            _context.ThongBao.Add(new ThongBao
+            {
+                MaDocGia = phieuPhat.ChiTietPhieuMuon.PhieuMuon.MaDocGia,
+                MaSuKien = $"phieu-phat-{phieuPhat.MaPhieuPhat}-thanh-toan",
+                TieuDe = "Đã xác nhận thanh toán phiếu phạt",
+                NoiDung = $"Phiếu phạt #PP-{phieuPhat.MaPhieuPhat:D5} trị giá {phieuPhat.SoTien:N0} đồng đã được xác nhận thanh toán. Khoản này không còn nằm trong công nợ của bạn.",
+                LienKet = string.Empty,
+                Loai = "success",
+                NgayTao = DateTime.Now
+            });
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Đã xác nhận độc giả thanh toán phiếu phạt.";
+                "Đã xác nhận thanh toán. Trạng thái và lịch sử phiếu phạt đã được lưu.";
             return RedirectToAction(
                 nameof(Details),
                 new { id });
@@ -309,6 +323,8 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> Huy(int id)
         {
             var phieuPhat = await _context.PhieuPhat
+                .Include(p => p.ChiTietPhieuMuon)
+                    .ThenInclude(c => c.PhieuMuon)
                 .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
 
             if (phieuPhat == null)
@@ -324,11 +340,23 @@ namespace bài_tập_1.Controllers
                     new { id });
             }
 
+            // Phiếu phạt là dữ liệu lịch sử: hủy chỉ đổi trạng thái,
+            // tuyệt đối không xóa bản ghi đã tạo khỏi database.
             phieuPhat.TrangThai = TrangThaiPhieuPhat.DaHuy;
+            _context.ThongBao.Add(new ThongBao
+            {
+                MaDocGia = phieuPhat.ChiTietPhieuMuon.PhieuMuon.MaDocGia,
+                MaSuKien = $"phieu-phat-{phieuPhat.MaPhieuPhat}-huy",
+                TieuDe = "Phiếu phạt đã được hủy",
+                NoiDung = $"Phiếu phạt #PP-{phieuPhat.MaPhieuPhat:D5} trị giá {phieuPhat.SoTien:N0} đồng đã được thư viện hủy. Phiếu vẫn được lưu trong lịch sử nhưng không còn tính vào công nợ của bạn.",
+                LienKet = string.Empty,
+                Loai = "info",
+                NgayTao = DateTime.Now
+            });
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Đã hủy phiếu phạt. Lịch sử vẫn được giữ lại.";
+                "Đã hủy phiếu phạt. Trạng thái đã được lưu và lịch sử vẫn được giữ lại.";
             return RedirectToAction(
                 nameof(Details),
                 new { id });
@@ -457,9 +485,10 @@ namespace bài_tập_1.Controllers
             var options = items.Select(c => new
             {
                 c.MaChiTiet,
-                MoTa = "#CT" + c.MaChiTiet +
-                       " - " + c.PhieuMuon.DocGia.HoTen +
-                       " - " + c.BanSao.Sach.TenSach
+                MoTa = "#PM-" + c.MaPhieuMuon.ToString("D5") +
+                       " · " + c.PhieuMuon.DocGia.HoTen +
+                       " · " + c.BanSao.Sach.TenSach +
+                       " (" + c.BanSao.MaVach + ")"
             });
 
             ViewData["MaChiTiet"] = new SelectList(

@@ -7,6 +7,7 @@
     var activeLoans = (int?)ViewData["SoPhieuDangMuon"] ?? 0;
     var overdueLoans = (int?)ViewData["SoPhieuQuaHan"] ?? 0;
     var totalBooks = (int?)ViewData["TongSachDaMuon"] ?? 0;
+    var returnedLoans = Math.Max(0, totalLoans - activeLoans - overdueLoans);
     var today = DateTime.Today;
 }
 
@@ -26,22 +27,38 @@
     </header>
 
     <div class="reader-loans-summary">
-        <article>
+        <button type="button" class="loan-summary-card" data-bs-toggle="modal" data-bs-target="#loanSummaryModal"
+                data-stat-theme="blue" data-stat-icon="bi-files" data-stat-title="Tổng phiếu mượn"
+                data-stat-value="@totalLoans phiếu" data-stat-note="Bao gồm toàn bộ phiếu đang mượn, quá hạn và đã hoàn tất. Phiếu nháp không được tính."
+                data-stat-url="@Url.Action("LichSuMuon")" data-stat-action="Xem tất cả phiếu">
             <span class="loan-summary-icon blue"><i class="bi bi-files"></i></span>
             <div><small>Tổng phiếu mượn</small><strong>@totalLoans</strong></div>
-        </article>
-        <article>
+            <i class="bi bi-chevron-right loan-summary-arrow"></i>
+        </button>
+        <button type="button" class="loan-summary-card" data-bs-toggle="modal" data-bs-target="#loanSummaryModal"
+                data-stat-theme="green" data-stat-icon="bi-book-half" data-stat-title="Phiếu đang mượn"
+                data-stat-value="@activeLoans phiếu" data-stat-note="Các phiếu vẫn còn sách chưa trả và chưa đến hạn. Hãy theo dõi ngày hẹn trả để chủ động gia hạn hoặc hoàn trả."
+                data-stat-url="@Url.Action("LichSuMuon", new { trangThai = "borrowing" })" data-stat-action="Xem phiếu đang mượn">
             <span class="loan-summary-icon green"><i class="bi bi-book-half"></i></span>
             <div><small>Đang mượn</small><strong>@activeLoans phiếu</strong></div>
-        </article>
-        <article>
+            <i class="bi bi-chevron-right loan-summary-arrow"></i>
+        </button>
+        <button type="button" class="loan-summary-card" data-bs-toggle="modal" data-bs-target="#loanSummaryModal"
+                data-stat-theme="red" data-stat-icon="bi-alarm" data-stat-title="Phiếu quá hạn"
+                data-stat-value="@overdueLoans phiếu" data-stat-note="Phiếu còn sách chưa trả và đã qua ngày hẹn trả. Bạn nên liên hệ thư viện hoặc hoàn trả sách sớm."
+                data-stat-url="@Url.Action("LichSuMuon", new { trangThai = "overdue" })" data-stat-action="Kiểm tra phiếu quá hạn">
             <span class="loan-summary-icon red"><i class="bi bi-alarm"></i></span>
             <div><small>Quá hạn</small><strong>@overdueLoans phiếu</strong></div>
-        </article>
-        <article>
+            <i class="bi bi-chevron-right loan-summary-arrow"></i>
+        </button>
+        <button type="button" class="loan-summary-card" data-bs-toggle="modal" data-bs-target="#loanSummaryModal"
+                data-stat-theme="purple" data-stat-icon="bi-book" data-stat-title="Tổng sách đã mượn"
+                data-stat-value="@totalBooks cuốn" data-stat-note="Tổng số lượt sách trong các phiếu mượn của bạn. Mỗi bản sách trong một phiếu được tính là một lượt."
+                data-stat-url="@Url.Action("LichSuMuon", new { trangThai = "returned" })" data-stat-action="Xem @returnedLoans phiếu đã hoàn tất">
             <span class="loan-summary-icon purple"><i class="bi bi-book"></i></span>
             <div><small>Sách đã mượn</small><strong>@totalBooks cuốn</strong></div>
-        </article>
+            <i class="bi bi-chevron-right loan-summary-arrow"></i>
+        </button>
     </div>
 
     <div class="reader-loans-toolbar">
@@ -56,8 +73,11 @@
             <a asp-action="LichSuMuon" asp-route-trangThai="borrowing" class="@(currentStatus == "borrowing" ? "active" : "")">
                 <i class="bi bi-clock-history"></i> Đang mượn
             </a>
-            <a asp-controller="Profile" asp-action="PhieuPhatCuaToi">
-                <i class="bi bi-receipt"></i> Phiếu phạt
+            <a asp-action="LichSuMuon" asp-route-trangThai="overdue" class="@(currentStatus == "overdue" ? "active danger" : "")">
+                <i class="bi bi-exclamation-triangle"></i> Quá hạn
+            </a>
+            <a asp-action="LichSuMuon" asp-route-trangThai="returned" class="@(currentStatus == "returned" ? "active" : "")">
+                <i class="bi bi-check2-circle"></i> Đã trả
             </a>
         </nav>
     </div>
@@ -90,16 +110,19 @@
                             <span class="reader-loan-document"><i class="bi bi-file-earmark-text"></i></span>
                             <div>
                                 <span>Phiếu mượn</span>
-                                <h3>#PM@loan.MaPhieuMuon.ToString("D4")</h3>
+                                <h3>@($"PM-{loan.MaPhieuMuon:D4}")</h3>
                             </div>
                         </div>
-                        <span class="reader-loan-status @statusClass"><i class="bi @statusIcon"></i>@statusText</span>
+                        <div class="reader-loan-card-state">
+                            <span class="reader-loan-status @statusClass"><i class="bi @statusIcon"></i>@statusText</span>
+                            <small>@loan.ChiTietPhieuMuons.Count cuốn · @unreturnedCount chưa trả</small>
+                        </div>
                     </header>
 
                     <div class="reader-loan-dates">
-                        <div><i class="bi bi-calendar-plus"></i><span>Ngày mượn<strong>@loan.NgayMuon.ToString("dd/MM/yyyy")</strong></span></div>
+                        <div class="reader-loan-date-item"><i class="bi bi-calendar-plus"></i><span>Ngày mượn<strong>@loan.NgayMuon.ToString("dd/MM/yyyy")</strong></span></div>
                         <span class="date-connector"><i class="bi bi-arrow-right"></i></span>
-                        <div><i class="bi bi-calendar-event"></i><span>Hạn trả<strong>@loan.NgayHenTra.ToString("dd/MM/yyyy")</strong></span></div>
+                        <div class="reader-loan-date-item"><i class="bi bi-calendar-event"></i><span>Hạn trả<strong>@loan.NgayHenTra.ToString("dd/MM/yyyy")</strong></span></div>
                         <div class="reader-loan-deadline @statusClass">
                             @if (isReturned)
                             {
@@ -118,22 +141,29 @@
 
                     <div class="reader-loan-books">
                         <div class="reader-loan-books-heading">
-                            <strong>Danh sách sách</strong>
+                            <div><i class="bi bi-journals"></i><span><strong>Danh sách sách</strong><small>Chi tiết các bản sách trong phiếu</small></span></div>
                             <span>@loan.ChiTietPhieuMuons.Count cuốn</span>
                         </div>
                         @foreach (var detail in loan.ChiTietPhieuMuons)
                         {
                             var book = detail.BanSao?.Sach;
                             <div class="reader-loan-book-row">
-                                <div class="reader-loan-cover">
+                                <a asp-controller="Saches" asp-action="Details" asp-route-id="@book?.MaSach" class="reader-loan-cover">
                                     <i class="bi bi-book"></i>
                                     @if (!string.IsNullOrWhiteSpace(book?.AnhBia))
                                     {
                                         <img src="@book.AnhBia" alt="Bìa sách @book.TenSach" loading="lazy" onerror="this.style.display='none'" />
                                     }
-                                </div>
+                                </a>
                                 <div class="reader-loan-book-info">
-                                    <strong>@(book?.TenSach ?? "Sách không còn tồn tại")</strong>
+                                    @if (book != null)
+                                    {
+                                        <a asp-controller="Saches" asp-action="Details" asp-route-id="@book.MaSach">@book.TenSach</a>
+                                    }
+                                    else
+                                    {
+                                        <strong>Sách không còn tồn tại</strong>
+                                    }
                                     <small>Mã bản sao: @(detail.BanSao?.MaVach ?? "--")</small>
                                 </div>
                                 <div class="reader-loan-book-result">
@@ -158,8 +188,44 @@
         </div>
     }
 
+    <div class="modal fade loan-summary-modal" id="loanSummaryModal" tabindex="-1" aria-labelledby="loanSummaryTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <button type="button" class="loan-summary-modal-close" data-bs-dismiss="modal" aria-label="Đóng"><i class="bi bi-x-lg"></i></button>
+                <div class="loan-summary-modal-icon blue" data-stat-modal-icon><i class="bi bi-files"></i></div>
+                <small>THỐNG KÊ MƯỢN SÁCH</small>
+                <h2 id="loanSummaryTitle" data-stat-modal-title>Thông tin thống kê</h2>
+                <strong data-stat-modal-value>0</strong>
+                <p data-stat-modal-note></p>
+                <a href="#" data-stat-modal-action>Xem chi tiết <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
     @if (ViewData["Pagination"] is PaginationViewModel pagination)
     {
         <partial name="_Pagination" model="pagination" />
     }
 </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const modal = document.getElementById('loanSummaryModal');
+            if (!modal) return;
+            modal.addEventListener('show.bs.modal', event => {
+                const source = event.relatedTarget;
+                if (!source) return;
+                const icon = modal.querySelector('[data-stat-modal-icon]');
+                icon.className = `loan-summary-modal-icon ${source.dataset.statTheme}`;
+                icon.innerHTML = `<i class="bi ${source.dataset.statIcon}"></i>`;
+                modal.querySelector('[data-stat-modal-title]').textContent = source.dataset.statTitle;
+                modal.querySelector('[data-stat-modal-value]').textContent = source.dataset.statValue;
+                modal.querySelector('[data-stat-modal-note]').textContent = source.dataset.statNote;
+                const action = modal.querySelector('[data-stat-modal-action]');
+                action.href = source.dataset.statUrl;
+                action.firstChild.textContent = `${source.dataset.statAction} `;
+            });
+        })();
+    </script>
+}

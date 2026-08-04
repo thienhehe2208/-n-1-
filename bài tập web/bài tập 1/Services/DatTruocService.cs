@@ -148,6 +148,22 @@ namespace bài_tập_1.Services
             next.TrangThai = TrangThaiDatTruoc.DaCoSach;
             banSao.TinhTrang = TinhTrangBanSao.DaGiu;
 
+            var eventCode = $"dat-truoc-ready:{next.MaDatTruoc}";
+            if (!await _context.ThongBao.AnyAsync(t =>
+                    t.MaDocGia == next.MaDocGia && t.MaSuKien == eventCode))
+            {
+                _context.ThongBao.Add(new ThongBao
+                {
+                    MaDocGia = next.MaDocGia,
+                    MaSuKien = eventCode,
+                    TieuDe = "Sách đặt trước đã sẵn sàng",
+                    NoiDung = $"Sách bạn đặt trước đã có. Thư viện giữ bản {banSao.MaVach} đến {next.HanNhanSach:HH:mm dd/MM/yyyy}. Hãy đến quầy và xuất trình thẻ độc giả để nhận sách.",
+                    LienKet = $"/DatTruocs/Details/{next.MaDatTruoc}",
+                    Loai = "success",
+                    NgayTao = DateTime.Now
+                });
+            }
+
             return true;
         }
     }

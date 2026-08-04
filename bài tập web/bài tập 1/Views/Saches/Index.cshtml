@@ -9,7 +9,6 @@
     var selectedCategoryId = ViewData["MaTheLoai"] as int?;
     var totalResults = (int?)ViewData["TotalResults"] ?? 0;
     var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
-    var staffRole = User.IsInRole("Admin") ? "Quản trị viên" : "Nhân viên thư viện";
 }
 
 <section class="catalog-page">
@@ -28,7 +27,7 @@
             </h1>
             <p>
                 @(selectedCategory == null
-                ? "Khám phá kho tri thức và tra cứu nhanh theo tên sách hoặc mã ISBN."
+                ? "Khám phá kho tri thức và tra cứu nhanh theo tên sách, tác giả hoặc mã ISBN."
                 : (string.IsNullOrWhiteSpace(selectedCategory.MoTa)
                     ? "Khám phá những đầu sách nổi bật trong danh mục này."
                     : selectedCategory.MoTa))
@@ -40,7 +39,8 @@
 
         </div>
 
-        <form asp-action="Index" method="get" class="catalog-search-form" role="search">
+        <form asp-action="Index" method="get" class="catalog-search-form" role="search"
+              data-book-search data-suggestion-url="@Url.Action("GoiYTimKiem", "Saches")">
             @if (selectedCategoryId.HasValue)
             {
                 <input type="hidden" name="maTheLoai" value="@selectedCategoryId.Value" />
@@ -52,20 +52,22 @@
                        type="search"
                        name="q"
                        value="@tuKhoa"
-                       placeholder="@(selectedCategory == null ? "Tên sách hoặc mã ISBN..." : $"Tìm trong {selectedCategory.TenTheLoai}...")"
-                       autocomplete="off" />
+                       placeholder="@(selectedCategory == null ? "Tên sách, tác giả hoặc mã ISBN..." : $"Tìm trong {selectedCategory.TenTheLoai}...")"
+                       autocomplete="off" aria-autocomplete="list" aria-expanded="false"
+                       data-book-search-input />
                 @if (!string.IsNullOrWhiteSpace(tuKhoa))
                 {
                     <a asp-action="Index" asp-route-maTheLoai="@selectedCategoryId" class="catalog-search-clear" aria-label="Xóa từ khóa" title="Xóa từ khóa">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 }
+                <div class="book-search-suggestions catalog-suggestions" data-book-search-results role="listbox"></div>
             </div>
             <button type="submit" class="catalog-search-submit">
                 <i class="bi bi-search"></i>
                 <span>Tìm kiếm sách</span>
             </button>
-            <small>Ví dụ: Đắc nhân tâm, 978604...</small>
+            <small>Ví dụ: Đắc nhân tâm, Nguyễn Nhật Ánh, 978604...</small>
         </form>
     </div>
 
@@ -193,7 +195,17 @@
                                     <i class="bi bi-eye"></i>
                                     <span>Chi tiết</span>
                                 </a>
-                                @if (!coTheMuon)
+                                @if (isStaff)
+                                {
+                                    <a asp-controller="BanSaos"
+                                       asp-action="Index"
+                                       asp-route-q="@item.TenSach"
+                                       class="catalog-counter-button">
+                                        <i class="bi bi-archive"></i>
+                                        <span>Quản lý bản sao</span>
+                                    </a>
+                                }
+                                else if (!coTheMuon)
                                 {
                                     <a asp-controller="DatTruocs"
                                        asp-action="Create"
@@ -205,14 +217,7 @@
                                 }
                                 else
                                 {
-                                    @if (isStaff)
-                                    {
-                                        <button type="button" class="catalog-counter-button" data-staff-borrow-open data-book-title="@item.TenSach"><i class="bi bi-qr-code-scan"></i><span>Mượn online</span></button>
-                                    }
-                                    else
-                                    {
-                                        <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@item.MaSach" class="catalog-counter-button"><i class="bi bi-qr-code-scan"></i><span>Mượn online</span></a>
-                                    }
+                                    <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@item.MaSach" class="catalog-counter-button"><i class="bi bi-journal-plus"></i><span>Mượn online</span></a>
                                 }
                             </div>
                         </div>
@@ -251,41 +256,4 @@
 @if (ViewData["Pagination"] is PaginationViewModel pagination)
 {
     <partial name="_Pagination" model="pagination" />
-}
-
-@if (isStaff)
-{
-    <div class="staff-borrow-modal" data-staff-borrow-modal aria-hidden="true">
-        <button type="button" class="staff-borrow-modal__backdrop" data-staff-borrow-close aria-label="Đóng thông báo"></button>
-        <section class="staff-borrow-dialog" role="dialog" aria-modal="true" aria-labelledby="staffBorrowTitle" aria-describedby="staffBorrowDescription">
-            <button type="button" class="staff-borrow-dialog__close" data-staff-borrow-close aria-label="Đóng"><i class="bi bi-x-lg"></i></button>
-            <div class="staff-borrow-dialog__visual"><span><i class="bi @(User.IsInRole("Admin") ? "bi-shield-lock-fill" : "bi-person-badge-fill")"></i></span><i class="bi bi-stars"></i></div>
-            <div class="staff-borrow-dialog__role"><i class="bi bi-patch-check-fill"></i> @staffRole</div>
-            <h2 id="staffBorrowTitle">Tài khoản quản lý không cần mượn online</h2>
-            <p id="staffBorrowDescription">Bạn đang đăng nhập với quyền <strong>@staffRole</strong>. Tính năng mượn online được dành riêng cho độc giả; tài khoản của bạn có thể trực tiếp tiếp nhận và xử lý phiếu mượn tại quầy.</p>
-            <div class="staff-borrow-dialog__book"><span><i class="bi bi-book"></i></span><div><small>SÁCH ĐANG CHỌN</small><strong data-staff-book-title>Thông tin sách</strong></div></div>
-            <div class="staff-borrow-dialog__hint"><i class="bi bi-lightbulb-fill"></i><span>Để hỗ trợ độc giả, hãy vào <strong>Quản lý phiếu mượn</strong> và tạo hoặc xử lý phiếu tại quầy.</span></div>
-            <div class="staff-borrow-dialog__actions"><button type="button" data-staff-borrow-close><i class="bi bi-check2"></i> Đã hiểu</button><a asp-controller="PhieuMuons" asp-action="Index"><i class="bi bi-arrow-up-right-circle"></i> Quản lý phiếu mượn</a></div>
-        </section>
-    </div>
-}
-
-@section Scripts {
-    @if (isStaff)
-    {
-        <script>
-            (() => {
-                const modal = document.querySelector('[data-staff-borrow-modal]');
-                const triggers = document.querySelectorAll('[data-staff-borrow-open]');
-                const title = modal?.querySelector('[data-staff-book-title]');
-                let activeTrigger = null;
-                if (!modal || !triggers.length) return;
-                const close = () => { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); document.body.classList.remove('staff-modal-open'); activeTrigger?.focus(); };
-                const open = trigger => { activeTrigger = trigger; title.textContent = trigger.dataset.bookTitle || 'Thông tin sách'; modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); document.body.classList.add('staff-modal-open'); modal.querySelector('.staff-borrow-dialog__close').focus(); };
-                triggers.forEach(trigger => trigger.addEventListener('click', () => open(trigger)));
-                modal.querySelectorAll('[data-staff-borrow-close]').forEach(button => button.addEventListener('click', close));
-                document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('is-open')) close(); });
-            })();
-        </script>
-    }
 }

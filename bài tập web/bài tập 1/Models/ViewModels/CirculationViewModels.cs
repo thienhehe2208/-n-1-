@@ -72,4 +72,40 @@ namespace bài_tập_1.Models.ViewModels
         [Display(Name = "Ghi chú")]
         public string GhiChu { get; set; } = string.Empty;
     }
+
+    public class TraPhieuMuonViewModel
+    {
+        public int MaPhieuMuon { get; set; }
+
+        public string HoTenDocGia { get; set; } = string.Empty;
+
+        public DateTime NgayMuon { get; set; }
+
+        public DateTime NgayHenTra { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn ngày trả.")]
+        [DataType(DataType.Date)]
+        [Display(Name = "Ngày trả")]
+        public DateTime NgayTra { get; set; } = DateTime.Today;
+
+        [MinLength(1, ErrorMessage = "Phiếu mượn không có sách cần trả.")]
+        public List<TraSachTrongPhieuViewModel> Sach { get; set; } = new();
+    }
+
+    public class TraSachTrongPhieuViewModel
+    {
+        public int MaChiTiet { get; set; }
+
+        public string TenSach { get; set; } = string.Empty;
+
+        public string MaVach { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Vui lòng chọn tình trạng của sách.")]
+        [Display(Name = "Tình trạng khi trả")]
+        public TinhTrangKhiTra? TinhTrangKhiTra { get; set; }
+
+        [StringLength(250, ErrorMessage = "Ghi chú không được vượt quá 250 ký tự.")]
+        [Display(Name = "Ghi chú")]
+        public string GhiChu { get; set; } = string.Empty;
+    }
 }

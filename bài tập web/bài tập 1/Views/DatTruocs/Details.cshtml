@@ -7,6 +7,7 @@
     var anhBia = string.IsNullOrWhiteSpace(Model.Sach.AnhBia)
         ? anhMacDinh
         : Model.Sach.AnhBia;
+    var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
 
     var statusClass = Model.TrangThai switch
     {
@@ -40,18 +41,6 @@
         {
             <div class="reservation-alert reservation-alert-danger">@error</div>
         }
-
-        <section class="reservation-success-hero">
-            <div class="reservation-success-icon">
-                <i class="bi bi-bookmark-check"></i>
-            </div>
-            <span>Yêu cầu #@Model.MaDatTruoc</span>
-            <h1>@statusText</h1>
-            <p>
-                Thư viện đã ghi nhận yêu cầu đặt trước của bạn.
-                Hãy theo dõi trạng thái để biết khi nào sách sẵn sàng.
-            </p>
-        </section>
 
         <div class="reservation-result-grid">
             <section class="reservation-card">
@@ -119,6 +108,25 @@
             </aside>
         </div>
 
+        @if (Model.TrangThai == TrangThaiDatTruoc.DaCoSach)
+        {
+            <section class="reservation-handoff-panel @(isStaff ? "staff" : "reader")">
+                <span><i class="bi @(isStaff ? "bi-journal-plus" : "bi-building-check")"></i></span>
+                <div>
+                    <small>BƯỚC TIẾP THEO</small>
+                    <h2>@(isStaff ? "Xác nhận bàn giao và tạo phiếu mượn" : "Đến quầy để nhận sách")</h2>
+                    <p>@(isStaff ? "Chỉ thực hiện khi độc giả đã có mặt và nhận đúng bản sao đang giữ. Hệ thống sẽ chuyển bản sao sang Đang mượn và tạo phiếu mượn tự động." : "Bạn không cần tự chuyển yêu cầu. Hãy mang thẻ độc giả đến quầy trước thời hạn; nhân viên sẽ xác nhận và lập phiếu mượn.")</p>
+                </div>
+                @if (isStaff)
+                {
+                    <form asp-action="XacNhanNhanSach" asp-route-id="@Model.MaDatTruoc" method="post" onsubmit="return confirm('Xác nhận độc giả đã nhận sách và tạo phiếu mượn?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"><i class="bi bi-person-check-fill"></i> Xác nhận nhận sách &amp; tạo phiếu mượn</button>
+                    </form>
+                }
+            </section>
+        }
+
         <section class="reservation-card reservation-next-steps">
             <h2>Các bước tiếp theo</h2>
             <div class="reservation-timeline">
@@ -141,7 +149,7 @@
         </section>
 
         <div class="reservation-result-actions">
-            @if (User.IsInRole("DocGia"))
+            @if (!isStaff)
             {
                 <a asp-action="CuaToi" class="btn btn-primary">
                     <i class="bi bi-list-check"></i>
@@ -151,14 +159,6 @@
             else
             {
                 <a asp-action="Index" class="btn btn-primary">Danh sách yêu cầu</a>
-                @if (Model.TrangThai == TrangThaiDatTruoc.DaCoSach)
-                {
-                    <form asp-action="XacNhanNhanSach" asp-route-id="@Model.MaDatTruoc" method="post"
-                          onsubmit="return confirm('Xác nhận độc giả đã nhận sách và lập phiếu mượn?');">
-                        @Html.AntiForgeryToken()
-                        <button class="btn btn-success">Xác nhận nhận sách</button>
-                    </form>
-                }
             }
 
             @if (Model.TrangThai == TrangThaiDatTruoc.DangCho ||

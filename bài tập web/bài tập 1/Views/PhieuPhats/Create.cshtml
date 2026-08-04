@@ -75,7 +75,7 @@
                     <section class="fine-create-card fine-create-summary">
                         <div class="fine-create-heading">
                             <span><i class="bi bi-journal-text"></i></span>
-                            <div><small>LƯỢT MƯỢN VI PHẠM</small><h2>#CT-@Model.MaChiTiet.ToString("D5")</h2></div>
+                            <div><small>CUỐN SÁCH PHÁT SINH VI PHẠM</small><h2>@Model.TenSach</h2><p>Mã bản ghi CT-@(Model.MaChiTiet.ToString("D5"))</p></div>
                             <a asp-controller="ChiTietPhieuMuons" asp-action="Details" asp-route-id="@Model.MaChiTiet">Xem chi tiết <i class="bi bi-arrow-up-right"></i></a>
                         </div>
                         <div class="fine-create-book">
@@ -84,7 +84,7 @@
                         </div>
                         <div class="fine-create-summary-grid">
                             <div><span>Độc giả</span><strong><i class="bi bi-person"></i> @Model.HoTenDocGia</strong></div>
-                            <div><span>Phiếu mượn</span><strong>#PM-@Model.MaPhieuMuon.ToString("D5")</strong></div>
+                            <div><span>Phiếu mượn</span><strong>#PM-@(Model.MaPhieuMuon.ToString("D5"))</strong></div>
                             <div><span>Hạn trả</span><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div>
                             <div><span>Ngày trả</span><strong>@(Model.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")</strong></div>
                         </div>

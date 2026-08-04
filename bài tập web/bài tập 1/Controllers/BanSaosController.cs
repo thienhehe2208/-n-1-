@@ -86,6 +86,22 @@ namespace bài_tập_1.Controllers
                 return NotFound();
             }
 
+            ViewData["YeuCauMuonOnlineDangGiu"] = await _context.YeuCauMuonOnline
+                .Include(y => y.DocGia)
+                .AsNoTracking()
+                .Where(y =>
+                    y.MaBanSao == banSao.MaBanSao &&
+                    (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                     y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet))
+                .OrderByDescending(y => y.NgayTao)
+                .FirstOrDefaultAsync();
+            ViewData["DatTruocDangGiu"] = await _context.DatTruoc
+                .Include(d => d.DocGia)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d =>
+                    d.MaBanSaoDuocGiu == banSao.MaBanSao &&
+                    d.TrangThai == TrangThaiDatTruoc.DaCoSach);
+
             return View(banSao);
         }
 
@@ -137,6 +153,18 @@ namespace bài_tập_1.Controllers
             {
                 return NotFound();
             }
+            var coLuotMuonDangMo = await _context.ChiTietPhieuMuon
+                .AnyAsync(c => c.MaBanSao == id && c.NgayTra == null);
+            var coDatTruocDangGiu = await _context.DatTruoc
+                .AnyAsync(d => d.MaBanSaoDuocGiu == id &&
+                    d.TrangThai == TrangThaiDatTruoc.DaCoSach);
+            var coPhieuOnlineDangGiu = await _context.YeuCauMuonOnline
+                .AnyAsync(y => y.MaBanSao == id &&
+                    (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                     y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet));
+            ViewData["TrangThaiBiKhoa"] = coLuotMuonDangMo ||
+                coDatTruocDangGiu || coPhieuOnlineDangGiu;
+            ViewData["TrangThaiGoc"] = banSao.TinhTrang;
             ViewData["MaSach"] = new SelectList(_context.Sach, "MaSach", "TenSach", banSao.MaSach);
             return View(banSao);
         }
@@ -152,6 +180,9 @@ namespace bài_tập_1.Controllers
             }
 
             banSao.MaVach = banSao.MaVach?.Trim() ?? string.Empty;
+            ModelState.Remove(nameof(BanSao.Sach));
+            ModelState.Remove(nameof(BanSao.ChiTietPhieuMuons));
+            ModelState.Remove(nameof(BanSao.DatTruocsDuocGiu));
             if (await _context.BanSao.AnyAsync(
                     b => b.MaVach == banSao.MaVach &&
                          b.MaBanSao != id))
@@ -176,7 +207,8 @@ namespace bài_tập_1.Controllers
             var dangDuocGiuOnline = await _context.YeuCauMuonOnline
                 .AnyAsync(y =>
                     y.MaBanSao == id &&
-                    y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
+                    (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                     y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet));
 
             if (dangCoLuotMuon)
             {
@@ -247,11 +279,27 @@ namespace bài_tập_1.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = $"Đã cập nhật bản sao BS-{banSaoHienTai.MaBanSao:D5}. Trạng thái hiện tại: {TenTrangThai(banSaoHienTai.TinhTrang)}.";
+                return RedirectToAction(nameof(Details), new { id = banSaoHienTai.MaBanSao });
             }
+            ViewData["TrangThaiBiKhoa"] = dangCoLuotMuon ||
+                dangDuocGiu || dangDuocGiuOnline;
+            ViewData["TrangThaiGoc"] = banSaoHienTai.TinhTrang;
             ViewData["MaSach"] = new SelectList(_context.Sach, "MaSach", "TenSach", banSao.MaSach);
             return View(banSao);
         }
+
+        private static string TenTrangThai(TinhTrangBanSao trangThai) =>
+            trangThai switch
+            {
+                TinhTrangBanSao.SanCo => "Sẵn có",
+                TinhTrangBanSao.DangMuon => "Đang mượn",
+                TinhTrangBanSao.DaGiu => "Đang giữ",
+                TinhTrangBanSao.HuHong => "Hư hỏng",
+                TinhTrangBanSao.Mat => "Bị mất",
+                TinhTrangBanSao.ThanhLy => "Đã thanh lý",
+                _ => trangThai.ToString()
+            };
 
         // Hiển thị xác nhận xóa bản sao
         public async Task<IActionResult> Delete(int? id)

@@ -622,6 +622,11 @@ namespace bài_tập_1.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<string>("LyDoTuChoi")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("HanNhanSach")
                         .HasColumnType("datetime2");
 
@@ -659,7 +664,7 @@ namespace bài_tập_1.Migrations
                     b.HasIndex("MaBanSao")
                         .IsUnique()
                         .HasDatabaseName("UX_YeuCauMuonOnline_BanSaoChoNhan")
-                        .HasFilter("[TrangThai] = 0");
+                        .HasFilter("[TrangThai] IN (0, 4)");
 
                     b.HasIndex("MaDocGia");
 
@@ -668,6 +673,9 @@ namespace bài_tập_1.Migrations
                     b.HasIndex("MaSach");
 
                     b.HasIndex("MaXacNhan")
+                        .HasDatabaseName("IX_YeuCauMuonOnline_MaXacNhan");
+
+                    b.HasIndex("MaXacNhan", "MaBanSao")
                         .IsUnique();
 
                     b.ToTable("YeuCauMuonOnline");

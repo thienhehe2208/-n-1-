@@ -1,0 +1,148 @@
+@model bài_tập_1.Models.ViewModels.ReaderHeaderViewModel
+@{
+    string Icon(string type) => type switch
+    {
+        "success" => "bi-check-circle-fill",
+        "warning" => "bi-exclamation-triangle-fill",
+        "danger" => "bi-exclamation-octagon-fill",
+        _ => "bi-info-circle-fill"
+    };
+    var returnUrl = $"{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<div class="dropdown reader-notification-dropdown">
+    <button class="reader-notification-toggle" type="button" data-bs-toggle="dropdown"
+            data-bs-auto-close="outside" aria-expanded="false" aria-label="Mở thông báo">
+        <i class="bi bi-bell" aria-hidden="true"></i>
+        @if (Model.UnreadCount > 0)
+        {
+            <span class="reader-notification-count">@(Model.UnreadCount > 99 ? "99+" : Model.UnreadCount)</span>
+        }
+    </button>
+    <div class="dropdown-menu dropdown-menu-end reader-notification-menu">
+        <div class="reader-notification-head">
+            <div>
+                <strong>Thông báo</strong>
+                <small>@(Model.UnreadCount == 0 ? "Bạn đã xem tất cả" : $"{Model.UnreadCount} thông báo chưa đọc")</small>
+            </div>
+            @if (Model.UnreadCount > 0)
+            {
+                <form asp-controller="ThongBaos" asp-action="DanhDauTatCaDaDoc" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit">Xem tất cả</button>
+                </form>
+            }
+        </div>
+
+        @if (Model.Notifications.Count == 0)
+        {
+            <div class="reader-notification-empty">
+                <i class="bi bi-bell-slash"></i>
+                <strong>Chưa có thông báo</strong>
+                <span>Các cập nhật mới sẽ xuất hiện tại đây.</span>
+            </div>
+        }
+        else
+        {
+            <div class="reader-notification-items">
+                @foreach (var item in Model.Notifications)
+                {
+                    if (!item.DaDoc)
+                    {
+                        <form asp-controller="ThongBaos" asp-action="DanhDauDaDoc" method="post"
+                              class="reader-notification-item unread type-@item.Loai">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.MaThongBao" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                            <button type="submit">
+                                <span class="reader-notification-icon"><i class="bi @Icon(item.Loai)"></i></span>
+                                <span class="reader-notification-copy">
+                                    <strong>@item.TieuDe</strong>
+                                    <span>@item.NoiDung</span>
+                                    <time>@item.NgayTao.ToString("HH:mm · dd/MM/yyyy")</time>
+                                </span>
+                                <i class="reader-notification-new" aria-label="Chưa đọc"></i>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button type="button" class="reader-notification-item read type-@item.Loai notification-detail-trigger"
+                                data-notification-title="@item.TieuDe"
+                                data-notification-content="@item.NoiDung"
+                                data-notification-time="@item.NgayTao.ToString("HH:mm · dd/MM/yyyy")"
+                                data-notification-type="@item.Loai">
+                            <span class="reader-notification-icon"><i class="bi @Icon(item.Loai)"></i></span>
+                            <span class="reader-notification-copy">
+                                <strong>@item.TieuDe</strong>
+                                <span>@item.NoiDung</span>
+                                <time><i class="bi bi-check2"></i> Đã xem · @item.NgayTao.ToString("dd/MM/yyyy")</time>
+                            </span>
+                        </button>
+                    }
+                }
+            </div>
+        }
+
+        <a asp-controller="ThongBaos" asp-action="Index" class="reader-notification-all">
+            Xem trung tâm thông báo <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<div class="modal fade reader-notification-detail-modal" id="readerNotificationDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="reader-notification-detail-close" data-bs-dismiss="modal" aria-label="Đóng"><i class="bi bi-x-lg"></i></button>
+            <div class="reader-notification-detail-icon"><i class="bi bi-info-circle-fill"></i></div>
+            <small>THÔNG BÁO ĐÃ XEM</small>
+            <h2 data-notification-modal-title>Thông tin thông báo</h2>
+            <p data-notification-modal-content></p>
+            <time data-notification-modal-time></time>
+            <button type="button" class="reader-notification-detail-ok" data-bs-dismiss="modal">Đã xem</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const modalElement = document.getElementById('readerNotificationDetailModal');
+        if (!modalElement || modalElement.dataset.ready === 'true') return;
+        modalElement.dataset.ready = 'true';
+        document.addEventListener('click', event => {
+            const trigger = event.target.closest('.notification-detail-trigger');
+            if (!trigger) return;
+            modalElement.querySelector('[data-notification-modal-title]').textContent = trigger.dataset.notificationTitle || 'Thông tin thông báo';
+            modalElement.querySelector('[data-notification-modal-content]').textContent = trigger.dataset.notificationContent || 'Không có nội dung bổ sung.';
+            modalElement.querySelector('[data-notification-modal-time]').textContent = trigger.dataset.notificationTime || '';
+            const icon = modalElement.querySelector('.reader-notification-detail-icon i');
+            icon.className = 'bi ' + (trigger.dataset.notificationType === 'success' ? 'bi-check-circle-fill' : trigger.dataset.notificationType === 'warning' ? 'bi-exclamation-triangle-fill' : trigger.dataset.notificationType === 'danger' ? 'bi-exclamation-octagon-fill' : 'bi-info-circle-fill');
+            bootstrap.Modal.getOrCreateInstance(modalElement).show();
+        });
+    })();
+</script>
+
+<div class="dropdown reader-account-dropdown">
+    <button class="reader-account-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="reader-account-avatar">@Model.Initials</span>
+        <span class="reader-account-copy">
+            <strong>@Model.DisplayName</strong>
+            <small>Độc giả</small>
+        </span>
+        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end reader-account-menu">
+        <div class="reader-account-summary">
+            <span class="reader-account-avatar">@Model.Initials</span>
+            <div><strong>@Model.DisplayName</strong><small>@Model.Email</small></div>
+        </div>
+        <a asp-controller="Profile" asp-action="Index"><i class="bi bi-person"></i> Thông tin cá nhân</a>
+        <a asp-controller="Profile" asp-action="ChangePassword"><i class="bi bi-shield-lock"></i> Đổi mật khẩu</a>
+        <div class="reader-account-divider"></div>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+        </form>
+    </div>
+</div>

@@ -98,13 +98,13 @@
                                 _ => "cancelled"
                             };
                             <tr>
-                                <td><strong class="reader-fine-code">#PP@item.MaPhieuPhat.ToString("D4")</strong></td>
+                                <td><strong class="reader-fine-code">#PP-@(item.MaPhieuPhat.ToString("D5"))</strong></td>
                                 <td>
                                     <div class="reader-fine-book">
                                         <span><i class="bi bi-book"></i></span>
                                         <div>
                                             <strong>@(item.ChiTietPhieuMuon?.BanSao?.Sach?.TenSach ?? "Sách không cón tồn tại")</strong>
-                                            <small>Phiếu mượn #PM@(item.ChiTietPhieuMuon?.MaPhieuMuon.ToString("D4"))</small>
+                                            <small>Phiếu mượn #PM-@(item.ChiTietPhieuMuon?.MaPhieuMuon.ToString("D5"))</small>
                                         </div>
                                     </div>
                                 </td>

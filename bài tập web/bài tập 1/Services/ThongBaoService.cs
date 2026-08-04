@@ -29,16 +29,58 @@ namespace bài_tập_1.Services
                 .AsNoTracking()
                 .ToListAsync();
 
-            foreach (var item in luotMuonCanNhac)
+            var oldEventCodes = luotMuonCanNhac
+                .Select(item => $"muon-{item.MaChiTiet}-han-tra")
+                .ToList();
+            if (oldEventCodes.Count > 0)
             {
-                var soNgay = (item.PhieuMuon.NgayHenTra.Date - homNay).Days;
-                var maSuKien = $"muon-{item.MaChiTiet}-han-tra";
+                var oldNotifications = await _context.ThongBao
+                    .Where(t => t.MaDocGia == maDocGia &&
+                                oldEventCodes.Contains(t.MaSuKien))
+                    .ToListAsync();
+                if (oldNotifications.Count > 0)
+                {
+                    _context.ThongBao.RemoveRange(oldNotifications);
+                    thayDoi = true;
+                }
+            }
+
+            var activeLoanGroups = luotMuonCanNhac
+                .GroupBy(item => item.PhieuMuon.MaPhieuMuon)
+                .ToList();
+            var activeDueEvents = activeLoanGroups
+                .Select(group => $"phieu-muon-{group.Key}-han-tra")
+                .ToList();
+            var staleDueNotifications = await _context.ThongBao
+                .Where(t =>
+                    t.MaDocGia == maDocGia &&
+                    t.MaSuKien.StartsWith("phieu-muon-") &&
+                    t.MaSuKien.EndsWith("-han-tra") &&
+                    !activeDueEvents.Contains(t.MaSuKien))
+                .ToListAsync();
+            if (staleDueNotifications.Count > 0)
+            {
+                _context.ThongBao.RemoveRange(staleDueNotifications);
+                thayDoi = true;
+            }
+
+            foreach (var group in activeLoanGroups)
+            {
+                var first = group.First();
+                var soNgay = (first.PhieuMuon.NgayHenTra.Date - homNay).Days;
+                var maSuKien = $"phieu-muon-{group.Key}-han-tra";
                 var thongBao = await _context.ThongBao.FirstOrDefaultAsync(t =>
                     t.MaDocGia == maDocGia && t.MaSuKien == maSuKien);
 
+                var bookNames = group.Select(item => item.BanSao.Sach.TenSach)
+                    .Distinct()
+                    .ToList();
+                var summary = bookNames.Count <= 2
+                    ? string.Join(" và ", bookNames.Select(name => $"“{name}”"))
+                    : $"{bookNames.Count} cuốn sách";
                 var noiDung = soNgay < 0
-                    ? $"Sách “{item.BanSao.Sach.TenSach}” đã quá hạn {-soNgay} ngày."
-                    : $"Sách “{item.BanSao.Sach.TenSach}” còn {soNgay} ngày đến hạn trả.";
+                    ? $"Phiếu mượn #{group.Key:D4} gồm {summary} đã quá hạn {-soNgay} ngày."
+                    : $"Phiếu mượn #{group.Key:D4} gồm {summary} còn {soNgay} ngày đến hạn trả.";
                 var loai = soNgay < 0 ? "danger" : "warning";
 
                 if (thongBao == null)
@@ -47,7 +89,7 @@ namespace bài_tập_1.Services
                     {
                         MaDocGia = maDocGia,
                         MaSuKien = maSuKien,
-                        TieuDe = soNgay < 0 ? "Sách quá hạn" : "Sắp đến hạn trả",
+                        TieuDe = soNgay < 0 ? "Phiếu mượn quá hạn" : "Phiếu mượn sắp đến hạn trả",
                         NoiDung = noiDung,
                         Loai = loai,
                         LienKet = "/Profile/LichSuMuon"

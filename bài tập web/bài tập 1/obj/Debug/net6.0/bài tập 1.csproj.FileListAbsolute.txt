@@ -288,7 +288,6 @@ E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.buil
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.development.json
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.build.endpoints.json
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\swae.build.ex.cache
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.upToDateCheck.txt
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.csproj.Up2Date
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.dll
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\refint\bài tập 1.dll
@@ -1650,3 +1649,251 @@ D:\ĐỒ ÁN 0208\-n-1-\bài tập web\bài tập 1\obj\codex-check\runtimes\win
 D:\ĐỒ ÁN 0208\-n-1-\bài tập web\bài tập 1\obj\codex-check\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
 D:\ĐỒ ÁN 0208\-n-1-\bài tập web\bài tập 1\obj\codex-check\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 D:\ĐỒ ÁN 0208\-n-1-\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.upToDateCheck.txt
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-2\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-3\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-check-4\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build2\bài tập 1.pdb
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\appsettings.Development.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\appsettings.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\appsettings.Development.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\appsettings.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.deps.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Debug\net6.0\dotnet-tools.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\appsettings.Development.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\appsettings.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.deps.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Migration\net6.0\dotnet-tools.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\appsettings.Development.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\appsettings.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.deps.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bin\Release\net6.0\dotnet-tools.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\dotnet-tools.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bài tập 1.deps.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bài tập 1.dll
+C:\Users\Luong\AppData\Local\LibraryManagement\Build\bin\Debug\net6.0\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Debug\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Migration\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bin\Release\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\library-project-build\bin\Debug\net6.0\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-return-final\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-groupby-fix\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-whole-voucher-return\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-ui-notifications\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-fine-modal-final\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-search-author\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-admin-books\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-hold-final\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-2\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reject-online-final\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-copy-status-save-2\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-flow\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\03\019fc84d-7aa4-7012-8955-db232e246d15\build-reservation-details-clean\bài tập 1.pdb

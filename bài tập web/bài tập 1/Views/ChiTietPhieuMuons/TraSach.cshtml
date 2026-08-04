@@ -10,7 +10,7 @@
 <section class="book-return-page">
     <nav class="book-return-breadcrumb" aria-label="Điều hướng">
         <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@Model.MaPhieuMuon">
-            <i class="bi bi-arrow-left"></i> Phiếu #PM-@Model.MaPhieuMuon.ToString("D5")
+            <i class="bi bi-arrow-left"></i> Phiếu #PM-@(Model.MaPhieuMuon.ToString("D5"))
         </a>
         <i class="bi bi-chevron-right"></i>
         <span>Tiếp nhận trả sách</span>
@@ -25,7 +25,7 @@
         </div>
         <div class="book-return-hero__code">
             <span>Mã lượt mượn</span>
-            <strong>#CT-@Model.MaChiTiet.ToString("D5")</strong>
+            <strong>CT-@(Model.MaChiTiet.ToString("D5"))</strong>
         </div>
     </header>
 

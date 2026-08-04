@@ -78,10 +78,13 @@
                             {
                                 <form asp-action="DanhDauDaDoc" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@item.MaThongBao" /><button class="notification-open">@(string.IsNullOrWhiteSpace(item.LienKet) ? "Đã hiểu" : "Xem chi tiết") <i class="bi bi-arrow-right"></i></button></form>
                             }
-                            else if (!string.IsNullOrWhiteSpace(item.LienKet))
+                            else
                             {
-
-                                <a class="notification-open secondary" href="@item.LienKet">Xem lại <i class="bi bi-arrow-right"></i></a>
+                                <button type="button" class="notification-open secondary notification-detail-trigger"
+                                        data-notification-title="@item.TieuDe"
+                                        data-notification-content="@item.NoiDung"
+                                        data-notification-time="@item.NgayTao.ToString("HH:mm · dd/MM/yyyy")"
+                                        data-notification-type="@item.Loai">Xem lại <i class="bi bi-eye"></i></button>
                             }
                         }
                     </article>

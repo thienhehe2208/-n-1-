@@ -9,6 +9,8 @@
     var returned = (int?)ViewData["DaTra"] ?? 0;
     var overdue = (int?)ViewData["QuaHan"] ?? 0;
     var incidents = (int?)ViewData["CoSuCo"] ?? 0;
+    var bookCounts = ViewData["SoSachTheoPhieu"] as Dictionary<int, int> ?? new Dictionary<int, int>();
+    int? previousLoanId = null;
 }
 
 <section class="circulation-page">
@@ -50,13 +52,20 @@
                 <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="incident" class="@(status == "incident" ? "active" : "")">Có sự cố</a>
             </nav>
         </div>
-        <div class="circulation-heading"><h3>Danh sách sách mượn</h3><p>Hiển thị <strong>@Model.Count()</strong> kết quả</p></div>
+        <div class="circulation-guide">
+            <i class="bi bi-info-circle"></i>
+            <div>
+                <strong>Cách đọc danh sách</strong>
+                <span>Mỗi dòng là một cuốn sách. Các dòng có cùng mã <b>PM</b> thuộc cùng một phiếu và chỉ được tiếp nhận trả đồng thời ở trang phiếu mượn.</span>
+            </div>
+        </div>
+        <div class="circulation-heading"><h3>Danh sách từng cuốn theo phiếu mượn</h3><p>Hiển thị <strong>@Model.Count()</strong> lượt sách</p></div>
 
         @if (Model.Any())
         {
             <div class="circulation-table-wrap">
                 <table class="circulation-table">
-                    <thead><tr><th>Phiếu mượn</th><th>Sách / bản sao</th><th>Độc giả</th><th>Hạn trả</th><th>Ngày trả</th><th>Tình trạng</th><th>Ghi chú</th><th>Thao tác</th></tr></thead>
+                    <thead><tr><th>Phiếu mượn</th><th>Mã lượt</th><th>Sách / bản sao</th><th>Độc giả</th><th>Hạn trả</th><th>Ngày trả</th><th>Tình trạng</th><th>Ghi chú</th><th>Thao tác</th></tr></thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
@@ -65,8 +74,16 @@
                             var isOverdue = !isReturned && dueDate.Date < DateTime.Today;
                             var conditionClass = item.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ? "damaged" : item.TinhTrangKhiTra == TinhTrangKhiTra.Mat ? "lost" : "normal";
                             var conditionText = !isReturned ? "Chưa trả" : item.TinhTrangKhiTra == TinhTrangKhiTra.HuHong ? "Hư hỏng" : item.TinhTrangKhiTra == TinhTrangKhiTra.Mat ? "Bị mất" : "Bình thường";
-                            <tr class="@(isOverdue ? "overdue-row" : "")">
-                                <td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="circulation-code">#PM@item.MaPhieuMuon.ToString("D4")</a></td>
+                            var startsNewLoan = previousLoanId != item.MaPhieuMuon;
+                            var bookCount = bookCounts.TryGetValue(item.MaPhieuMuon, out var count) ? count : 1;
+                            <tr class="@(isOverdue ? "overdue-row" : "") @(startsNewLoan ? "loan-group-start" : "")">
+                                <td>
+                                    <div class="circulation-loan-cell">
+                                        <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="circulation-code">#PM-@(item.MaPhieuMuon.ToString("D5"))</a>
+                                        <small>@bookCount cuốn trong phiếu</small>
+                                    </div>
+                                </td>
+                                <td><span class="circulation-detail-code">#CT-@(item.MaChiTiet.ToString("D5"))</span></td>
                                 <td><div class="circulation-book"><span><i class="bi bi-book"></i></span><div><strong>@(item.BanSao?.Sach?.TenSach ?? "Chưa xác định")</strong><small><i class="bi bi-upc-scan"></i> @item.BanSao?.MaVach</small></div></div></td>
                                 <td><div class="circulation-reader"><i class="bi bi-person"></i><span>@(item.PhieuMuon?.DocGia?.HoTen ?? "Chưa xác định")</span></div></td>
                                 <td>
@@ -79,11 +96,10 @@
                             <td>@(item.NgayTra?.ToString("dd/MM/yyyy") ?? "—")</td>
                             <td><span class="circulation-condition @(!isReturned ? "pending" : conditionClass)"><i></i>@conditionText</span></td>
                             <td><span class="circulation-note" title="@item.GhiChu">@(string.IsNullOrWhiteSpace(item.GhiChu) ? "—" : item.GhiChu)</span></td>
-                            <td><div class="circulation-actions"><a asp-action="Details" asp-route-id="@item.MaChiTiet" title="Chi tiết"><i class="bi bi-eye"></i></a>@if (!item.NgayTra.HasValue) {
-                                <a asp-action="TraSach" asp-route-id="@item.MaChiTiet" class="return-action" title="Trả sách"><i class="bi bi-arrow-return-left"></i></a>
-                            }
+                            <td><div class="circulation-actions"><a asp-action="Details" asp-route-id="@item.MaChiTiet" title="Chi tiết"><i class="bi bi-eye"></i></a>
                             <a asp-action="Delete" asp-route-id="@item.MaChiTiet" class="danger" title="Hủy lượt mượn"><i class="bi bi-trash3"></i></a></div></td>
                         </tr>
+                        previousLoanId = item.MaPhieuMuon;
                     }
                 </tbody>
             </table>

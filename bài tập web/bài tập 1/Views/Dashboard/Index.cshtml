@@ -131,7 +131,7 @@
                             {
                                 var soNgayQuaHan = Math.Max(1, (DateTime.Today - phieu.NgayHenTra.Date).Days);
                                 <tr>
-                                    <td><span class="dashboard-loan-code">#PM@phieu.MaPhieuMuon.ToString("D4")</span></td>
+                                    <td><span class="dashboard-loan-code">#PM-@(phieu.MaPhieuMuon.ToString("D5"))</span></td>
                                     <td>
                                         <div class="dashboard-reader-cell">
                                             <span>@(string.IsNullOrWhiteSpace(phieu.DocGia?.HoTen) ? "?" : phieu.DocGia.HoTen[..1].ToUpper())</span>

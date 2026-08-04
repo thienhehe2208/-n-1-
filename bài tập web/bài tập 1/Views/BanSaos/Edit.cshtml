@@ -3,7 +3,9 @@
 
 @{
     ViewData["Title"] = "Chỉnh sửa bản sao";
-    var statusText = Model.TinhTrang switch
+    var originalStatus = ViewData["TrangThaiGoc"] as TinhTrangBanSao? ?? Model.TinhTrang;
+    var statusLocked = ViewData["TrangThaiBiKhoa"] as bool? ?? false;
+    var statusText = originalStatus switch
     {
         TinhTrangBanSao.SanCo => "Sẵn có",
         TinhTrangBanSao.DangMuon => "Đang mượn",
@@ -13,7 +15,7 @@
         TinhTrangBanSao.DaGiu => "Đang được giữ",
         _ => Model.TinhTrang.ToString()
     };
-    var statusClass = Model.TinhTrang switch
+    var statusClass = originalStatus switch
     {
         TinhTrangBanSao.SanCo => "available",
         TinhTrangBanSao.DangMuon => "borrowed",
@@ -33,7 +35,7 @@
 
     <form asp-action="Edit" asp-route-id="@Model.MaBanSao" method="post" class="copy-edit-form">
         <input type="hidden" asp-for="MaBanSao" />
-        <div asp-validation-summary="ModelOnly" class="copy-edit-validation"></div>
+        <div asp-validation-summary="All" class="copy-edit-validation"></div>
         <div class="copy-edit-layout">
             <main class="copy-edit-main">
                 <section class="copy-edit-card copy-edit-section">
@@ -51,7 +53,34 @@
 
                 <section class="copy-edit-card copy-edit-section">
                     <div class="copy-edit-heading"><span><i class="bi bi-arrow-repeat"></i></span><div><h2>Trạng thái lưu thông</h2><p>Trạng thái quyết định khả năng cho mượn của bản sao.</p></div></div>
-                    <div class="copy-edit-field"><label asp-for="TinhTrang"><i class="bi bi-shield-check"></i> Trạng thái hiện tại</label><div class="copy-edit-select"><i class="bi bi-activity"></i><select asp-for="TinhTrang" asp-items="Html.GetEnumSelectList<TinhTrangBanSao>()"></select></div><span asp-validation-for="TinhTrang"></span></div>
+                    <div class="copy-edit-field">
+                        <label asp-for="TinhTrang"><i class="bi bi-shield-check"></i> Trạng thái hiện tại</label>
+                        <div class="copy-edit-select"><i class="bi bi-activity"></i>
+                            @if (statusLocked)
+                            {
+                                <input type="hidden" name="TinhTrang" value="@originalStatus" />
+                                <select disabled aria-label="Trạng thái được quản lý bởi nghiệp vụ"><option>@statusText</option></select>
+                            }
+                            else
+                            {
+                                <select asp-for="TinhTrang">
+                                    <option value="@TinhTrangBanSao.SanCo">Sẵn có</option>
+                                    <option value="@TinhTrangBanSao.HuHong">Hư hỏng</option>
+                                    <option value="@TinhTrangBanSao.Mat">Bị mất</option>
+                                    <option value="@TinhTrangBanSao.ThanhLy">Đã thanh lý</option>
+                                </select>
+                            }
+                        </div>
+                        <span asp-validation-for="TinhTrang"></span>
+                        @if (statusLocked)
+                        {
+                            <small class="copy-edit-locked-help"><i class="bi bi-lock-fill"></i> @(originalStatus == TinhTrangBanSao.DaGiu ? "Bản sao đang liên kết với một yêu cầu. Hãy mở chi tiết bản sao và xử lý phiếu giữ trước." : "Bản sao đang nằm trong phiếu mượn. Hãy xử lý trả sách trước khi đổi trạng thái.")</small>
+                        }
+                        else
+                        {
+                            <small><i class="bi bi-info-circle"></i> Admin có thể cập nhật trực tiếp các trạng thái kho ở trên.</small>
+                        }
+                    </div>
                     <div class="copy-edit-status-guide">
                         <div class="available"><i class="bi bi-check-circle"></i><span><strong>Sẵn có</strong><small>Có thể cho mượn</small></span></div>
                         <div class="borrowed"><i class="bi bi-arrow-left-right"></i><span><strong>Đang mượn / Đã giữ</strong><small>Hệ thống đang lưu hành</small></span></div>

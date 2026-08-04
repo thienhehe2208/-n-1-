@@ -1,57 +1,110 @@
-﻿@model bài_tập_1.Models.ViewModels.PhieuPhatFormViewModel
+@model bài_tập_1.Models.ViewModels.PhieuPhatFormViewModel
+@using bài_tập_1.Models
 
 @{
     ViewData["Title"] = "Cập nhật phiếu phạt";
+    var tinhTrangText = Model.TinhTrangKhiTra switch
+    {
+        TinhTrangKhiTra.BinhThuong => "Bình thường",
+        TinhTrangKhiTra.HuHong => "Hư hỏng",
+        TinhTrangKhiTra.Mat => "Bị mất",
+        _ => "Chưa xác định"
+    };
 }
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h2>
-            Cập nhật phiếu #PP@Model.MaPhieuPhat.ToString("D4")
-        </h2>
+<section class="fine-create-page">
+    <nav class="fine-create-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Details" asp-route-id="@Model.MaPhieuPhat"><i class="bi bi-arrow-left"></i> Phiếu #PP-@(Model.MaPhieuPhat.ToString("D5"))</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Cập nhật phiếu phạt</span>
+    </nav>
 
-        <partial name="_PhieuPhatFormSummary" model="Model" />
+    <header class="fine-create-hero fine-edit-hero">
+        <div class="fine-create-hero__icon"><i class="bi bi-pencil-square"></i></div>
+        <div>
+            <span>ĐIỀU CHỈNH HỒ SƠ VI PHẠM</span>
+            <h1>Cập nhật phiếu #PP-@(Model.MaPhieuPhat.ToString("D5"))</h1>
+            <p>Điều chỉnh lý do và số tiền khi phiếu vẫn ở trạng thái chưa đóng.</p>
+        </div>
+        <div class="fine-create-hero__badge"><i class="bi bi-hourglass-split"></i> Chưa đóng</div>
+    </header>
 
-        <form asp-action="Edit"
-              asp-route-id="@Model.MaPhieuPhat"
-              method="post">
-            <input asp-for="MaPhieuPhat" type="hidden" />
-            <input asp-for="MaChiTiet" type="hidden" />
+    <form asp-action="Edit" asp-route-id="@Model.MaPhieuPhat" method="post" class="fine-create-form">
+        <input asp-for="MaPhieuPhat" type="hidden" />
+        <input asp-for="MaChiTiet" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="fine-create-validation" role="alert"></div>
 
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger"></div>
+        <div class="fine-create-layout">
+            <main class="fine-create-main">
+                <section class="fine-create-card fine-create-summary">
+                    <div class="fine-create-heading">
+                        <span><i class="bi bi-book"></i></span>
+                        <div><small>CUỐN SÁCH PHÁT SINH VI PHẠM</small><h2>@Model.TenSach</h2></div>
+                        <a asp-controller="ChiTietPhieuMuons" asp-action="Details" asp-route-id="@Model.MaChiTiet">Xem bản ghi sách <i class="bi bi-arrow-up-right"></i></a>
+                    </div>
+                    <div class="fine-edit-record-code">
+                        <span>Mã bản ghi sách trong phiếu</span>
+                        <strong>CT-@(Model.MaChiTiet.ToString("D5"))</strong>
+                        <small>Mã kỹ thuật dùng để liên kết đúng cuốn sách với phiếu phạt.</small>
+                    </div>
+                    <div class="fine-create-summary-grid">
+                        <div><span>Độc giả</span><strong><i class="bi bi-person"></i> @Model.HoTenDocGia</strong></div>
+                        <div><span>Phiếu mượn</span><strong>#PM-@(Model.MaPhieuMuon.ToString("D5"))</strong></div>
+                        <div><span>Mã vạch bản sao</span><strong>@Model.MaVach</strong></div>
+                        <div><span>Tình trạng khi trả</span><strong>@tinhTrangText</strong></div>
+                        <div><span>Hạn trả</span><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div>
+                        <div><span>Ngày trả</span><strong>@(Model.NgayTra?.ToString("dd/MM/yyyy") ?? "Chưa trả")</strong></div>
+                    </div>
+                </section>
 
-            <div class="mb-3">
-                <label asp-for="LyDo" class="form-label"></label>
-                <select asp-for="LyDo"
-                        asp-items="ViewBag.LyDo"
-                        class="form-select"></select>
-                <span asp-validation-for="LyDo"
-                      class="text-danger"></span>
-            </div>
+                <section class="fine-create-card fine-create-fields">
+                    <div class="fine-create-heading">
+                        <span><i class="bi bi-pencil-square"></i></span>
+                        <div><h2>Nội dung cần cập nhật</h2><p>Thông tin liên kết với sách và độc giả không thể thay đổi.</p></div>
+                    </div>
+                    <div class="fine-create-field">
+                        <label asp-for="LyDo"><i class="bi bi-exclamation-diamond"></i> Lý do phạt</label>
+                        <div class="fine-create-select-wrap">
+                            <i class="bi bi-list-check"></i>
+                            <select asp-for="LyDo" asp-items="ViewBag.LyDo"><option value="">-- Chọn lý do phù hợp --</option></select>
+                        </div>
+                        <span asp-validation-for="LyDo" class="fine-create-error"></span>
+                    </div>
+                    <div class="fine-create-field">
+                        <label asp-for="SoTien"><i class="bi bi-cash-coin"></i> Số tiền phạt</label>
+                        <div class="fine-create-money">
+                            <input asp-for="SoTien" inputmode="decimal" min="0.01" />
+                            <span>VNĐ</span>
+                        </div>
+                        <span asp-validation-for="SoTien" class="fine-create-error"></span>
+                    </div>
+                </section>
+            </main>
 
-            <div class="mb-3">
-                <label asp-for="SoTien" class="form-label"></label>
-                <div class="input-group">
-                    <input asp-for="SoTien" class="form-control" />
-                    <span class="input-group-text">đồng</span>
-                </div>
-                <span asp-validation-for="SoTien"
-                      class="text-danger"></span>
-            </div>
+            <aside class="fine-create-sidebar">
+                <section class="fine-create-card fine-create-warning">
+                    <span class="fine-create-warning__icon"><i class="bi bi-info-circle"></i></span>
+                    <h2>Phạm vi cập nhật</h2>
+                    <p>Thao tác này chỉ thay đổi <strong>lý do</strong> và <strong>số tiền</strong>. Phiếu mượn, cuốn sách và độc giả vẫn được giữ nguyên.</p>
+                    <div><i class="bi bi-database-check"></i> Thay đổi được lưu vào database</div>
+                    <div><i class="bi bi-shield-lock"></i> Không tạo phiếu phạt mới</div>
+                </section>
+                <section class="fine-create-card fine-create-status">
+                    <span>TRẠNG THÁI SAU KHI LƯU</span>
+                    <strong><i></i> Chưa đóng</strong>
+                    <p>Phiếu chỉ đổi trạng thái khi hủy hoặc xác nhận thanh toán.</p>
+                </section>
+            </aside>
+        </div>
 
-            <button type="submit" class="btn btn-primary">
-                Lưu thay đổi
-            </button>
-            <a asp-action="Details"
-               asp-route-id="@Model.MaPhieuPhat"
-               class="btn btn-outline-secondary">Hủy</a>
-        </form>
-    </div>
-</div>
+        <footer class="fine-create-actions">
+            <a asp-action="Details" asp-route-id="@Model.MaPhieuPhat" class="fine-create-btn fine-create-btn--ghost"><i class="bi bi-x-lg"></i> Hủy thay đổi</a>
+            <span><i class="bi bi-shield-lock"></i> Lưu trực tiếp vào hồ sơ phiếu phạt</span>
+            <button type="submit" class="fine-create-btn fine-create-btn--primary"><i class="bi bi-check2-circle"></i> Lưu cập nhật</button>
+        </footer>
+    </form>
+</section>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

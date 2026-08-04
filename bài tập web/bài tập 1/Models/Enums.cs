@@ -56,9 +56,11 @@
 
     public enum TrangThaiYeuCauMuonOnline
     {
-        ChoNhan,
-        DaNhan,
-        DaHuy,
-        HetHan
+        ChoNhan = 0,
+        DaNhan = 1,
+        DaHuy = 2,
+        HetHan = 3,
+        DaDuyet = 4,
+        TuChoi = 5
     }
 }

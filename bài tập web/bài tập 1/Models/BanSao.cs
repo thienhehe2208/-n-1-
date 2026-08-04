@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace bài_tập_1.Models
 {
@@ -12,7 +13,8 @@ namespace bài_tập_1.Models
 
         public int MaSach { get; set; }
         [ForeignKey(nameof(MaSach))]
-        public Sach Sach { get; set; }
+        [ValidateNever]
+        public Sach Sach { get; set; } = null!;
 
         [Required, MaxLength(50)]
         public string MaVach { get; set; } // Mã vạch/QR, cần cấu hình unique index trong DbContext
@@ -23,7 +25,9 @@ namespace bài_tập_1.Models
         public string ViTriKe { get; set; }
 
         // Navigation
+        [ValidateNever]
         public ICollection<ChiTietPhieuMuon> ChiTietPhieuMuons { get; set; } = new List<ChiTietPhieuMuon>();
+        [ValidateNever]
         public ICollection<DatTruoc> DatTruocsDuocGiu { get; set; } = new List<DatTruoc>();
     }
 }

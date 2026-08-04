@@ -43,7 +43,8 @@ namespace bài_tập_1.Controllers
                 var keyword = q.Trim();
                 query = query.Where(s =>
                     s.TenSach.Contains(keyword) ||
-                    s.ISBN.Contains(keyword));
+                    s.ISBN.Contains(keyword) ||
+                    s.SachTacGias.Any(st => st.TacGia.HoTen.Contains(keyword)));
             }
 
             if (maTheLoai.HasValue)
@@ -68,6 +69,72 @@ namespace bài_tập_1.Controllers
                 .Skip((pagination.Page - 1) * pagination.PageSize)
                 .Take(pagination.PageSize)
                 .ToListAsync());
+        }
+
+        public async Task<IActionResult> Moi(int page = 1)
+        {
+            var query = _context.Sach
+                .Include(s => s.NhaXuatBan)
+                .Include(s => s.TheLoai)
+                .Include(s => s.BanSaos)
+                .AsNoTracking()
+                .OrderByDescending(s => s.MaSach);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["FavoriteIds"] = string.IsNullOrWhiteSpace(userId)
+                ? new HashSet<int>()
+                : (await _context.YeuThich
+                    .Where(y => y.DocGia.UserId == userId)
+                    .Select(y => y.MaSach)
+                    .ToListAsync())
+                    .ToHashSet();
+
+            var pagination = Pagination.Create(page, await query.CountAsync());
+            ViewData["Pagination"] = pagination;
+            ViewData["TotalResults"] = pagination.TotalItems;
+
+            return View(await query
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync());
+        }
+
+        [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> GoiYTimKiem(string? q)
+        {
+            var keyword = q?.Trim();
+            if (string.IsNullOrWhiteSpace(keyword) || keyword.Length < 2)
+                return Json(Array.Empty<object>());
+
+            keyword = keyword[..Math.Min(keyword.Length, 80)];
+            var books = await _context.Sach
+                .Include(s => s.TheLoai)
+                .Include(s => s.SachTacGias)
+                    .ThenInclude(st => st.TacGia)
+                .AsNoTracking()
+                .Where(s =>
+                    s.TenSach.Contains(keyword) ||
+                    s.ISBN.Contains(keyword) ||
+                    s.SachTacGias.Any(st => st.TacGia.HoTen.Contains(keyword)))
+                .OrderBy(s => s.TenSach)
+                .Take(7)
+                .ToListAsync();
+
+            return Json(books.Select(s => new
+            {
+                maSach = s.MaSach,
+                tenSach = s.TenSach,
+                anhBia = s.AnhBia,
+                isbn = s.ISBN,
+                theLoai = s.TheLoai.TenTheLoai,
+                tacGia = string.Join(", ", s.SachTacGias.Select(st => st.TacGia.HoTen)),
+                tacGias = s.SachTacGias
+                    .Select(st => st.TacGia.HoTen)
+                    .Where(ten => !string.IsNullOrWhiteSpace(ten))
+                    .Distinct()
+                    .ToArray()
+            }));
         }
 
         public async Task<IActionResult> Details(int? id)

@@ -1,0 +1,86 @@
+@model bài_tập_1.Models.ViewModels.TraPhieuMuonViewModel
+
+@{
+    ViewData["Title"] = "Tiếp nhận trả cả phiếu";
+    var quaHan = DateTime.Today > Model.NgayHenTra.Date;
+}
+
+<section class="voucher-return-page">
+    <nav class="book-return-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Details" asp-route-id="@Model.MaPhieuMuon">
+            <i class="bi bi-arrow-left"></i> Phiếu #PM-@(Model.MaPhieuMuon.ToString("D5"))
+        </a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Tiếp nhận trả cả phiếu</span>
+    </nav>
+
+    <header class="voucher-return-hero">
+        <span><i class="bi bi-journals"></i></span>
+        <div>
+            <small>NGHIỆP VỤ TRẢ SÁCH THEO PHIẾU</small>
+            <h1>Tiếp nhận toàn bộ @Model.Sach.Count cuốn sách</h1>
+            <p>Độc giả <strong>@Model.HoTenDocGia</strong> · Phiếu #PM-@(Model.MaPhieuMuon.ToString("D5"))</p>
+        </div>
+    </header>
+
+    <div class="voucher-return-rule">
+        <i class="bi bi-shield-lock"></i>
+        <div><strong>Không hỗ trợ trả riêng từng cuốn</strong><span>Chỉ khi xác nhận bên dưới, toàn bộ sách còn lại trong phiếu mới được cập nhật cùng một giao dịch.</span></div>
+    </div>
+
+    <form asp-action="TraSach" asp-route-id="@Model.MaPhieuMuon" method="post" class="voucher-return-form">
+        <input asp-for="MaPhieuMuon" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="book-return-validation"></div>
+
+        <section class="voucher-return-overview">
+            <div><small>Ngày mượn</small><strong>@Model.NgayMuon.ToString("dd/MM/yyyy")</strong></div>
+            <div class="@(quaHan ? "danger" : "")"><small>Hạn trả</small><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div>
+            <label>
+                <span><i class="bi bi-calendar-check"></i> Ngày tiếp nhận trả</span>
+                <input asp-for="NgayTra" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <em asp-validation-for="NgayTra"></em>
+            </label>
+        </section>
+
+        <div class="voucher-return-heading">
+            <div><small>KIỂM TRA TỪNG BẢN SAO</small><h2>Sách thuộc phiếu mượn</h2></div>
+            <span>@Model.Sach.Count cuốn</span>
+        </div>
+
+        <div class="voucher-return-books">
+            @for (var i = 0; i < Model.Sach.Count; i++)
+            {
+                <article class="voucher-return-book">
+                    <input asp-for="Sach[i].MaChiTiet" type="hidden" />
+                    <header>
+                        <span><i class="bi bi-book"></i></span>
+                        <div><small>#CT-@(Model.Sach[i].MaChiTiet.ToString("D5")) · @Model.Sach[i].MaVach</small><h3>@Model.Sach[i].TenSach</h3></div>
+                    </header>
+                    <fieldset>
+                        <legend>Tình trạng khi nhận lại</legend>
+                        <div class="voucher-return-conditions">
+                            <label class="good"><input asp-for="Sach[i].TinhTrangKhiTra" type="radio" value="@TinhTrangKhiTra.BinhThuong" /><span><i class="bi bi-check-circle"></i> Bình thường</span></label>
+                            <label class="warning"><input asp-for="Sach[i].TinhTrangKhiTra" type="radio" value="@TinhTrangKhiTra.HuHong" /><span><i class="bi bi-tools"></i> Hư hỏng</span></label>
+                            <label class="danger"><input asp-for="Sach[i].TinhTrangKhiTra" type="radio" value="@TinhTrangKhiTra.Mat" /><span><i class="bi bi-exclamation-triangle"></i> Bị mất</span></label>
+                        </div>
+                        <em asp-validation-for="Sach[i].TinhTrangKhiTra"></em>
+                    </fieldset>
+                    <label class="voucher-return-note">
+                        <span>Ghi chú cho cuốn này</span>
+                        <textarea asp-for="Sach[i].GhiChu" rows="2" maxlength="250" placeholder="Tình trạng bìa, gáy, số trang..."></textarea>
+                        <em asp-validation-for="Sach[i].GhiChu"></em>
+                    </label>
+                </article>
+            }
+        </div>
+
+        <footer class="voucher-return-actions">
+            <a asp-action="Details" asp-route-id="@Model.MaPhieuMuon"><i class="bi bi-x-lg"></i> Hủy thao tác</a>
+            <button type="submit"><i class="bi bi-check2-all"></i> Xác nhận trả cả phiếu (@Model.Sach.Count cuốn)</button>
+        </footer>
+    </form>
+</section>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

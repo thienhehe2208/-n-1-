@@ -94,12 +94,32 @@ namespace bài_tập_1.Controllers
 
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
-            return View(await query
-                .OrderBy(c => c.NgayTra != null)
+            var items = await query
+                .OrderBy(c => c.PhieuMuon.TrangThai == TrangThaiPhieuMuon.DaTra)
                 .ThenBy(c => c.PhieuMuon.NgayHenTra)
+                .ThenBy(c => c.MaPhieuMuon)
+                .ThenBy(c => c.MaChiTiet)
                 .Skip((pagination.Page - 1) * pagination.PageSize)
                 .Take(pagination.PageSize)
-                .ToListAsync());
+                .ToListAsync();
+
+            var maPhieuMuons = items
+                .Select(c => c.MaPhieuMuon)
+                .Distinct()
+                .ToList();
+            var soSachTheoPhieu = await _context.ChiTietPhieuMuon
+                .Where(c => maPhieuMuons.Contains(c.MaPhieuMuon))
+                .GroupBy(c => c.MaPhieuMuon)
+                .Select(g => new
+                {
+                    MaPhieuMuon = g.Key,
+                    SoSach = g.Count()
+                })
+                .ToListAsync();
+            ViewData["SoSachTheoPhieu"] = soSachTheoPhieu
+                .ToDictionary(item => item.MaPhieuMuon, item => item.SoSach);
+
+            return View(items);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -240,7 +260,30 @@ namespace bài_tập_1.Controllers
                 new { id = phieuMuon.MaPhieuMuon });
         }
 
-        public async Task<IActionResult> TraSach(int? id)
+        [HttpGet]
+        [ActionName("TraSach")]
+        public async Task<IActionResult> ChuyenSangTraCaPhieu(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var maPhieuMuon = await _context.ChiTietPhieuMuon
+                .Where(c => c.MaChiTiet == id.Value)
+                .Select(c => (int?)c.MaPhieuMuon)
+                .FirstOrDefaultAsync();
+            if (!maPhieuMuon.HasValue)
+                return NotFound();
+
+            TempData["Error"] =
+                "Không thể trả riêng một cuốn. Vui lòng xác nhận trả toàn bộ phiếu.";
+            return RedirectToAction(
+                "TraSach",
+                "PhieuMuons",
+                new { id = maPhieuMuon.Value });
+        }
+
+        [NonAction]
+        private async Task<IActionResult> TraSachTungCuon(int? id)
         {
             if (id == null)
                 return NotFound();
@@ -260,7 +303,8 @@ namespace bài_tập_1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TraSach(
+        [NonAction]
+        private async Task<IActionResult> TraSachTungCuon(
             int id,
             TraSachViewModel model)
         {
@@ -336,6 +380,41 @@ namespace bài_tập_1.Controllers
                 : chiTiet.PhieuMuon.NgayHenTra < DateTime.Today
                     ? TrangThaiPhieuMuon.QuaHan
                     : TrangThaiPhieuMuon.DangMuon;
+
+            var tinhTrangText = model.TinhTrangKhiTra switch
+            {
+                TinhTrangKhiTra.BinhThuong => "Bình thường",
+                TinhTrangKhiTra.HuHong => "Hư hỏng",
+                TinhTrangKhiTra.Mat => "Mất sách",
+                _ => "Đã kiểm tra"
+            };
+            var dungHanText = model.NgayTra.Date <=
+                              chiTiet.PhieuMuon.NgayHenTra.Date
+                ? "đúng hạn"
+                : $"trễ {(model.NgayTra.Date - chiTiet.PhieuMuon.NgayHenTra.Date).Days} ngày";
+            _context.ThongBao.Add(new ThongBao
+            {
+                MaDocGia = chiTiet.PhieuMuon.MaDocGia,
+                MaSuKien = $"tra-sach-{chiTiet.MaChiTiet}",
+                TieuDe = "Đã xác nhận trả sách",
+                NoiDung = $"Sách “{chiTiet.BanSao.Sach.TenSach}” đã được trả ngày {model.NgayTra:dd/MM/yyyy} ({dungHanText}). Tình trạng khi trả: {tinhTrangText}.",
+                LienKet = string.Empty,
+                Loai = model.TinhTrangKhiTra == TinhTrangKhiTra.BinhThuong
+                    ? "success"
+                    : "warning",
+                NgayTao = DateTime.Now
+            });
+
+            if (daTraHet)
+            {
+                var dueEvent = $"phieu-muon-{chiTiet.MaPhieuMuon}-han-tra";
+                var oldDueNotification = await _context.ThongBao
+                    .FirstOrDefaultAsync(t =>
+                        t.MaDocGia == chiTiet.PhieuMuon.MaDocGia &&
+                        t.MaSuKien == dueEvent);
+                if (oldDueNotification != null)
+                    _context.ThongBao.Remove(oldDueNotification);
+            }
 
             if (model.TinhTrangKhiTra == TinhTrangKhiTra.BinhThuong)
             {

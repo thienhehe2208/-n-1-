@@ -31,6 +31,9 @@ namespace bài_tập_1.Models
         [MaxLength(250)]
         public string GhiChu { get; set; } = string.Empty;
 
+        [MaxLength(500)]
+        public string LyDoTuChoi { get; set; } = string.Empty;
+
         public TrangThaiYeuCauMuonOnline TrangThai { get; set; } =
             TrangThaiYeuCauMuonOnline.ChoNhan;
 

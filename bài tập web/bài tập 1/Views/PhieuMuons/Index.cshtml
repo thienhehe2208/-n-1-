@@ -100,7 +100,7 @@
                             var initials = string.Concat(readerName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                                 .TakeLast(2).Select(part => char.ToUpperInvariant(part[0])));
                             <tr class="@(isOverdue ? "is-overdue-row" : "")">
-                                <td><a asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="loan-code">#PM@item.MaPhieuMuon.ToString("D4")</a></td>
+                                <td><a asp-action="Details" asp-route-id="@item.MaPhieuMuon" class="loan-code">#PM-@(item.MaPhieuMuon.ToString("D5"))</a></td>
                                 <td>
                                     <div class="loan-reader-cell">
                                         <span>@(string.IsNullOrWhiteSpace(initials) ? "DG" : initials)</span>
@@ -130,6 +130,10 @@
                                 </td>
                                 <td>
                                     <div class="loan-row-actions">
+                                        @if (!isReturned && !isDraft && item.TongSoSach > 0)
+                                        {
+                                            <a asp-action="TraSach" asp-route-id="@item.MaPhieuMuon" class="return" title="Tiếp nhận trả toàn bộ phiếu"><i class="bi bi-arrow-return-left"></i><span>Nhận trả cả phiếu</span></a>
+                                        }
                                         <a asp-action="Details" asp-route-id="@item.MaPhieuMuon" title="Xem chi tiết"><i class="bi bi-eye"></i></a>
                                         <a asp-action="Edit" asp-route-id="@item.MaPhieuMuon" title="Chỉnh sửa"><i class="bi bi-pencil-square"></i></a>
                                         <a asp-action="Delete" asp-route-id="@item.MaPhieuMuon" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a>

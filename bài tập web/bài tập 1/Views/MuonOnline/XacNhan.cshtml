@@ -1,20 +1,50 @@
-@model YeuCauMuonOnline
+@model PhieuMuonOnlineViewModel
 @{
-    ViewData["Title"] = "Xác nhận phiếu online"; var valid = Model.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan;
+    ViewData["Title"] = "Xử lý phiếu mượn online";
+    var waitingApproval = Model.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan && Model.HanNhanSach >= DateTime.Now;
+    var approved = Model.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet && Model.HanNhanSach >= DateTime.Now;
+    var rejected = Model.TrangThai == TrangThaiYeuCauMuonOnline.TuChoi;
+    var statusText = waitingApproval ? "Chờ kiểm tra và duyệt" : approved ? "Đã duyệt · chờ độc giả đến nhận" : rejected ? "Đã từ chối" : "Phiếu không còn hiệu lực";
 }
 
 <section class="staff-scan-page">
-    <header><span><i class="bi bi-qr-code-scan"></i></span><div><small>KẾT QUẢ QUÉT MÃ</small><h1>Phiếu mượn online</h1><p>Kiểm tra sách và độc giả trước khi xác nhận giao.</p></div></header>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <header><span><i class="bi bi-journal-check"></i></span><div><small>XỬ LÝ YÊU CẦU ONLINE</small><h1>Phiếu mượn online</h1><p>@(waitingApproval ? "Kiểm tra các bản sách đang được giữ trước khi duyệt yêu cầu." : approved ? "Đối chiếu mã độc giả cung cấp và xác nhận độc giả đã nhận sách." : "Phiếu đã được xử lý, hủy hoặc hết thời hạn nhận.")</p></div></header>
     <div class="staff-scan-card">
-        <div class="staff-scan-status @(valid ? "valid" : "invalid")"><i class="bi @(valid ? "bi-shield-check" : "bi-x-octagon")"></i><div><strong>@(valid ? "Phiếu hợp lệ" : "Phiếu không còn hiệu lực")</strong><small>#MO-@Model.MaXacNhan</small></div></div>
-        <div class="staff-scan-grid"><div><small>Độc giả</small><strong>@Model.DocGia.HoTen</strong><span>@Model.DocGia.Email • @Model.DocGia.SoDienThoai</span></div><div><small>Sách cần giao</small><strong>@Model.Sach.TenSach</strong><span>Mã bản sao: @Model.BanSao.MaVach</span></div><div><small>Ngày hẹn nhận</small><strong>@Model.NgayHenNhan.ToString("dd/MM/yyyy")</strong></div><div><small>Hạn trả</small><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div></div>
-        @if (!string.IsNullOrWhiteSpace(Model.GhiChu))
+        <div class="staff-scan-status @((waitingApproval || approved) ? "valid" : "invalid")"><i class="bi @((waitingApproval || approved) ? "bi-shield-check" : "bi-x-octagon")"></i><div><strong>@statusText</strong><small>Mã: @Model.MaXacNhan</small></div></div>
+        <div class="staff-scan-grid"><div><small>Độc giả</small><strong>@Model.DocGia.HoTen</strong><span>@Model.DocGia.Email • @Model.DocGia.SoDienThoai</span></div><div><small>Số lượng</small><strong>@Model.ChiTiet.Count cuốn sách</strong><span>Các bản sao hiện đã được giữ</span></div><div><small>Ngày hẹn đến nhận</small><strong>@Model.NgayHenNhan.ToString("dd/MM/yyyy")</strong></div><div><small>Hạn trả dự kiến</small><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div></div>
+        <div class="staff-confirm-books">
+            @foreach (var item in Model.ChiTiet)
+            {
+                <div><img src="@(string.IsNullOrWhiteSpace(item.Sach.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : item.Sach.AnhBia)" alt="" /><span><strong>@item.Sach.TenSach</strong><small>Mã bản sao: @item.BanSao.MaVach</small></span><i class="bi bi-check-circle"></i></div>
+            }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.GhiChu)) { <div class="staff-scan-note"><i class="bi bi-chat-left-text"></i><span>@Model.GhiChu</span></div> }
+
+        @if (waitingApproval)
         {
-            <div class="staff-scan-note"><i class="bi bi-chat-left-text"></i><span>@Model.GhiChu</span></div>
+            <div class="staff-workflow-note"><i class="bi bi-1-circle-fill"></i><span><strong>Bước duyệt yêu cầu</strong> Sau khi duyệt, độc giả sẽ nhận thông báo đến thư viện và cung cấp mã xác nhận.</span></div>
+            <form asp-action="DuyetYeuCau" method="post"><input type="hidden" name="ma" value="@Model.MaXacNhan" />@Html.AntiForgeryToken()<button type="submit"><i class="bi bi-check2-circle"></i> Xác nhận còn đủ sách &amp; duyệt yêu cầu</button></form>
         }
-        @if (valid)
+        else if (approved)
         {
-            <form asp-action="XacNhanNhanSach" method="post"><input type="hidden" name="ma" value="@Model.MaXacNhan" />@Html.AntiForgeryToken()<button type="submit"><i class="bi bi-check2-circle"></i> Xác nhận giao sách &amp; tạo phiếu mượn</button></form>
+            <div class="staff-workflow-note approved"><i class="bi bi-2-circle-fill"></i><span><strong>Bước nhận sách tại quầy</strong> Chỉ xác nhận khi độc giả đã có mặt, cung cấp đúng mã và nhận đủ sách.</span></div>
+            <form asp-action="XacNhanNhanSach" method="post" onsubmit="return confirm('Xác nhận độc giả đã nhận đủ @Model.ChiTiet.Count cuốn và tạo phiếu mượn?')"><input type="hidden" name="ma" value="@Model.MaXacNhan" />@Html.AntiForgeryToken()<button type="submit"><i class="bi bi-person-check"></i> Xác nhận độc giả đã nhận sách &amp; tạo phiếu mượn</button></form>
+        }
+        @if (waitingApproval || approved)
+        {
+            <form asp-action="TuChoiYeuCau" method="post" class="staff-reject-form">
+                <input type="hidden" name="ma" value="@Model.MaXacNhan" />
+                @Html.AntiForgeryToken()
+                <label for="rejectReason"><i class="bi bi-chat-square-text"></i> Lý do từ chối <em>*</em></label>
+                <textarea id="rejectReason" name="lyDo" minlength="5" maxlength="500" required placeholder="Ví dụ: Bản sách đang hư hỏng, thông tin yêu cầu chưa hợp lệ..."></textarea>
+                <small>Lý do sẽ được lưu vào phiếu và gửi lại cho độc giả.</small>
+                <button type="submit" onclick="return confirm('Từ chối toàn bộ phiếu và giải phóng @Model.ChiTiet.Count bản sách đang giữ?')"><i class="bi bi-x-circle"></i> Từ chối yêu cầu</button>
+            </form>
+        }
+        else if (rejected && !string.IsNullOrWhiteSpace(Model.LyDoTuChoi))
+        {
+            <div class="staff-rejected-reason"><i class="bi bi-chat-square-quote"></i><div><small>LÝ DO ĐÃ GỬI CHO ĐỘC GIẢ</small><p>@Model.LyDoTuChoi</p></div></div>
         }
     </div>
 </section>

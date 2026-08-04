@@ -1,20 +1,59 @@
-@model YeuCauMuonOnline
-@{ ViewData["Title"] = "Phiếu mượn online"; var scanUrl = Url.Action("XacNhan", "MuonOnline", new { ma = Model.MaXacNhan }, Context.Request.Scheme); }
+@model PhieuMuonOnlineViewModel
+@{
+    ViewData["Title"] = "Phiếu mượn online";
+    var statusText = Model.TrangThai switch
+    {
+        TrangThaiYeuCauMuonOnline.ChoNhan => "Chờ thư viện duyệt",
+        TrangThaiYeuCauMuonOnline.DaDuyet => "Đã duyệt · chờ đến nhận",
+        TrangThaiYeuCauMuonOnline.DaNhan => "Đã nhận sách",
+        TrangThaiYeuCauMuonOnline.DaHuy => "Đã hủy",
+        TrangThaiYeuCauMuonOnline.TuChoi => "Không được duyệt",
+        _ => "Đã hết hạn"
+    };
+}
 
 <section class="online-ticket-page">
-    <div class="online-ticket-success"><span><i class="bi bi-check2"></i></span><div><h1>Tạo phiếu thành công</h1><p>Sách đã được giữ. Hãy mang phiếu này đến quầy thư viện.</p></div></div>
-    <article class="online-ticket">
-        <header><div><span>THƯ VIỆN • PHIẾU NHẬN SÁCH</span><h2>#MO-@Model.MaXacNhan</h2></div><span class="online-ticket-status">Chờ nhận sách</span></header>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <div class="online-ticket-success @(Model.TrangThai == TrangThaiYeuCauMuonOnline.TuChoi ? "rejected" : "")"><span><i class="bi @(Model.TrangThai == TrangThaiYeuCauMuonOnline.TuChoi ? "bi-x-lg" : "bi-check2")"></i></span><div><h1>Phiếu mượn online</h1><p>@(Model.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ? "Yêu cầu đã được gửi và đang chờ thư viện kiểm tra." : Model.TrangThai == TrangThaiYeuCauMuonOnline.TuChoi ? "Thư viện đã phản hồi và nêu rõ lý do yêu cầu không được duyệt." : $"{Model.ChiTiet.Count} cuốn sách dùng chung một mã xác nhận.")</p></div></div>
+    <article class="online-ticket multi-ticket">
+        <header><div><span>THƯ VIỆN • PHIẾU NHẬN SÁCH</span><h2>#MO-@Model.MaXacNhan</h2></div><span class="online-ticket-status">@statusText</span></header>
         <div class="online-ticket-body">
-            <div class="online-ticket-book"><img src="@(string.IsNullOrWhiteSpace(Model.Sach.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : Model.Sach.AnhBia)" alt="Bìa sách" /><div><small>SÁCH CẦN MƯỢN</small><h3>@Model.Sach.TenSach</h3><p>Mã bản sao: <strong>@Model.BanSao.MaVach</strong></p></div></div>
+            @if (Model.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet)
+            {
+                <div class="confirmation-code-panel"><small>MÃ XÁC NHẬN KHI ĐẾN QUẦY</small><strong id="confirmationCode">@Model.MaXacNhan</strong><button type="button" id="copyConfirmationCode"><i class="bi bi-copy"></i> Sao chép mã</button><p>Đến thư viện đúng ngày hẹn và đưa mã này cho nhân viên.</p></div>
+            }
+            else if (Model.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan)
+            {
+                <div class="confirmation-code-panel pending"><small>YÊU CẦU ĐANG ĐƯỢC KIỂM TRA</small><i class="bi bi-hourglass-split"></i><p>Mã đến nhận sẽ hiển thị sau khi thư viện xác nhận còn đủ sách.</p></div>
+            }
+            else if (Model.TrangThai == TrangThaiYeuCauMuonOnline.TuChoi)
+            {
+                <div class="confirmation-code-panel rejected"><small>YÊU CẦU KHÔNG ĐƯỢC DUYỆT</small><i class="bi bi-x-circle"></i><p><strong>Lý do:</strong> @Model.LyDoTuChoi</p></div>
+            }
+            <div class="online-ticket-books">
+                @foreach (var item in Model.ChiTiet)
+                {
+                    <div class="online-ticket-book"><img src="@(string.IsNullOrWhiteSpace(item.Sach.AnhBia) ? "/images/books/dac-nhan-tam.jpg" : item.Sach.AnhBia)" alt="Bìa sách @item.Sach.TenSach" /><div><small>SÁCH @((Model.ChiTiet.IndexOf(item) + 1).ToString("D2"))</small><h3>@item.Sach.TenSach</h3><p>Mã bản sao: <strong>@item.BanSao.MaVach</strong></p></div></div>
+                }
+            </div>
             <div class="online-ticket-info"><div><small>Độc giả</small><strong>@Model.DocGia.HoTen</strong></div><div><small>Ngày nhận</small><strong>@Model.NgayHenNhan.ToString("dd/MM/yyyy")</strong></div><div><small>Hạn trả</small><strong>@Model.NgayHenTra.ToString("dd/MM/yyyy")</strong></div><div><small>Hiệu lực đến</small><strong>@Model.HanNhanSach.ToString("HH:mm dd/MM/yyyy")</strong></div></div>
-            <div class="online-ticket-qr"><div id="loanQr"></div><div><strong>Đưa mã này cho nhân viên quét</strong><small>Mã xác nhận: @Model.MaXacNhan</small></div></div>
         </div>
     </article>
-    <div class="online-ticket-actions"><button type="button" onclick="window.print()"><i class="bi bi-printer"></i> In phiếu</button><a asp-controller="Home" asp-action="Index">Về trang chủ</a></div>
+    <div class="online-ticket-actions">
+        <button type="button" onclick="window.print()"><i class="bi bi-printer"></i> In phiếu</button>
+        <a asp-action="CuaToi">Các phiếu của tôi</a>
+        @if (Model.TrangThai is TrangThaiYeuCauMuonOnline.ChoNhan or TrangThaiYeuCauMuonOnline.DaDuyet)
+        {
+            <form asp-action="Huy" method="post" onsubmit="return confirm('Hủy toàn bộ phiếu gồm @Model.ChiTiet.Count cuốn?')"><input type="hidden" name="ma" value="@Model.MaXacNhan" />@Html.AntiForgeryToken()<button class="ticket-cancel" type="submit">Hủy phiếu</button></form>
+        }
+    </div>
 </section>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script>new QRCode(document.getElementById("loanQr"), { text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(scanUrl)), width: 156, height: 156, correctLevel: QRCode.CorrectLevel.H });</script>
+    <script>
+        document.getElementById('copyConfirmationCode')?.addEventListener('click', async event => {
+            await navigator.clipboard.writeText(document.getElementById('confirmationCode').textContent.trim());
+            event.currentTarget.innerHTML = '<i class="bi bi-check2"></i> Đã sao chép';
+        });
+    </script>
 }

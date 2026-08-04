@@ -65,10 +65,21 @@ namespace bài_tập_1.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
-            ViewData["MuonOnlineChoNhan"] = await onlineQuery.CountAsync(y =>
-                y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan);
-            ViewData["MuonOnlineHomNay"] = await onlineQuery.CountAsync(y =>
-                y.NgayTao.Date == DateTime.Today);
+            ViewData["MuonOnlineChoNhan"] = await onlineQuery
+                .Where(y => y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan)
+                .Select(y => y.MaXacNhan)
+                .Distinct()
+                .CountAsync();
+            ViewData["MuonOnlineDaDuyet"] = await onlineQuery
+                .Where(y => y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet)
+                .Select(y => y.MaXacNhan)
+                .Distinct()
+                .CountAsync();
+            ViewData["MuonOnlineHomNay"] = await onlineQuery
+                .Where(y => y.NgayTao.Date == DateTime.Today)
+                .Select(y => y.MaXacNhan)
+                .Distinct()
+                .CountAsync();
 
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -101,12 +112,20 @@ namespace bài_tập_1.Controllers
 
             ViewData["Search"] = q;
             ViewData["Status"] = trangThai;
-            ViewData["YeuCauMuonOnline"] = await onlineQuery
+            var onlineRows = await onlineQuery
                 .OrderBy(y => y.TrangThai != TrangThaiYeuCauMuonOnline.ChoNhan)
+                .ThenBy(y => y.TrangThai != TrangThaiYeuCauMuonOnline.DaDuyet)
                 .ThenBy(y => y.HanNhanSach)
                 .ThenByDescending(y => y.NgayTao)
-                .Take(20)
                 .ToListAsync();
+            var displayedCodes = onlineRows
+                .Select(y => y.MaXacNhan)
+                .Distinct()
+                .Take(20)
+                .ToHashSet();
+            ViewData["YeuCauMuonOnline"] = onlineRows
+                .Where(y => displayedCodes.Contains(y.MaXacNhan))
+                .ToList();
 
             var pagination = Pagination.Create(page, await query.CountAsync());
             ViewData["Pagination"] = pagination;
@@ -407,6 +426,17 @@ namespace bài_tập_1.Controllers
                 TinhTrangBanSao.DangMuon;
             datTruoc.TrangThai = TrangThaiDatTruoc.HoanThanh;
             _context.PhieuMuon.Add(phieuMuon);
+
+            _context.ThongBao.Add(new ThongBao
+            {
+                MaDocGia = datTruoc.MaDocGia,
+                MaSuKien = $"dat-truoc-received:{datTruoc.MaDatTruoc}",
+                TieuDe = "Đã tạo phiếu mượn từ sách đặt trước",
+                NoiDung = $"Thư viện đã xác nhận bạn nhận sách và tạo phiếu mượn. Hạn trả là {phieuMuon.NgayHenTra:dd/MM/yyyy}.",
+                LienKet = "/Profile/LichSuMuon",
+                Loai = "success",
+                NgayTao = DateTime.Now
+            });
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

@@ -62,7 +62,8 @@ namespace bài_tập_1.Services
                     c.PhieuMuon.MaDocGia == maDocGia && c.NgayTra == null);
                 var soYeuCauDangGiu = await _context.YeuCauMuonOnline.CountAsync(y =>
                     y.MaDocGia == maDocGia &&
-                    y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan &&
+                    (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                     y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet) &&
                     (!options.BoQuaMaYeuCauOnline.HasValue ||
                      y.MaYeuCau != options.BoQuaMaYeuCauOnline.Value));
 
@@ -95,7 +96,8 @@ namespace bài_tập_1.Services
                     .AnyAsync(y =>
                         y.MaDocGia == maDocGia &&
                         y.MaSach == maSach &&
-                        y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan &&
+                        (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                         y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet) &&
                         (!options.BoQuaMaYeuCauOnline.HasValue ||
                          y.MaYeuCau != options.BoQuaMaYeuCauOnline.Value));
 

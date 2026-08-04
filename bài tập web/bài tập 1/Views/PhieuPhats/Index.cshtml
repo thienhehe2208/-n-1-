@@ -100,7 +100,7 @@
                             var initial = string.IsNullOrWhiteSpace(readerName) ? "DG" : readerName.Trim()[0].ToString().ToUpper();
 
                             <tr>
-                                <td><a asp-action="Details" asp-route-id="@item.MaPhieuPhat" class="fine-list-code">#PP-@item.MaPhieuPhat.ToString("D5")</a><small>CT-@item.MaChiTiet.ToString("D5")</small></td>
+                                <td><a asp-action="Details" asp-route-id="@item.MaPhieuPhat" class="fine-list-code">#PP-@(item.MaPhieuPhat.ToString("D5"))</a><small>Bản ghi sách CT-@(item.MaChiTiet.ToString("D5"))</small></td>
                                 <td><div class="fine-list-reader"><span>@initial</span><div><strong>@readerName</strong><small>Độc giả thư viện</small></div></div></td>
                                 <td><div class="fine-list-book"><strong>@item.ChiTietPhieuMuon.BanSao.Sach.TenSach</strong><small><i class="bi bi-upc-scan"></i> @item.ChiTietPhieuMuon.BanSao.MaVach</small></div></td>
                                 <td><span class="fine-list-reason"><i class="bi @reasonIcon"></i> @reason</span></td>

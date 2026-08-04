@@ -6,7 +6,6 @@
     var authors = Model.SachTacGias.Where(x => x.TacGia != null).Select(x => x.TacGia.HoTen).ToList();
     var available = Model.BanSaos.Count(x => x.TinhTrang == TinhTrangBanSao.SanCo);
     var isStaff = User.IsInRole("Admin") || User.IsInRole("NhanVien");
-    var staffRole = User.IsInRole("Admin") ? "Quản trị viên" : "Nhân viên thư viện";
 }
 
 <section class="reader-book-detail">
@@ -38,7 +37,16 @@
                 <span><i class="bi @(available > 0 ? "bi-check-circle-fill" : "bi-clock-fill")"></i></span>
                 <div>
                     <strong>@(available > 0 ? "Sách đang sẵn sàng" : "Tạm thời hết sách")</strong>
-                    <small>@(available > 0 ? $"Còn {available} bản – có thể tạo phiếu mượn online" : "Hãy đặt trước để được thông báo khi sách về")</small>
+                    <small>
+                        @if (isStaff)
+                        {
+                            <text>@(available > 0 ? $"Còn {available} bản sẵn sàng trong kho" : "Kiểm tra tình trạng các bản sao trong kho")</text>
+                        }
+                        else
+                        {
+                            <text>@(available > 0 ? $"Còn {available} bản – có thể tạo phiếu mượn online" : "Hãy đặt trước để được thông báo khi sách về")</text>
+                        }
+                    </small>
                 </div>
             </div>
 
@@ -48,16 +56,13 @@
             </div>
 
             <div class="reader-book-detail-actions">
-                @if (available > 0)
+                @if (isStaff)
                 {
-                    @if (isStaff)
-                    {
-                        <button type="button" class="primary staff-borrow-trigger" data-staff-borrow-open><i class="bi bi-qr-code-scan"></i><span>Mượn online</span></button>
-                    }
-                    else
-                    {
-                        <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@Model.MaSach" class="primary"><i class="bi bi-qr-code-scan"></i><span>Mượn online</span></a>
-                    }
+                    <a asp-controller="BanSaos" asp-action="Index" asp-route-q="@Model.TenSach" class="primary"><i class="bi bi-archive"></i><span>Quản lý bản sao</span></a>
+                }
+                else if (available > 0)
+                {
+                    <a asp-controller="MuonOnline" asp-action="Create" asp-route-maSach="@Model.MaSach" class="primary"><i class="bi bi-journal-plus"></i><span>Mượn online</span></a>
                 }
                 else
                 {
@@ -72,38 +77,3 @@
         </div>
     </div>
 </section>
-
-@if (isStaff)
-{
-    <div class="staff-borrow-modal" data-staff-borrow-modal aria-hidden="true">
-        <button type="button" class="staff-borrow-modal__backdrop" data-staff-borrow-close aria-label="Đóng thông báo"></button>
-        <section class="staff-borrow-dialog" role="dialog" aria-modal="true" aria-labelledby="staffBorrowTitle" aria-describedby="staffBorrowDescription">
-            <button type="button" class="staff-borrow-dialog__close" data-staff-borrow-close aria-label="Đóng"><i class="bi bi-x-lg"></i></button>
-            <div class="staff-borrow-dialog__visual"><span><i class="bi @(User.IsInRole("Admin") ? "bi-shield-lock-fill" : "bi-person-badge-fill")"></i></span><i class="bi bi-stars"></i></div>
-            <div class="staff-borrow-dialog__role"><i class="bi bi-patch-check-fill"></i> @staffRole</div>
-            <h2 id="staffBorrowTitle">Tài khoản quản lý không cần mượn online</h2>
-            <p id="staffBorrowDescription">Bạn đang đăng nhập với quyền <strong>@staffRole</strong>. Tính năng mượn online được dành riêng cho độc giả; tài khoản của bạn có thể trực tiếp tiếp nhận và xử lý phiếu mượn tại quầy.</p>
-            <div class="staff-borrow-dialog__book"><span><i class="bi bi-book"></i></span><div><small>SÁCH ĐANG XEM</small><strong>@Model.TenSach</strong></div></div>
-            <div class="staff-borrow-dialog__hint"><i class="bi bi-lightbulb-fill"></i><span>Để hỗ trợ độc giả, hãy vào <strong>Quản lý phiếu mượn</strong> và tạo hoặc xử lý phiếu tại quầy.</span></div>
-            <div class="staff-borrow-dialog__actions"><button type="button" data-staff-borrow-close><i class="bi bi-check2"></i> Đã hiểu</button><a asp-controller="PhieuMuons" asp-action="Index"><i class="bi bi-arrow-up-right-circle"></i> Quản lý phiếu mượn</a></div>
-        </section>
-    </div>
-}
-
-@section Scripts {
-    @if (isStaff)
-    {
-        <script>
-            (() => {
-                const modal = document.querySelector('[data-staff-borrow-modal]');
-                const trigger = document.querySelector('[data-staff-borrow-open]');
-                if (!modal || !trigger) return;
-                const close = () => { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); document.body.classList.remove('staff-modal-open'); trigger.focus(); };
-                const open = () => { modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false'); document.body.classList.add('staff-modal-open'); modal.querySelector('.staff-borrow-dialog__close').focus(); };
-                trigger.addEventListener('click', open);
-                modal.querySelectorAll('[data-staff-borrow-close]').forEach(button => button.addEventListener('click', close));
-                document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('is-open')) close(); });
-            })();
-        </script>
-    }
-}

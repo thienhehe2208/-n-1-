@@ -1,0 +1,32 @@
+@model IEnumerable<PhieuMuonOnlineViewModel>
+@{
+    ViewData["Title"] = "Phiếu mượn online của tôi";
+    var status = ViewData["Status"] as string;
+    var pagination = ViewData["Pagination"] as PaginationViewModel;
+}
+
+<section class="reader-history-page online-requests-page">
+    <div class="reader-history-hero"><div><span>HOẠT ĐỘNG CỦA BẠN</span><h1>Phiếu mượn online</h1><p>Theo dõi các phiếu đang chờ nhận và xem lại mã xác nhận.</p></div><a asp-action="Create"><i class="bi bi-plus-lg"></i> Tạo phiếu mới</a></div>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <div class="online-request-tabs"><a asp-action="CuaToi" class="@(string.IsNullOrEmpty(status) ? "active" : "")">Tất cả</a><a asp-action="CuaToi" asp-route-trangThai="waiting" class="@(status == "waiting" ? "active" : "")">Chờ duyệt (@ViewData["ChoNhan"])</a><a asp-action="CuaToi" asp-route-trangThai="approved" class="@(status == "approved" ? "active" : "")">Đã duyệt (@ViewData["DaDuyet"])</a><a asp-action="CuaToi" asp-route-trangThai="received" class="@(status == "received" ? "active" : "")">Đã nhận (@ViewData["DaNhan"])</a><a asp-action="CuaToi" asp-route-trangThai="closed" class="@(status == "closed" ? "active" : "")">Đã đóng</a></div>
+    <div class="online-request-list">
+        @if (!Model.Any())
+        {
+            <div class="reader-empty-state"><i class="bi bi-journal-x"></i><h2>Chưa có phiếu phù hợp</h2><p>Chọn sách có sẵn để tạo một phiếu nhận tại quầy.</p><a asp-action="Create">Tạo phiếu mượn</a></div>
+        }
+        @foreach (var item in Model)
+        {
+            var label = item.TrangThai switch { TrangThaiYeuCauMuonOnline.ChoNhan => "Chờ duyệt", TrangThaiYeuCauMuonOnline.DaDuyet => "Đã duyệt · chờ nhận", TrangThaiYeuCauMuonOnline.DaNhan => "Đã nhận", TrangThaiYeuCauMuonOnline.DaHuy => "Đã hủy", TrangThaiYeuCauMuonOnline.TuChoi => "Bị từ chối", _ => "Hết hạn" };
+            <article class="online-request-card">
+                <div class="online-request-code"><small>MÃ XÁC NHẬN</small><strong>@item.MaXacNhan</strong><span class="status-@item.TrangThai.ToString().ToLowerInvariant()">@label</span></div>
+                <div class="online-request-books"><strong>@item.ChiTiet.Count cuốn sách</strong><span>@string.Join(" • ", item.ChiTiet.Select(x => x.Sach.TenSach))</span></div>
+                <div class="online-request-date"><small>Ngày nhận</small><strong>@item.NgayHenNhan.ToString("dd/MM/yyyy")</strong></div>
+                <a asp-action="Phieu" asp-route-ma="@item.MaXacNhan">Xem phiếu <i class="bi bi-arrow-right"></i></a>
+            </article>
+        }
+    </div>
+    @if (pagination != null)
+    {
+        <partial name="_Pagination" model="pagination" />
+    }
+</section>

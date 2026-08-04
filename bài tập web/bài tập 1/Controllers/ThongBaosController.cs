@@ -87,23 +87,29 @@ namespace bài_tập_1.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> DanhDauDaDoc(int id)
+        public async Task<IActionResult> DanhDauDaDoc(int id, string? returnUrl = null)
         {
             var item = await TimThongBaoCuaNguoiDungAsync(id);
             if (item == null) return NotFound();
             item.DaDoc = true;
             await _context.SaveChangesAsync();
-            return string.IsNullOrWhiteSpace(item.LienKet) ? RedirectToAction(nameof(Index)) : LocalRedirect(item.LienKet);
+            if (!string.IsNullOrWhiteSpace(item.LienKet) && Url.IsLocalUrl(item.LienKet))
+                return LocalRedirect(item.LienKet);
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> DanhDauTatCaDaDoc()
+        public async Task<IActionResult> DanhDauTatCaDaDoc(string? returnUrl = null)
         {
             IQueryable<ThongBao> query = _context.ThongBao.Where(t => !t.DaDoc);
             if (User.IsInRole("DocGia")) { var d = await GetDocGiaAsync(); if (d == null) return NotFound(); query = query.Where(t => t.MaDocGia == d.MaDocGia); }
             else { var n = await GetNhanVienAsync(); if (n == null) return NotFound(); query = query.Where(t => t.MaNhanVien == n.MaNhanVien); }
             foreach (var item in await query.ToListAsync()) item.DaDoc = true;
             await _context.SaveChangesAsync();
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
             return RedirectToAction(nameof(Index));
         }
 
