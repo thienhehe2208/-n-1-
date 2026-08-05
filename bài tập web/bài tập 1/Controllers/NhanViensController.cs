@@ -69,7 +69,19 @@ namespace bài_tập_1.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(n => n.MaNhanVien == id);
 
-            return nhanVien == null ? NotFound() : View(nhanVien);
+            if (nhanVien == null)
+                return NotFound();
+
+            ViewData["TongPhieuMuon"] = await _context.PhieuMuon
+                .CountAsync(p => p.MaNhanVien == nhanVien.MaNhanVien);
+            ViewData["PhieuMuonThangNay"] = await _context.PhieuMuon.CountAsync(p =>
+                p.MaNhanVien == nhanVien.MaNhanVien &&
+                p.NgayMuon.Year == DateTime.Today.Year &&
+                p.NgayMuon.Month == DateTime.Today.Month);
+            ViewData["TaiKhoanHoatDong"] = nhanVien.User?.LockoutEnd == null ||
+                nhanVien.User.LockoutEnd <= DateTimeOffset.Now;
+
+            return View(nhanVien);
         }
 
         public IActionResult Create()

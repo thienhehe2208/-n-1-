@@ -50,12 +50,23 @@ namespace bài_tập_1.Controllers
             }
 
             var nhaXuatBan = await _context.NhaXuatBan
+                .Include(n => n.DanhSachSach)
+                    .ThenInclude(s => s.TheLoai)
+                .Include(n => n.DanhSachSach)
+                    .ThenInclude(s => s.BanSaos)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.MaNXB == id);
             if (nhaXuatBan == null)
             {
                 return NotFound();
             }
 
+            ViewData["TongDauSach"] = nhaXuatBan.DanhSachSach.Count;
+            ViewData["TongBanSao"] = nhaXuatBan.DanhSachSach.Sum(s => s.BanSaos.Count);
+            ViewData["BanSaoSanCo"] = nhaXuatBan.DanhSachSach.Sum(s =>
+                s.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo));
+            ViewData["SoTheLoai"] = nhaXuatBan.DanhSachSach
+                .Select(s => s.MaTheLoai).Distinct().Count();
             return View(nhaXuatBan);
         }
 
@@ -164,10 +175,16 @@ namespace bài_tập_1.Controllers
             var nhaXuatBan = await _context.NhaXuatBan.FindAsync(id);
             if (nhaXuatBan != null)
             {
+                if (await _context.Sach.AnyAsync(s => s.MaNXB == id))
+                {
+                    TempData["Error"] = "Không thể xóa nhà xuất bản đang có đầu sách. Hãy chuyển các sách sang nhà xuất bản khác trước.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
                 _context.NhaXuatBan.Remove(nhaXuatBan);
             }
 
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa nhà xuất bản.";
             return RedirectToAction(nameof(Index));
         }
 

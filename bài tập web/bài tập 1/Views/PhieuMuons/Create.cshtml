@@ -1,51 +1,95 @@
-﻿@model bài_tập_1.Models.ViewModels.LapPhieuMuonViewModel
+@model bài_tập_1.Models.ViewModels.LapPhieuMuonViewModel
+@using bài_tập_1.Services
 
 @{
     ViewData["Title"] = "Lập phiếu mượn";
+    var homNay = DateTime.Today;
+    var hanToiDa = homNay.AddDays(LibraryRules.SoNgayMuonToiDa);
+    var soDocGiaHopLe = ViewData["SoDocGiaHopLe"] as int? ?? 0;
 }
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h2 class="card-title">Lập phiếu mượn</h2>
-        <p class="text-muted">
-            Nhân viên xử lý và ngày lập phiếu được xác định tự động
-            từ tài khoản đang đăng nhập.
-        </p>
+<main class="loan-create-page">
+    <nav class="loan-create-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-journal-text"></i> Phiếu mượn</a>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i><span>Lập phiếu mới</span>
+    </nav>
 
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger"></div>
+    <section class="loan-create-hero">
+        <div class="loan-create-hero__content">
+            <span class="loan-create-hero__icon"><i class="bi bi-journal-plus"></i></span>
+            <div><span class="loan-create-eyebrow">Quản lý lưu thông</span><h1>Lập phiếu mượn mới</h1><p>Chọn độc giả và thời hạn trả. Sau đó bạn sẽ tiếp tục quét hoặc chọn sách cho phiếu mượn.</p></div>
+        </div>
+        <div class="loan-create-steps" aria-label="Tiến trình lập phiếu">
+            <div class="loan-create-step is-active"><span>1</span><div><strong>Thông tin phiếu</strong><small>Độc giả &amp; thời hạn</small></div></div>
+            <div class="loan-create-step"><span>2</span><div><strong>Thêm sách</strong><small>Chọn bản sao</small></div></div>
+        </div>
+    </section>
 
-            <div class="mb-3">
-                <label asp-for="MaDocGia" class="form-label"></label>
-                <select asp-for="MaDocGia"
-                        asp-items="ViewBag.MaDocGia"
-                        class="form-select">
-                    <option value="">-- Chọn độc giả --</option>
-                </select>
-                <span asp-validation-for="MaDocGia"
-                      class="text-danger"></span>
-            </div>
+    <form asp-action="Create" method="post" id="loanCreateForm">
+        <div asp-validation-summary="ModelOnly" class="loan-create-alert" role="alert"></div>
+        <div class="loan-create-layout">
+            <section class="loan-create-card">
+                <header class="loan-create-card__header">
+                    <div><span class="loan-create-section-icon"><i class="bi bi-person-check"></i></span><div><h2>Thông tin mượn</h2><p>Các trường có dấu <b>*</b> là bắt buộc.</p></div></div>
+                    <span class="loan-create-available"><i class="bi bi-check-circle"></i> @soDocGiaHopLe độc giả hợp lệ</span>
+                </header>
+                <div class="loan-create-card__body">
+                    <div class="loan-create-field">
+                        <label asp-for="MaDocGia" class="form-label">Độc giả <span>*</span></label>
+                        <div class="loan-create-control"><i class="bi bi-person-vcard"></i><select asp-for="MaDocGia" asp-items="ViewBag.MaDocGia" class="form-select"><option value="">Chọn độc giả đang hoạt động</option></select></div>
+                        <div class="loan-create-hint"><i class="bi bi-info-circle"></i> Chỉ hiển thị độc giả có thẻ còn hạn và đang hoạt động.</div>
+                        <span asp-validation-for="MaDocGia" class="text-danger"></span>
+                    </div>
+                    <div class="loan-create-field">
+                        <label asp-for="NgayHenTra" class="form-label">Ngày hẹn trả <span>*</span></label>
+                        <div class="loan-create-control"><i class="bi bi-calendar-event"></i><input asp-for="NgayHenTra" class="form-control" min="@homNay.AddDays(1).ToString("yyyy-MM-dd")" max="@hanToiDa.ToString("yyyy-MM-dd")" /></div>
+                        <div class="loan-create-date-options"><span>Chọn nhanh:</span><button type="button" data-loan-days="7">7 ngày</button><button type="button" data-loan-days="14">14 ngày</button><button type="button" data-loan-days="@LibraryRules.SoNgayMuonToiDa">@LibraryRules.SoNgayMuonToiDa ngày</button></div>
+                        <span asp-validation-for="NgayHenTra" class="text-danger"></span>
+                    </div>
+                </div>
+            </section>
 
-            <div class="mb-3">
-                <label asp-for="NgayHenTra" class="form-label"></label>
-                <input asp-for="NgayHenTra" class="form-control" />
-                <span asp-validation-for="NgayHenTra"
-                      class="text-danger"></span>
-            </div>
+            <aside class="loan-create-summary">
+                <div class="loan-create-summary__title"><span><i class="bi bi-clipboard-check"></i></span><div><h2>Tóm tắt phiếu</h2><p>Kiểm tra trước khi tiếp tục</p></div></div>
+                <dl>
+                    <div><dt>Ngày lập phiếu</dt><dd>@homNay.ToString("dd/MM/yyyy")</dd></div>
+                    <div><dt>Độc giả</dt><dd id="selectedReader">Chưa chọn</dd></div>
+                    <div><dt>Ngày hẹn trả</dt><dd id="selectedDueDate">Chưa chọn</dd></div>
+                    <div><dt>Trạng thái</dt><dd><span class="loan-create-status">Bản nháp</span></dd></div>
+                </dl>
+                <div class="loan-create-note"><i class="bi bi-lightbulb"></i><p><strong>Lưu ý</strong> Thời hạn mượn tối đa @LibraryRules.SoNgayMuonToiDa ngày. Phiếu chỉ hoàn tất sau khi thêm ít nhất một cuốn sách.</p></div>
+            </aside>
+        </div>
 
-            <button type="submit" class="btn btn-primary">
-                Lập phiếu và thêm sách
-            </button>
-            <a asp-action="Index" class="btn btn-outline-secondary">
-                Quay lại
-            </a>
-        </form>
-    </div>
-</div>
+        <footer class="loan-create-actions">
+            <a asp-action="Index" class="btn loan-create-btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
+            <button type="reset" class="btn loan-create-btn-reset"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</button>
+            <button type="submit" class="btn loan-create-btn-primary">Tiếp tục thêm sách <i class="bi bi-arrow-right"></i></button>
+        </footer>
+    </form>
+</main>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (() => {
+            const form = document.getElementById('loanCreateForm');
+            const reader = document.getElementById('MaDocGia');
+            const dueDate = document.getElementById('NgayHenTra');
+            const readerSummary = document.getElementById('selectedReader');
+            const dateSummary = document.getElementById('selectedDueDate');
+            const formatDate = value => { if (!value) return 'Chưa chọn'; const [year, month, day] = value.split('-'); return `${day}/${month}/${year}`; };
+            const refreshSummary = () => { readerSummary.textContent = reader.selectedIndex > 0 ? reader.options[reader.selectedIndex].text : 'Chưa chọn'; dateSummary.textContent = formatDate(dueDate.value); };
+            document.querySelectorAll('[data-loan-days]').forEach(button => button.addEventListener('click', () => {
+                const date = new Date();
+                date.setDate(date.getDate() + Number(button.dataset.loanDays));
+                dueDate.value = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+                dueDate.dispatchEvent(new Event('change', { bubbles: true }));
+            }));
+            reader.addEventListener('change', refreshSummary);
+            dueDate.addEventListener('change', refreshSummary);
+            form.addEventListener('reset', () => setTimeout(refreshSummary));
+            refreshSummary();
+        })();
+    </script>
 }

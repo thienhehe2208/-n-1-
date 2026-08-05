@@ -1,76 +1,26 @@
-﻿@model bài_tập_1.Models.ViewModels.EditNhanVienViewModel
-
-@{
-    ViewData["Title"] = "Sửa nhân viên";
-}
-
-<h1>Sửa nhân viên</h1>
-<p class="text-muted">
-    Email và số điện thoại sẽ được đồng bộ với tài khoản đăng nhập.
-</p>
-
-<div class="row">
-    <div class="col-lg-8">
-        <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MaNhanVien" />
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="HoTen" class="form-label"></label>
-                    <input asp-for="HoTen" class="form-control" />
-                    <span asp-validation-for="HoTen" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="SoDienThoai" class="form-label"></label>
-                    <input asp-for="SoDienThoai" class="form-control" />
-                    <span asp-validation-for="SoDienThoai" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="ChucVu" class="form-label"></label>
-                    <input asp-for="ChucVu" class="form-control" />
-                    <span asp-validation-for="ChucVu" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgaySinh" class="form-label"></label>
-                    <input asp-for="NgaySinh" class="form-control" />
-                    <span asp-validation-for="NgaySinh" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="GioiTinh" class="form-label"></label>
-                    <select asp-for="GioiTinh" class="form-select">
-                        <option value="">-- Chọn giới tính --</option>
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                        <option value="Khác">Khác</option>
-                    </select>
-                    <span asp-validation-for="GioiTinh" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgayVaoLam" class="form-label"></label>
-                    <input asp-for="NgayVaoLam" class="form-control" />
-                    <span asp-validation-for="NgayVaoLam" class="text-danger"></span>
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label asp-for="DiaChi" class="form-label"></label>
-                    <input asp-for="DiaChi" class="form-control" />
-                    <span asp-validation-for="DiaChi" class="text-danger"></span>
-                </div>
+@model bài_tập_1.Models.ViewModels.EditNhanVienViewModel
+@{ ViewData["Title"] = "Chỉnh sửa nhân viên"; }
+<main class="staff-edit-page">
+    <nav class="staff-profile-breadcrumb"><a asp-action="Index"><i class="bi bi-people"></i> Nhân viên</a><i class="bi bi-chevron-right"></i><a asp-action="Details" asp-route-id="@Model.MaNhanVien">NV-@Model.MaNhanVien.ToString("D5")</a><i class="bi bi-chevron-right"></i><span>Chỉnh sửa</span></nav>
+    <header class="staff-edit-hero"><span><i class="bi bi-person-gear"></i></span><div><small>QUẢN TRỊ NHÂN SỰ</small><h1>Chỉnh sửa hồ sơ nhân viên</h1><p>Cập nhật thông tin cá nhân, công tác và tài khoản của @Model.HoTen.</p></div><strong>NV-@Model.MaNhanVien.ToString("D5")</strong></header>
+    <form asp-action="Edit" asp-route-id="@Model.MaNhanVien" method="post" id="staffEditForm">
+        <input type="hidden" asp-for="MaNhanVien" />
+        <div asp-validation-summary="ModelOnly" class="staff-edit-alert"></div>
+        <div class="staff-edit-layout">
+            <div class="staff-edit-main">
+                <section class="staff-edit-card"><div class="staff-edit-heading"><span><i class="bi bi-person-vcard"></i></span><div><h2>Thông tin cá nhân</h2><p>Thông tin nhận diện và liên hệ.</p></div></div><div class="staff-edit-grid">
+                    <div class="staff-edit-field wide"><label asp-for="HoTen"><i class="bi bi-person"></i> Họ và tên <b>*</b></label><input asp-for="HoTen" placeholder="Nhập họ tên đầy đủ" /><span asp-validation-for="HoTen"></span></div>
+                    <div class="staff-edit-field"><label asp-for="NgaySinh"><i class="bi bi-calendar3"></i> Ngày sinh</label><input asp-for="NgaySinh" max="@DateTime.Today.ToString("yyyy-MM-dd")" /><span asp-validation-for="NgaySinh"></span></div>
+                    <div class="staff-edit-field"><label asp-for="GioiTinh"><i class="bi bi-gender-ambiguous"></i> Giới tính</label><select asp-for="GioiTinh"><option value="">Chọn giới tính</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option></select><span asp-validation-for="GioiTinh"></span></div>
+                    <div class="staff-edit-field"><label asp-for="SoDienThoai"><i class="bi bi-telephone"></i> Số điện thoại</label><input asp-for="SoDienThoai" type="tel" placeholder="Nhập số điện thoại" /><span asp-validation-for="SoDienThoai"></span></div>
+                    <div class="staff-edit-field wide"><label asp-for="DiaChi"><i class="bi bi-geo-alt"></i> Địa chỉ</label><input asp-for="DiaChi" placeholder="Nhập địa chỉ liên hệ" /><span asp-validation-for="DiaChi"></span></div>
+                </div></section>
+                <section class="staff-edit-card"><div class="staff-edit-heading"><span><i class="bi bi-briefcase"></i></span><div><h2>Thông tin công tác</h2><p>Vị trí và thời điểm bắt đầu làm việc.</p></div></div><div class="staff-edit-grid"><div class="staff-edit-field"><label asp-for="ChucVu"><i class="bi bi-person-workspace"></i> Chức vụ</label><input asp-for="ChucVu" placeholder="Ví dụ: Thủ thư" /><span asp-validation-for="ChucVu"></span></div><div class="staff-edit-field"><label asp-for="NgayVaoLam"><i class="bi bi-calendar-check"></i> Ngày vào làm</label><input asp-for="NgayVaoLam" /><span asp-validation-for="NgayVaoLam"></span></div></div></section>
+                <section class="staff-edit-card"><div class="staff-edit-heading"><span><i class="bi bi-shield-lock"></i></span><div><h2>Tài khoản đăng nhập</h2><p>Email và số điện thoại được đồng bộ với tài khoản.</p></div></div><div class="staff-edit-notice"><i class="bi bi-info-circle"></i> Khi đổi email, tên đăng nhập của nhân viên cũng được cập nhật.</div><div class="staff-edit-grid"><div class="staff-edit-field wide"><label asp-for="Email"><i class="bi bi-envelope"></i> Email đăng nhập <b>*</b></label><input asp-for="Email" type="email" autocomplete="email" /><span asp-validation-for="Email"></span></div></div></section>
             </div>
-
-            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
-        </form>
-    </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+            <aside class="staff-edit-sidebar"><section class="staff-edit-card"><span class="staff-edit-side-icon"><i class="bi bi-cloud-check"></i></span><h2>Đồng bộ tài khoản</h2><p>Thông tin liên hệ sẽ được cập nhật đồng thời vào hồ sơ đăng nhập.</p><ul><li><i class="bi bi-check2"></i> Email phải là duy nhất</li><li><i class="bi bi-check2"></i> Dữ liệu được kiểm tra trước khi lưu</li><li><i class="bi bi-check2"></i> Không thay đổi mật khẩu</li></ul></section><a asp-action="Details" asp-route-id="@Model.MaNhanVien" class="staff-edit-preview"><i class="bi bi-eye"></i><span><strong>Xem hồ sơ hiện tại</strong><small>Mở trang chi tiết nhân viên</small></span><i class="bi bi-chevron-right"></i></a></aside>
+        </div>
+        <footer class="staff-edit-actions"><a asp-action="Details" asp-route-id="@Model.MaNhanVien" class="staff-edit-back"><i class="bi bi-x-lg"></i> Hủy thay đổi</a><button type="reset" class="staff-edit-reset"><i class="bi bi-arrow-counterclockwise"></i> Khôi phục</button><span id="staffEditState"><i class="bi bi-check-circle"></i> Chưa có thay đổi</span><button type="submit" class="staff-edit-save"><i class="bi bi-floppy"></i> Lưu thay đổi</button></footer>
+    </form>
+</main>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } <script>(()=>{const form=document.getElementById('staffEditForm');const state=document.getElementById('staffEditState');let dirty=false;form.addEventListener('input',()=>{dirty=true;state.innerHTML='<i class="bi bi-exclamation-circle"></i> Có thay đổi chưa lưu';state.classList.add('dirty');});form.addEventListener('reset',()=>setTimeout(()=>{dirty=false;state.innerHTML='<i class="bi bi-check-circle"></i> Đã khôi phục dữ liệu';state.classList.remove('dirty');}));form.addEventListener('submit',()=>dirty=false);window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});})();</script> }

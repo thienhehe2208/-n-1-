@@ -1,81 +1,33 @@
-﻿@model bài_tập_1.Models.ViewModels.CreateDocGiaViewModel
-
-@{
-    ViewData["Title"] = "Thêm độc giả";
-}
-
-<h1>Thêm độc giả</h1>
-<p class="text-muted">
-    Hệ thống sẽ đồng thời tạo tài khoản đăng nhập và gán quyền Độc giả.
-</p>
-
-<div class="row">
-    <div class="col-lg-8">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="HoTen" class="form-label"></label>
-                    <input asp-for="HoTen" class="form-control" />
-                    <span asp-validation-for="HoTen" class="text-danger"></span>
+@model bài_tập_1.Models.ViewModels.CreateDocGiaViewModel
+@{ ViewData["Title"] = "Thêm độc giả"; }
+<main class="entity-create-page entity-create-reader">
+    <nav class="entity-create-breadcrumb"><a asp-action="Index"><i class="bi bi-people"></i> Độc giả</a><i class="bi bi-chevron-right"></i><span>Thêm độc giả</span></nav>
+    <header class="entity-create-hero"><span class="entity-create-hero__icon"><i class="bi bi-person-plus"></i></span><div><span class="entity-create-eyebrow">Quản lý thành viên</span><h1>Thêm độc giả mới</h1><p>Tạo hồ sơ, thẻ thư viện và tài khoản đăng nhập cho độc giả.</p></div></header>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="entity-create-alert"></div>
+        <div class="entity-create-layout">
+            <section class="entity-create-card">
+                <div class="entity-create-card__head"><span><i class="bi bi-person-vcard"></i></span><div><h2>Thông tin cá nhân</h2><p>Thông tin nhận diện và liên hệ của độc giả.</p></div></div>
+                <div class="entity-create-card__body entity-form-grid">
+                    <div class="entity-field"><label asp-for="HoTen">Họ và tên <b>*</b></label><div class="entity-control"><i class="bi bi-person"></i><input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên đầy đủ" /></div><span asp-validation-for="HoTen" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="SoDienThoai"></label><div class="entity-control"><i class="bi bi-telephone"></i><input asp-for="SoDienThoai" class="form-control" placeholder="Ví dụ: 0901234567" /></div><span asp-validation-for="SoDienThoai" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="NgaySinh"></label><div class="entity-control"><i class="bi bi-calendar3"></i><input asp-for="NgaySinh" class="form-control" /></div><span asp-validation-for="NgaySinh" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="GioiTinh"></label><div class="entity-control"><i class="bi bi-gender-ambiguous"></i><select asp-for="GioiTinh" class="form-select"><option value="">Chọn giới tính</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option></select></div></div>
+                    <div class="entity-field entity-field-wide"><label asp-for="DiaChi"></label><div class="entity-control"><i class="bi bi-geo-alt"></i><input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ liên hệ" /></div></div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" autocomplete="email" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
+                <div class="entity-create-divider"></div>
+                <div class="entity-create-card__head entity-create-subhead"><span><i class="bi bi-shield-lock"></i></span><div><h2>Tài khoản và thẻ</h2><p>Email được dùng làm tên đăng nhập.</p></div></div>
+                <div class="entity-create-card__body entity-form-grid entity-body-compact">
+                    <div class="entity-field entity-field-wide"><label asp-for="Email">Email <b>*</b></label><div class="entity-control"><i class="bi bi-envelope"></i><input asp-for="Email" class="form-control" autocomplete="email" placeholder="docgia@example.com" /></div><span asp-validation-for="Email" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="Password">Mật khẩu <b>*</b></label><div class="entity-control entity-password"><i class="bi bi-key"></i><input asp-for="Password" class="form-control" autocomplete="new-password" /><button type="button" class="password-toggle" aria-label="Hiện hoặc ẩn mật khẩu"><i class="bi bi-eye"></i></button></div><span asp-validation-for="Password" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="ConfirmPassword">Xác nhận mật khẩu <b>*</b></label><div class="entity-control entity-password"><i class="bi bi-key-fill"></i><input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" /><button type="button" class="password-toggle" aria-label="Hiện hoặc ẩn mật khẩu"><i class="bi bi-eye"></i></button></div><span asp-validation-for="ConfirmPassword" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="NgayHetHanThe"></label><div class="entity-control"><i class="bi bi-calendar-check"></i><input asp-for="NgayHetHanThe" class="form-control" /></div><span asp-validation-for="NgayHetHanThe" class="text-danger"></span></div>
+                    <div class="entity-field"><label asp-for="TrangThai"></label><div class="entity-control"><i class="bi bi-activity"></i><select asp-for="TrangThai" class="form-select" asp-items="Html.GetEnumSelectList<TrangThaiDocGia>()"></select></div></div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control" autocomplete="new-password" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="ConfirmPassword" class="form-label"></label>
-                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="SoDienThoai" class="form-label"></label>
-                    <input asp-for="SoDienThoai" class="form-control" />
-                    <span asp-validation-for="SoDienThoai" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgaySinh" class="form-label"></label>
-                    <input asp-for="NgaySinh" class="form-control" />
-                    <span asp-validation-for="NgaySinh" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="GioiTinh" class="form-label"></label>
-                    <select asp-for="GioiTinh" class="form-select">
-                        <option value="">-- Chọn giới tính --</option>
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                        <option value="Khác">Khác</option>
-                    </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="NgayHetHanThe" class="form-label"></label>
-                    <input asp-for="NgayHetHanThe" class="form-control" />
-                    <span asp-validation-for="NgayHetHanThe" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="TrangThai" class="form-label"></label>
-                    <select asp-for="TrangThai" class="form-select"
-                            asp-items="Html.GetEnumSelectList<TrangThaiDocGia>()"></select>
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label asp-for="DiaChi" class="form-label"></label>
-                    <input asp-for="DiaChi" class="form-control" />
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Tạo độc giả</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
-        </form>
-    </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+            </section>
+            <aside class="entity-create-aside"><div class="entity-create-aside__icon"><i class="bi bi-person-check"></i></div><h2>Tài khoản tự động</h2><p>Khi lưu, hệ thống đồng thời tạo tài khoản và gán quyền <strong>Độc giả</strong>.</p><ul><li>Mật khẩu tối thiểu 8 ký tự.</li><li>Email phải là duy nhất.</li><li>Thẻ mặc định có hạn một năm.</li></ul><div class="entity-create-aside__note"><i class="bi bi-shield-check"></i><span>Độc giả có thể đăng nhập ngay khi hồ sơ được tạo.</span></div></aside>
+        </div>
+        <footer class="entity-create-actions"><a asp-action="Index" class="btn entity-btn-back"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a><button type="reset" class="btn entity-btn-reset"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</button><button type="submit" class="btn entity-btn-save"><i class="bi bi-person-check"></i> Tạo độc giả</button></footer>
+    </form>
+</main>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } <script>document.querySelectorAll('.password-toggle').forEach(button=>button.addEventListener('click',()=>{const input=button.parentElement.querySelector('input');const show=input.type==='password';input.type=show?'text':'password';button.querySelector('i').className=show?'bi bi-eye-slash':'bi bi-eye';}));</script> }

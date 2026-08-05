@@ -1,0 +1,47 @@
+@model IEnumerable<bài_tập_1.Models.PhanHoi>
+
+@{
+    ViewData["Title"] = "Phản hồi của tôi";
+    var items = Model.ToList();
+    var answered = items.Count(x => !string.IsNullOrWhiteSpace(x.NoiDungTraLoi));
+}
+
+<section class="my-feedback-page">
+    <header class="my-feedback-hero">
+        <div><span><i class="bi bi-chat-square-heart"></i></span><div><small>TRUNG TÂM HỖ TRỢ</small><h1>Phản hồi</h1><p>Gửi phản hồi mới và theo dõi câu trả lời từ thư viện tại một nơi.</p></div></div>
+        <div><strong>@answered/@items.Count</strong><span>phản hồi đã<br />được trả lời</span></div>
+    </header>
+
+    <div class="my-feedback-toolbar">
+        <div><h2>Lịch sử trao đổi</h2><p>Câu trả lời mới nhất sẽ xuất hiện tại đây và trong trung tâm thông báo.</p></div>
+        <button type="button" data-bs-toggle="modal" data-bs-target="#feedbackModal"><i class="bi bi-plus-circle"></i> Gửi phản hồi mới</button>
+    </div>
+
+    @if (items.Any())
+    {
+        <div class="my-feedback-list">
+            @foreach (var item in items)
+            {
+                var hasAnswer = !string.IsNullOrWhiteSpace(item.NoiDungTraLoi);
+                var stateClass = item.TrangThai == "Mới" ? "new" : item.TrangThai == "Đang xử lý" ? "processing" : "resolved";
+                <article id="phan-hoi-@item.MaPhanHoi" class="my-feedback-item @(hasAnswer ? "answered" : "")">
+                    <header><div><span>PH-@item.MaPhanHoi.ToString("D4")</span><time><i class="bi bi-clock"></i> @item.NgayGui.ToString("HH:mm · dd/MM/yyyy")</time></div><span class="my-feedback-state @stateClass"><i></i>@item.TrangThai</span></header>
+                    <div class="my-feedback-question"><small><i class="bi bi-chat-left-text"></i> NỘI DUNG BẠN ĐÃ GỬI</small><p>@item.NoiDung</p></div>
+                    @if (hasAnswer)
+                    {
+                        <div class="my-feedback-answer"><span><i class="bi bi-reply-all-fill"></i></span><div><small>THƯ VIỆN ĐÃ TRẢ LỜI</small><p>@item.NoiDungTraLoi</p><footer><b><i class="bi bi-person-check"></i> @item.NguoiTraLoi</b><time>@item.NgayTraLoi?.ToString("HH:mm · dd/MM/yyyy")</time></footer></div></div>
+                    }
+                    else
+                    {
+                        <div class="my-feedback-waiting"><i class="bi bi-hourglass-split"></i><span><strong>Đang chờ phản hồi</strong><small>Thư viện sẽ trả lời bạn trong thời gian sớm nhất.</small></span></div>
+                    }
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="my-feedback-empty"><span><i class="bi bi-chat-square-dots"></i></span><h2>Bạn chưa gửi phản hồi nào</h2><p>Khi cần hỗ trợ, hãy gửi câu hỏi hoặc góp ý cho thư viện.</p><button type="button" data-bs-toggle="modal" data-bs-target="#feedbackModal">Gửi phản hồi đầu tiên</button></div>
+    }
+</section>
+7

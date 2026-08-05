@@ -1,48 +1,20 @@
-﻿@model bài_tập_1.Models.NhaXuatBan
-
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h1>Create</h1>
-
-<h4>NhaXuatBan</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TenNXB" class="control-label"></label>
-                <input asp-for="TenNXB" class="form-control" />
-                <span asp-validation-for="TenNXB" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DiaChi" class="control-label"></label>
-                <input asp-for="DiaChi" class="form-control" />
-                <span asp-validation-for="DiaChi" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SoDienThoai" class="control-label"></label>
-                <input asp-for="SoDienThoai" class="form-control" />
-                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@model bài_tập_1.Models.NhaXuatBan
+@{ ViewData["Title"] = "Thêm nhà xuất bản"; }
+<main class="entity-create-page entity-create-publisher">
+    <nav class="entity-create-breadcrumb"><a asp-action="Index"><i class="bi bi-buildings"></i> Nhà xuất bản</a><i class="bi bi-chevron-right"></i><span>Thêm mới</span></nav>
+    <header class="entity-create-hero"><span class="entity-create-hero__icon"><i class="bi bi-building-add"></i></span><div><span class="entity-create-eyebrow">Quản lý đối tác</span><h1>Thêm nhà xuất bản</h1><p>Lưu thông tin liên hệ để quản lý danh mục sách và đối tác xuất bản.</p></div></header>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="entity-create-alert"></div>
+        <div class="entity-create-layout">
+            <section class="entity-create-card"><div class="entity-create-card__head"><span><i class="bi bi-building"></i></span><div><h2>Thông tin nhà xuất bản</h2><p>Thông tin cơ bản và kênh liên hệ.</p></div></div><div class="entity-create-card__body entity-form-grid">
+                <div class="entity-field entity-field-wide"><label asp-for="TenNXB">Tên nhà xuất bản <b>*</b></label><div class="entity-control"><i class="bi bi-buildings"></i><input asp-for="TenNXB" class="form-control" placeholder="Nhập tên nhà xuất bản" /></div><span asp-validation-for="TenNXB" class="text-danger"></span></div>
+                <div class="entity-field entity-field-wide"><label asp-for="DiaChi">Địa chỉ</label><div class="entity-control"><i class="bi bi-geo-alt"></i><input asp-for="DiaChi" class="form-control" placeholder="Nhập địa chỉ trụ sở" /></div><span asp-validation-for="DiaChi" class="text-danger"></span></div>
+                <div class="entity-field"><label asp-for="SoDienThoai">Số điện thoại</label><div class="entity-control"><i class="bi bi-telephone"></i><input asp-for="SoDienThoai" class="form-control" placeholder="Ví dụ: 028 1234 5678" /></div><span asp-validation-for="SoDienThoai" class="text-danger"></span></div>
+                <div class="entity-field"><label asp-for="Email">Email</label><div class="entity-control"><i class="bi bi-envelope"></i><input asp-for="Email" type="email" class="form-control" placeholder="contact@nxb.vn" /></div><span asp-validation-for="Email" class="text-danger"></span></div>
+            </div></section>
+            <aside class="entity-create-aside"><div class="entity-create-aside__icon"><i class="bi bi-patch-check"></i></div><h2>Thông tin chính xác</h2><p>Dữ liệu này sẽ xuất hiện trong hồ sơ sách và trang chi tiết nhà xuất bản.</p><ul><li>Tên nhà xuất bản là bắt buộc.</li><li>Kiểm tra email và số điện thoại.</li><li>Có thể cập nhật thông tin sau khi tạo.</li></ul></aside>
+        </div>
+        <footer class="entity-create-actions"><a asp-action="Index" class="btn entity-btn-back"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a><button type="reset" class="btn entity-btn-reset"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</button><button type="submit" class="btn entity-btn-save"><i class="bi bi-check2-circle"></i> Lưu nhà xuất bản</button></footer>
+    </form>
+</main>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

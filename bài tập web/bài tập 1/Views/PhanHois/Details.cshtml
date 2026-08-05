@@ -2,30 +2,152 @@
 
 @{
     ViewData["Title"] = "Chi tiết phản hồi";
+    var statusClass = Model.TrangThai == "Mới" ? "new" : Model.TrangThai == "Đang xử lý" ? "processing" : "resolved";
+    var initials = string.Join("", Model.HoTen.Split(' ', StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(x => x[0])).ToUpperInvariant();
+    var hasAnswer = !string.IsNullOrWhiteSpace(Model.NoiDungTraLoi);
 }
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-            <div><h1 class="h4 mb-1">Phản hồi #@Model.MaPhanHoi</h1><p class="text-muted mb-0">@Model.NgayGui.ToString("dd/MM/yyyy HH:mm")</p></div>
-            <span class="badge bg-secondary">@Model.TrangThai</span>
+<section class="feedback-detail-page" data-feedback-detail="@Model.MaPhanHoi">
+    <nav class="feedback-detail-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-arrow-left"></i> Hộp thư phản hồi</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>PH-@Model.MaPhanHoi.ToString("D4")</span>
+    </nav>
+
+    <partial name="_StatusMessages" />
+
+    <header class="feedback-detail-hero">
+        <div>
+            <span class="feedback-detail-hero-icon"><i class="bi bi-chat-square-text"></i></span>
+            <div><small>TRUNG TÂM HỖ TRỢ · PH-@Model.MaPhanHoi.ToString("D4")</small><h1>Chi tiết phản hồi</h1><p>Tiếp nhận, theo dõi và phản hồi ý kiến của bạn đọc.</p></div>
         </div>
-        <dl class="row">
-            <dt class="col-sm-3">Người gửi</dt><dd class="col-sm-9">@Model.HoTen</dd>
-            <dt class="col-sm-3">Email</dt><dd class="col-sm-9"><a href="mailto:@Model.Email">@Model.Email</a></dd>
-            <dt class="col-sm-3">Nội dung</dt><dd class="col-sm-9" style="white-space:pre-wrap">@Model.NoiDung</dd>
-        </dl>
-        <div class="d-flex flex-wrap gap-2">
-            @foreach (var nextStatus in new[] { "Mới", "Đang xử lý", "Đã xử lý" })
-            {
-                <form asp-action="CapNhatTrangThai" method="post">
+        <span class="feedback-detail-status @statusClass" data-detail-status><i></i><b>@Model.TrangThai</b></span>
+    </header>
+
+    <div class="feedback-detail-layout">
+        <main>
+            <article class="feedback-detail-card feedback-detail-message-card">
+                <header>
+                    <span class="feedback-detail-avatar">@(string.IsNullOrWhiteSpace(initials) ? "DG" : initials)</span>
+                    <div><h2>@Model.HoTen</h2><a href="mailto:@Model.Email">@Model.Email</a></div>
+                    <time datetime="@Model.NgayGui.ToString("O")"><i class="bi bi-clock"></i> @Model.NgayGui.ToString("HH:mm · dd/MM/yyyy")</time>
+                </header>
+                <div class="feedback-detail-message">
+                    <span><i class="bi bi-quote"></i> NỘI DUNG PHẢN HỒI</span>
+                    <p>@Model.NoiDung</p>
+                </div>
+            </article>
+
+            <article class="feedback-detail-card feedback-detail-answer-card @(hasAnswer ? "has-answer" : "")" data-answer-card>
+                <header><div><span><i class="bi bi-reply-all-fill"></i></span><div><h2>@(hasAnswer ? "Câu trả lời đã gửi" : "Soạn câu trả lời")</h2><p>Phản hồi rõ ràng, lịch sự và cung cấp hướng xử lý cụ thể.</p></div></div><span class="feedback-answer-saved" data-answer-saved @(hasAnswer ? null : "hidden")><i class="bi bi-check-circle-fill"></i> Đã lưu</span></header>
+
+                <div class="feedback-existing-answer" data-existing-answer @(hasAnswer ? null : "hidden")>
+                    <p data-answer-text>@Model.NoiDungTraLoi</p>
+                    <footer><span><i class="bi bi-person-check"></i> <b data-answer-by>@Model.NguoiTraLoi</b></span><time data-answer-time>@Model.NgayTraLoi?.ToString("HH:mm · dd/MM/yyyy")</time></footer>
+                </div>
+
+                <form data-answer-form>
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@Model.MaPhanHoi" />
-                    <input type="hidden" name="trangThai" value="@nextStatus" />
-                    <button class="btn @(Model.TrangThai == nextStatus ? "btn-secondary" : "btn-outline-primary")" disabled="@(Model.TrangThai == nextStatus)" type="submit">@nextStatus</button>
+                    <label for="answerContent">@(hasAnswer ? "Chỉnh sửa câu trả lời" : "Nội dung trả lời") <em>*</em></label>
+                    <div class="feedback-answer-editor">
+                        <textarea id="answerContent" name="noiDung" rows="8" maxlength="2000" data-answer-content placeholder="Nhập nội dung trả lời cho bạn đọc...">@Model.NoiDungTraLoi</textarea>
+                        <div><span data-answer-error></span><small><b data-answer-count>@(Model.NoiDungTraLoi?.Length ?? 0)</b>/2000 ký tự</small></div>
+                    </div>
+                    <div class="feedback-answer-note"><i class="bi bi-info-circle-fill"></i><span>Khi lưu câu trả lời, phản hồi sẽ tự động chuyển sang trạng thái <strong>Đã xử lý</strong>.</span></div>
+                    <footer><a asp-action="Index"><i class="bi bi-arrow-left"></i> Quay lại hộp thư</a><button type="submit" data-answer-submit><i class="bi bi-send"></i><span>@(hasAnswer ? "Cập nhật câu trả lời" : "Gửi câu trả lời")</span></button></footer>
                 </form>
-            }
-            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
-        </div>
+            </article>
+        </main>
+
+        <aside>
+            <section class="feedback-detail-card feedback-detail-info">
+                <h2><i class="bi bi-info-circle"></i> Thông tin yêu cầu</h2>
+                <dl><div><dt>Mã phản hồi</dt><dd>PH-@Model.MaPhanHoi.ToString("D4")</dd></div><div><dt>Ngày tiếp nhận</dt><dd>@Model.NgayGui.ToString("dd/MM/yyyy")</dd></div><div><dt>Thời gian</dt><dd>@Model.NgayGui.ToString("HH:mm")</dd></div><div><dt>Nguồn gửi</dt><dd><i class="bi bi-globe2"></i> Website</dd></div></dl>
+            </section>
+
+            <section class="feedback-detail-card feedback-status-panel">
+                <h2><i class="bi bi-signpost-split"></i> Trạng thái xử lý</h2>
+                <p>Cập nhật tiến độ để đội ngũ dễ dàng theo dõi.</p>
+                <form asp-action="CapNhatTrangThai" method="post">
+                    <input type="hidden" name="id" value="@Model.MaPhanHoi" />
+                    <label class="feedback-status-option new"><input type="radio" name="trangThai" value="Mới" checked="@(Model.TrangThai == "Mới")" /><span><i></i><b>Mới</b><small>Chưa bắt đầu xử lý</small></span></label>
+                    <label class="feedback-status-option processing"><input type="radio" name="trangThai" value="Đang xử lý" checked="@(Model.TrangThai == "Đang xử lý")" /><span><i></i><b>Đang xử lý</b><small>Đang xem xét yêu cầu</small></span></label>
+                    <label class="feedback-status-option resolved"><input type="radio" name="trangThai" value="Đã xử lý" checked="@(Model.TrangThai == "Đã xử lý")" /><span><i></i><b>Đã xử lý</b><small>Đã hoàn tất phản hồi</small></span></label>
+                    <button type="submit"><i class="bi bi-check2-circle"></i> Lưu trạng thái</button>
+                </form>
+            </section>
+
+            <section class="feedback-detail-card feedback-contact-card">
+                <span><i class="bi bi-envelope-paper"></i></span><div><h2>Liên hệ bạn đọc</h2><p>Trao đổi thêm qua địa chỉ email đã cung cấp.</p></div>
+                <a href="mailto:@Model.Email"><i class="bi bi-envelope"></i> Gửi email</a>
+            </section>
+        </aside>
     </div>
-</div>
+</section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const root = document.querySelector('[data-feedback-detail]');
+            const form = root.querySelector('[data-answer-form]');
+            const content = root.querySelector('[data-answer-content]');
+            const count = root.querySelector('[data-answer-count]');
+            const error = root.querySelector('[data-answer-error]');
+            const submit = root.querySelector('[data-answer-submit]');
+            const defaultButtonText = submit.querySelector('span').textContent;
+
+            content.addEventListener('input', () => {
+                count.textContent = content.value.length;
+                error.textContent = '';
+            });
+
+            form.addEventListener('submit', async event => {
+                event.preventDefault();
+                const answer = content.value.trim();
+                if (!answer) {
+                    error.textContent = 'Vui lòng nhập nội dung trả lời.';
+                    content.focus();
+                    return;
+                }
+
+                submit.disabled = true;
+                submit.querySelector('span').textContent = 'Đang lưu...';
+                error.textContent = '';
+
+                try {
+                    const response = await fetch('@Url.Action("TraLoi", "PhanHois")', {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'RequestVerificationToken': form.querySelector('[name="__RequestVerificationToken"]').value
+                        }
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message || 'Không thể lưu câu trả lời.');
+
+                    const answerBox = root.querySelector('[data-existing-answer]');
+                    answerBox.hidden = false;
+                    answerBox.querySelector('[data-answer-text]').textContent = result.answer;
+                    answerBox.querySelector('[data-answer-by]').textContent = result.answeredBy;
+                    answerBox.querySelector('[data-answer-time]').textContent = result.answeredAt;
+                    root.querySelector('[data-answer-card]').classList.add('has-answer');
+                    root.querySelector('[data-answer-saved]').hidden = false;
+
+                    const status = root.querySelector('[data-detail-status]');
+                    status.className = 'feedback-detail-status resolved';
+                    status.innerHTML = '<i></i><b>' + result.status + '</b>';
+                    const resolvedRadio = root.querySelector('input[name="trangThai"][value="Đã xử lý"]');
+                    resolvedRadio.checked = true;
+                    submit.querySelector('span').textContent = 'Cập nhật câu trả lời';
+                } catch (exception) {
+                    error.textContent = exception.message;
+                } finally {
+                    submit.disabled = false;
+                    if (submit.querySelector('span').textContent === 'Đang lưu...') submit.querySelector('span').textContent = defaultButtonText;
+                }
+            });
+        })();
+    </script>
+}

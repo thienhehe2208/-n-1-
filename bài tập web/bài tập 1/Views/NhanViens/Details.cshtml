@@ -1,72 +1,40 @@
-﻿@model bài_tập_1.Models.NhanVien
-
+@model bài_tập_1.Models.NhanVien
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết nhân viên";
+    var initial = string.Join("", (Model.HoTen ?? "NV").Split(' ', StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(x => char.ToUpperInvariant(x[0])));
+    var tongPhieu = (int?)ViewData["TongPhieuMuon"] ?? 0;
+    var phieuThang = (int?)ViewData["PhieuMuonThangNay"] ?? 0;
+    var hoatDong = (bool?)ViewData["TaiKhoanHoatDong"] ?? true;
+    var thamnien = Math.Max(0, DateTime.Today.Year - Model.NgayVaoLam.Year - (DateTime.Today < Model.NgayVaoLam.AddYears(DateTime.Today.Year - Model.NgayVaoLam.Year) ? 1 : 0));
 }
-
-<h1>Details</h1>
-
-<div>
-    <h4>NhanVien</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HoTen)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HoTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgaySinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgaySinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GioiTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GioiTinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiaChi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiaChi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ChucVu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ChucVu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayVaoLam)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayVaoLam)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaNhanVien">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+<main class="staff-profile-page">
+    <nav class="staff-profile-breadcrumb"><a asp-action="Index"><i class="bi bi-people"></i> Nhân viên</a><i class="bi bi-chevron-right"></i><span>NV-@Model.MaNhanVien.ToString("D5")</span></nav>
+    <header class="staff-profile-hero">
+        <div class="staff-profile-avatar">@initial</div>
+        <div class="staff-profile-identity"><span>HỒ SƠ NHÂN SỰ</span><h1>@Model.HoTen</h1><p><i class="bi bi-briefcase"></i> @(string.IsNullOrWhiteSpace(Model.ChucVu) ? "Chưa cập nhật chức vụ" : Model.ChucVu) <b>•</b> NV-@Model.MaNhanVien.ToString("D5")</p></div>
+        <div class="staff-profile-hero-actions"><a asp-action="Edit" asp-route-id="@Model.MaNhanVien"><i class="bi bi-pencil-square"></i> Chỉnh sửa</a><a asp-action="Index" class="secondary"><i class="bi bi-arrow-left"></i> Danh sách</a></div>
+    </header>
+    <section class="staff-profile-stats">
+        <article><span class="blue"><i class="bi bi-journal-check"></i></span><div><small>TỔNG PHIẾU ĐÃ XỬ LÝ</small><strong>@tongPhieu</strong><p>Phiếu mượn sách</p></div></article>
+        <article><span class="cyan"><i class="bi bi-calendar2-week"></i></span><div><small>TRONG THÁNG NÀY</small><strong>@phieuThang</strong><p>Phiếu được lập</p></div></article>
+        <article><span class="purple"><i class="bi bi-award"></i></span><div><small>THÂM NIÊN</small><strong>@thamnien năm</strong><p>Từ @Model.NgayVaoLam.ToString("dd/MM/yyyy")</p></div></article>
+        <article><span class="green"><i class="bi bi-shield-check"></i></span><div><small>TRẠNG THÁI TÀI KHOẢN</small><strong class="staff-profile-state @(hoatDong ? "active" : "locked")">@(hoatDong ? "Hoạt động" : "Đã khóa")</strong><p>@(Model.User?.EmailConfirmed == true ? "Email đã xác nhận" : "Email chưa xác nhận")</p></div></article>
+    </section>
+    <div class="staff-profile-layout">
+        <section class="staff-profile-card">
+            <div class="staff-profile-card__head"><span><i class="bi bi-person-vcard"></i></span><div><h2>Thông tin nhân viên</h2><p>Thông tin cá nhân và công tác hiện tại.</p></div></div>
+            <div class="staff-profile-info">
+                <div><span><i class="bi bi-person"></i></span><small>Họ và tên</small><strong>@Model.HoTen</strong></div>
+                <div><span><i class="bi bi-calendar3"></i></span><small>Ngày sinh</small><strong>@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</strong></div>
+                <div><span><i class="bi bi-gender-ambiguous"></i></span><small>Giới tính</small><strong>@(string.IsNullOrWhiteSpace(Model.GioiTinh) ? "Chưa cập nhật" : Model.GioiTinh)</strong></div>
+                <div><span><i class="bi bi-briefcase"></i></span><small>Chức vụ</small><strong>@(string.IsNullOrWhiteSpace(Model.ChucVu) ? "Chưa cập nhật" : Model.ChucVu)</strong></div>
+                <div><span><i class="bi bi-calendar-check"></i></span><small>Ngày vào làm</small><strong>@Model.NgayVaoLam.ToString("dd/MM/yyyy")</strong></div>
+                <div class="wide"><span><i class="bi bi-geo-alt"></i></span><small>Địa chỉ</small><strong>@(string.IsNullOrWhiteSpace(Model.DiaChi) ? "Chưa cập nhật" : Model.DiaChi)</strong></div>
+            </div>
+        </section>
+        <aside class="staff-profile-sidebar">
+            <section class="staff-profile-card staff-profile-contact"><div class="staff-profile-card__head"><span><i class="bi bi-chat-dots"></i></span><div><h2>Thông tin liên hệ</h2><p>Tài khoản đăng nhập đồng bộ.</p></div></div><div class="staff-contact-row"><i class="bi bi-envelope"></i><div><small>Email</small><strong>@Model.Email</strong></div><a href="mailto:@Model.Email" title="Gửi email"><i class="bi bi-send"></i></a></div><div class="staff-contact-row"><i class="bi bi-telephone"></i><div><small>Số điện thoại</small><strong>@(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "Chưa cập nhật" : Model.SoDienThoai)</strong></div>@if (!string.IsNullOrWhiteSpace(Model.SoDienThoai)){<a href="tel:@Model.SoDienThoai" title="Gọi điện"><i class="bi bi-telephone-outbound"></i></a>}</div></section>
+            <section class="staff-profile-card staff-profile-manage"><h2><i class="bi bi-gear"></i> Quản lý hồ sơ</h2><a asp-action="Edit" asp-route-id="@Model.MaNhanVien"><i class="bi bi-pencil"></i><span><strong>Chỉnh sửa thông tin</strong><small>Cập nhật hồ sơ và tài khoản</small></span><i class="bi bi-chevron-right"></i></a><a asp-action="Delete" asp-route-id="@Model.MaNhanVien" class="danger"><i class="bi bi-trash"></i><span><strong>Xóa nhân viên</strong><small>Kiểm tra điều kiện trước khi xóa</small></span><i class="bi bi-chevron-right"></i></a></section>
+        </aside>
+    </div>
+</main>

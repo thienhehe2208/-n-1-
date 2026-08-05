@@ -1,78 +1,117 @@
-﻿@model bài_tập_1.Models.DocGia
+@model bài_tập_1.Models.ViewModels.DocGiaDetailsViewModel
+@using bài_tập_1.Models
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Hồ sơ độc giả";
+    var reader = Model.DocGia;
+    var name = string.IsNullOrWhiteSpace(reader.HoTen) ? "Chưa cập nhật" : reader.HoTen.Trim();
+    var initials = name == "Chưa cập nhật" ? "DG" : string.Concat(name.Split(' ', StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(x => char.ToUpperInvariant(x[0])));
+    var active = reader.TrangThai == TrangThaiDocGia.HoatDong;
+    var expired = reader.NgayHetHanThe.Date < DateTime.Today;
+    var daysLeft = (reader.NgayHetHanThe.Date - DateTime.Today).Days;
 }
 
-<h1>Details</h1>
+<section class="reader-detail-page">
+    <nav class="reader-detail-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-arrow-left"></i> Danh sách độc giả</a>
+        <i class="bi bi-chevron-right"></i><span>DG-@reader.MaDocGia.ToString("D5")</span>
+    </nav>
 
-<div>
-    <h4>DocGia</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HoTen)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HoTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgaySinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgaySinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GioiTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GioiTinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiaChi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiaChi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayDangKy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayDangKy)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayHetHanThe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayHetHanThe)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
+    <partial name="_StatusMessages" />
+
+    <header class="reader-detail-hero">
+        <div class="reader-detail-identity">
+            <span class="reader-detail-avatar">@initials</span>
+            <div>
+                <span class="reader-detail-code">HỒ SƠ ĐỘC GIẢ · DG-@reader.MaDocGia.ToString("D5")</span>
+                <h1>@name</h1>
+                <p><i class="bi bi-envelope"></i> @(string.IsNullOrWhiteSpace(reader.Email) ? "Chưa có email" : reader.Email)</p>
+            </div>
+        </div>
+        <div class="reader-detail-hero-actions">
+            <span class="reader-detail-state @(active ? "active" : "locked")"><i></i> @(active ? "Đang hoạt động" : "Đã khóa")</span>
+            <a asp-action="Edit" asp-route-id="@reader.MaDocGia"><i class="bi bi-pencil-square"></i> Chỉnh sửa hồ sơ</a>
+        </div>
+    </header>
+
+    <div class="reader-detail-stats">
+        <article><span class="blue"><i class="bi bi-journal-bookmark"></i></span><div><small>Tổng lượt mượn</small><strong>@Model.TongLuotMuon</strong></div></article>
+        <article><span class="teal"><i class="bi bi-book"></i></span><div><small>Sách đang mượn</small><strong>@Model.SachDangMuon</strong></div></article>
+        <article><span class="orange"><i class="bi bi-clock-history"></i></span><div><small>Sách quá hạn</small><strong>@Model.SachQuaHan</strong></div></article>
+        <article><span class="purple"><i class="bi bi-bookmark-star"></i></span><div><small>Đang đặt trước</small><strong>@Model.DatTruocDangCho</strong></div></article>
+        <article><span class="red"><i class="bi bi-cash-coin"></i></span><div><small>Phạt chưa đóng</small><strong>@Model.TienPhatChuaDong.ToString("N0") đ</strong></div></article>
+    </div>
+
+    <div class="reader-detail-layout">
+        <main>
+            <section class="reader-detail-card">
+                <div class="reader-detail-card-head"><div><h2><i class="bi bi-person-vcard"></i> Thông tin độc giả</h2><p>Thông tin cá nhân và liên hệ đã đăng ký.</p></div></div>
+                <div class="reader-detail-info-grid">
+                    <div><small>Họ và tên</small><strong>@name</strong></div>
+                    <div><small>Ngày sinh</small><strong>@(reader.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</strong></div>
+                    <div><small>Giới tính</small><strong>@(string.IsNullOrWhiteSpace(reader.GioiTinh) ? "Chưa cập nhật" : reader.GioiTinh)</strong></div>
+                    <div><small>Số điện thoại</small><strong>@(string.IsNullOrWhiteSpace(reader.SoDienThoai) ? "Chưa cập nhật" : reader.SoDienThoai)</strong></div>
+                    <div class="wide"><small>Email đăng nhập</small><strong>@reader.Email</strong></div>
+                    <div class="wide"><small>Địa chỉ</small><strong>@(string.IsNullOrWhiteSpace(reader.DiaChi) ? "Chưa cập nhật" : reader.DiaChi)</strong></div>
+                </div>
+            </section>
+
+            <section class="reader-detail-card">
+                <div class="reader-detail-card-head"><div><h2><i class="bi bi-clock-history"></i> Lịch sử mượn gần đây</h2><p>Các đầu sách được ghi nhận gần nhất.</p></div><a asp-controller="PhieuMuons" asp-action="Index">Xem tất cả <i class="bi bi-arrow-right"></i></a></div>
+                @if (Model.MuonGanDay.Any())
+                {
+                    <div class="reader-detail-table-wrap">
+                        <table class="reader-detail-table">
+                            <thead><tr><th>Sách</th><th>Ngày mượn</th><th>Hẹn trả</th><th>Trạng thái</th><th></th></tr></thead>
+                            <tbody>
+                                @foreach (var item in Model.MuonGanDay)
+                                {
+                                    <tr><td><strong>@item.TenSach</strong><small>@item.MaVach</small></td><td>@item.NgayMuon.ToString("dd/MM/yyyy")</td><td>@item.NgayHenTra.ToString("dd/MM/yyyy")</td><td><span class="loan-state @(item.NgayTra.HasValue ? "returned" : item.QuaHan ? "overdue" : "borrowing")">@(item.NgayTra.HasValue ? "Đã trả" : item.QuaHan ? "Quá hạn" : "Đang mượn")</span></td><td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@item.MaPhieuMuon" aria-label="Xem phiếu mượn"><i class="bi bi-chevron-right"></i></a></td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+
+                    <div class="reader-detail-empty"><i class="bi bi-journal-x"></i><p>Độc giả chưa có lịch sử mượn sách.</p></div>
+                }
+            </section>
+        </main>
+
+        <aside>
+            <section class="reader-detail-card reader-card-status @(expired ? "expired" : "valid")">
+                <div class="reader-card-status-title"><span><i class="bi @(expired ? "bi-exclamation-triangle" : "bi-shield-check")"></i></span><div><small>THẺ THƯ VIỆN</small><h2>@(expired ? "Đã hết hạn" : "Còn hiệu lực")</h2></div></div>
+                <dl><div><dt>Ngày đăng ký</dt><dd>@reader.NgayDangKy.ToString("dd/MM/yyyy")</dd></div><div><dt>Ngày hết hạn</dt><dd>@reader.NgayHetHanThe.ToString("dd/MM/yyyy")</dd></div></dl>
+                <p>@(expired ? $"Thẻ đã hết hạn {Math.Abs(daysLeft)} ngày." : $"Còn {daysLeft} ngày sử dụng.")</p>
+                <form asp-action="RenewCard" asp-route-id="@reader.MaDocGia" method="post"><button type="submit"><i class="bi bi-calendar-plus"></i> Gia hạn thêm 1 năm</button></form>
+            </section>
+
+            <section class="reader-detail-card reader-detail-actions">
+                <h2>Thao tác nhanh</h2>
+                <a asp-controller="PhieuMuons" asp-action="Create"><i class="bi bi-journal-plus"></i><span><strong>Tạo phiếu mượn</strong><small>Lập giao dịch mượn mới</small></span><i class="bi bi-chevron-right"></i></a>
+                <a asp-action="Edit" asp-route-id="@reader.MaDocGia"><i class="bi bi-person-gear"></i><span><strong>Cập nhật hồ sơ</strong><small>Sửa thông tin và thời hạn thẻ</small></span><i class="bi bi-chevron-right"></i></a>
+                <form asp-action="ToggleStatus" asp-route-id="@reader.MaDocGia" method="post" onsubmit="return confirm('@(active ? "Khóa tài khoản độc giả này?" : "Mở khóa tài khoản độc giả này?")');">
+                    <button type="submit" class="@(active ? "danger" : "success")"><i class="bi @(active ? "bi-person-lock" : "bi-person-check")"></i><span><strong>@(active ? "Khóa tài khoản" : "Mở khóa tài khoản")</strong><small>@(active ? "Ngăn đăng nhập và giao dịch mới" : "Cho phép sử dụng lại tài khoản")</small></span><i class="bi bi-chevron-right"></i></button>
+                </form>
+            </section>
+
+            <section class="reader-detail-card">
+                <div class="reader-detail-card-head"><div><h2><i class="bi bi-bookmark-star"></i> Đặt trước gần đây</h2></div></div>
+                @if (Model.DatTruocGanDay.Any())
+                {
+                    <div class="reader-reservations">@foreach (var item in Model.DatTruocGanDay) {
+                        <a asp-controller="DatTruocs" asp-action="Details" asp-route-id="@item.MaDatTruoc"><span><strong>@item.TenSach</strong><small>@item.NgayDat.ToString("dd/MM/yyyy")</small></span><i class="bi bi-chevron-right"></i></a>
+                    }
+                </div>
+            }
+                else
+            {
+
+                <div class="reader-detail-empty compact"><i class="bi bi-bookmark-x"></i><p>Chưa có lượt đặt trước.</p></div>
+            }
+        </section>
+    </aside>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaDocGia">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+</section>

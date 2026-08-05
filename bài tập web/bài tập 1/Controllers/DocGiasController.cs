@@ -76,10 +76,108 @@ namespace bài_tập_1.Controllers
 
             var docGia = await _context.DocGia
                 .Include(d => d.User)
+                .Include(d => d.PhieuMuons)
+                    .ThenInclude(p => p.ChiTietPhieuMuons)
+                        .ThenInclude(c => c.BanSao)
+                            .ThenInclude(b => b.Sach)
+                .Include(d => d.PhieuMuons)
+                    .ThenInclude(p => p.ChiTietPhieuMuons)
+                        .ThenInclude(c => c.PhieuPhat)
+                .Include(d => d.DatTruocs)
+                    .ThenInclude(d => d.Sach)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.MaDocGia == id);
 
-            return docGia == null ? NotFound() : View(docGia);
+            if (docGia == null)
+                return NotFound();
+
+            var loanItems = docGia.PhieuMuons
+                .SelectMany(p => p.ChiTietPhieuMuons.Select(c => new
+                {
+                    Phieu = p,
+                    ChiTiet = c
+                }))
+                .ToList();
+
+            var model = new DocGiaDetailsViewModel
+            {
+                DocGia = docGia,
+                TongLuotMuon = docGia.PhieuMuons.Count(p => p.TrangThai != TrangThaiPhieuMuon.Nhap),
+                SachDangMuon = loanItems.Count(x => x.ChiTiet.NgayTra == null && x.Phieu.TrangThai != TrangThaiPhieuMuon.Nhap),
+                SachQuaHan = loanItems.Count(x => x.ChiTiet.NgayTra == null && x.Phieu.NgayHenTra.Date < DateTime.Today),
+                DatTruocDangCho = docGia.DatTruocs.Count(d =>
+                    d.TrangThai == TrangThaiDatTruoc.DangCho || d.TrangThai == TrangThaiDatTruoc.DaCoSach),
+                TienPhatChuaDong = loanItems
+                    .Where(x => x.ChiTiet.PhieuPhat?.TrangThai == TrangThaiPhieuPhat.ChuaDong)
+                    .Sum(x => x.ChiTiet.PhieuPhat?.SoTien ?? 0),
+                MuonGanDay = loanItems
+                    .Where(x => x.Phieu.TrangThai != TrangThaiPhieuMuon.Nhap)
+                    .OrderByDescending(x => x.Phieu.NgayMuon)
+                    .Take(6)
+                    .Select(x => new DocGiaLoanItemViewModel
+                    {
+                        MaPhieuMuon = x.Phieu.MaPhieuMuon,
+                        TenSach = x.ChiTiet.BanSao?.Sach?.TenSach ?? "Sách không còn thông tin",
+                        MaVach = x.ChiTiet.BanSao?.MaVach ?? "—",
+                        NgayMuon = x.Phieu.NgayMuon,
+                        NgayHenTra = x.Phieu.NgayHenTra,
+                        NgayTra = x.ChiTiet.NgayTra,
+                        QuaHan = x.ChiTiet.NgayTra == null && x.Phieu.NgayHenTra.Date < DateTime.Today
+                    }).ToList(),
+                DatTruocGanDay = docGia.DatTruocs
+                    .OrderByDescending(d => d.NgayDat)
+                    .Take(5)
+                    .Select(d => new DocGiaReservationItemViewModel
+                    {
+                        MaDatTruoc = d.MaDatTruoc,
+                        TenSach = d.Sach?.TenSach ?? "Sách không còn thông tin",
+                        NgayDat = d.NgayDat,
+                        TrangThai = d.TrangThai
+                    }).ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var docGia = await _context.DocGia.Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.MaDocGia == id);
+            if (docGia == null || docGia.User == null)
+                return NotFound();
+
+            var lockAccount = docGia.TrangThai == TrangThaiDocGia.HoatDong;
+            var result = await _userManager.SetLockoutEndDateAsync(
+                docGia.User, lockAccount ? DateTimeOffset.MaxValue : null);
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "Không thể cập nhật trạng thái tài khoản. Vui lòng thử lại.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            docGia.TrangThai = lockAccount ? TrangThaiDocGia.Khoa : TrangThaiDocGia.HoatDong;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = lockAccount ? "Đã khóa tài khoản độc giả." : "Đã mở khóa tài khoản độc giả.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RenewCard(int id)
+        {
+            var docGia = await _context.DocGia.FindAsync(id);
+            if (docGia == null)
+                return NotFound();
+
+            var startDate = docGia.NgayHetHanThe.Date > DateTime.Today
+                ? docGia.NgayHetHanThe.Date
+                : DateTime.Today;
+            docGia.NgayHetHanThe = startDate.AddYears(1);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Đã gia hạn thẻ đến {docGia.NgayHetHanThe:dd/MM/yyyy}.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         public IActionResult Create()

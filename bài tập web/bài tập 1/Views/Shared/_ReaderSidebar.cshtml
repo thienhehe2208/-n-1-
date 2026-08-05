@@ -54,11 +54,22 @@
 
     <div class="reader-sidebar-section">
         <h3 class="reader-sidebar-title">Hỗ trợ</h3>
-        <button type="button" class="reader-menu-item reader-support-action"
-                data-bs-toggle="modal" data-bs-target="#feedbackModal">
-            <span class="reader-menu-icon"><i class="bi bi-chat-square-text"></i></span>
-            <span>Gửi phản hồi</span>
-        </button>
+        @if (User.IsInRole("DocGia"))
+        {
+            <a asp-controller="PhanHois" asp-action="CuaToi"
+               class="reader-menu-item reader-support-action @(controller == "PhanHois" && action == "CuaToi" ? "active" : "")">
+                <span class="reader-menu-icon"><i class="bi bi-chat-square-text"></i></span>
+                <span>Phản hồi</span>
+            </a>
+        }
+        else
+        {
+            <button type="button" class="reader-menu-item reader-support-action"
+                    data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                <span class="reader-menu-icon"><i class="bi bi-chat-square-text"></i></span>
+                <span>Phản hồi</span>
+            </button>
+        }
         <button type="button" class="reader-menu-item reader-support-action"
                 data-bs-toggle="modal" data-bs-target="#zaloChatModal">
             <span class="reader-menu-icon"><i class="bi bi-headset"></i></span>

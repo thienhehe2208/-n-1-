@@ -1,0 +1,105 @@
+:root {
+    --font-size-caption: 12px;
+    --font-size-small: 13px;
+    --font-size-body: 14px;
+    --font-size-lead: 15px;
+    --font-size-h3: 18px;
+    --font-size-h2: 22px;
+    --font-size-h1: clamp(26px, 2.4vw, 30px);
+    --line-height-body: 1.6;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/*
+ * Typography normalization layer.
+ * These selectors are deliberately scoped to page content so icons, sidebars,
+ * navigation geometry and decorative elements keep their intended dimensions.
+ */
+:where(.admin-content, .reader-page-content, .auth-layout-main) {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+}
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main)
+    :where(p, li, dt, dd, td, th, blockquote) {
+        font-size: var(--font-size-body) !important;
+        line-height: var(--line-height-body) !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main)
+    :where(label, input, select, textarea, button, .btn, .form-control, .form-select) {
+        font-size: var(--font-size-body) !important;
+        line-height: 1.45 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main)
+    :where(small, .text-muted, [class*="kicker"], [class*="eyebrow"], [class*="caption"], [class*="meta"]) {
+        font-size: var(--font-size-caption) !important;
+        line-height: 1.5 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main) h1 {
+        font-size: var(--font-size-h1) !important;
+        line-height: 1.25 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main) h2 {
+        font-size: var(--font-size-h2) !important;
+        line-height: 1.3 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main) h3 {
+        font-size: var(--font-size-h3) !important;
+        line-height: 1.35 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main)
+    :where(h4, h5, h6) {
+        font-size: 16px !important;
+        line-height: 1.4 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main)
+    :where(.badge, [class*="badge"], [class*="status"], [class*="state"], [class*="code"]) {
+        font-size: var(--font-size-caption) !important;
+        line-height: 1.35 !important;
+    }
+
+    :where(.admin-content, .reader-page-content, .auth-layout-main) table {
+        font-size: var(--font-size-body) !important;
+    }
+
+    /* Keep action controls comfortable to read and click. */
+    :where(.admin-content, .reader-page-content, .auth-layout-main)
+    :where(button, .btn, a[class*="btn"], a[class*="button"]) {
+        min-height: 36px;
+    }
+
+/* Header and sidebar text use the same readable baseline. */
+:where(.admin-header, .reader-header, .admin-sidebar, .reader-sidebar)
+:where(a, button, label) {
+    font-size: 14px !important;
+}
+
+:where(.admin-header, .reader-header, .admin-sidebar, .reader-sidebar) small {
+    font-size: 12px !important;
+}
+
+@media (max-width: 575px) {
+    :root {
+        --font-size-body: 14px;
+        --font-size-h3: 17px;
+        --font-size-h2: 20px;
+        --font-size-h1: 24px;
+    }
+}

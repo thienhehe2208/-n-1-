@@ -1,24 +1,15 @@
-﻿@model bài_tập_1.Models.ViewModels.SachFormViewModel
-
-@{
-    ViewData["Title"] = "Thêm sách";
-}
-
-<h1>Thêm sách</h1>
-
-<div class="row">
-    <div class="col-lg-9">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <partial name="_SachForm" model="Model" />
-            <button type="submit" class="btn btn-primary">Thêm sách</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
-        </form>
-    </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+@model bài_tập_1.Models.ViewModels.SachFormViewModel
+@{ ViewData["Title"] = "Thêm sách"; }
+<main class="entity-create-page entity-create-book">
+    <nav class="entity-create-breadcrumb"><a asp-action="Index"><i class="bi bi-book"></i> Kho sách</a><i class="bi bi-chevron-right"></i><span>Thêm sách</span></nav>
+    <header class="entity-create-hero"><span class="entity-create-hero__icon"><i class="bi bi-book-half"></i></span><div><span class="entity-create-eyebrow">Quản lý tài liệu</span><h1>Thêm sách mới</h1><p>Nhập thông tin thư mục để bổ sung đầu sách vào kho dữ liệu thư viện.</p></div></header>
+    <form asp-action="Create" method="post" id="bookCreateForm">
+        <div asp-validation-summary="ModelOnly" class="entity-create-alert"></div>
+        <div class="entity-create-layout">
+            <section class="entity-create-card"><div class="entity-create-card__head"><span><i class="bi bi-card-list"></i></span><div><h2>Thông tin sách</h2><p>Điền đầy đủ thông tin cần thiết bên dưới.</p></div></div><div class="entity-create-card__body"><partial name="_SachForm" model="Model" /></div></section>
+            <aside class="entity-create-aside"><div class="entity-create-aside__icon"><i class="bi bi-lightbulb"></i></div><h2>Lưu ý khi nhập</h2><ul><li>Kiểm tra ISBN để tránh tạo sách trùng.</li><li>Có thể giữ Ctrl để chọn nhiều tác giả.</li><li>Đường dẫn ảnh bìa nên dùng ảnh rõ nét, đúng tỷ lệ.</li></ul><div class="entity-create-aside__note"><i class="bi bi-info-circle"></i><span>Bản sao sách có thể được thêm sau khi tạo đầu sách.</span></div></aside>
+        </div>
+        <footer class="entity-create-actions"><a asp-action="Index" class="btn entity-btn-back"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a><button type="reset" class="btn entity-btn-reset"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</button><button type="submit" class="btn entity-btn-save"><i class="bi bi-check2-circle"></i> Thêm sách</button></footer>
+    </form>
+</main>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

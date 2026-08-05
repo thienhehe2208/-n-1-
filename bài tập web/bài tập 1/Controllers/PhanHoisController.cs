@@ -97,6 +97,30 @@ namespace bài_tập_1.Controllers
             return phanHoi == null ? NotFound() : View(phanHoi);
         }
 
+        [Authorize(Roles = "DocGia")]
+        public async Task<IActionResult> CuaToi()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Challenge();
+
+            var docGia = await _context.DocGia
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+            if (docGia == null)
+                return NotFound();
+
+            var email = docGia.Email.Trim().ToLowerInvariant();
+            var items = await _context.PhanHoi
+                .Where(p => p.UserId == userId ||
+                    (p.UserId == null && p.Email.ToLower() == email))
+                .OrderByDescending(p => p.NgayGui)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(items);
+        }
+
         [Authorize(Roles = "Admin,NhanVien")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -137,6 +161,52 @@ namespace bài_tập_1.Controllers
             phanHoi.NgayTraLoi = DateTime.Now;
             phanHoi.NguoiTraLoi = User.Identity?.Name ?? "Nhân viên thư viện";
             phanHoi.TrangThai = "Đã xử lý";
+
+            var docGia = !string.IsNullOrWhiteSpace(phanHoi.UserId)
+                ? await _context.DocGia.FirstOrDefaultAsync(d => d.UserId == phanHoi.UserId)
+                : null;
+            docGia ??= await _context.DocGia.FirstOrDefaultAsync(d =>
+                d.Email.ToLower() == phanHoi.Email.ToLower());
+
+            var daGuiThongBao = docGia != null;
+            if (docGia != null)
+            {
+                // Liên kết lại các phản hồi cũ gửi khi chưa đăng nhập bằng email tài khoản.
+                phanHoi.UserId ??= docGia.UserId;
+                var maSuKien = $"phan-hoi-tra-loi-{phanHoi.MaPhanHoi}";
+                var tomTat = noiDung.Length > 440
+                    ? $"{noiDung[..437]}..."
+                    : noiDung;
+                var thongBao = await _context.ThongBao.FirstOrDefaultAsync(t =>
+                    t.MaDocGia == docGia.MaDocGia && t.MaSuKien == maSuKien);
+
+                if (thongBao == null)
+                {
+                    _context.ThongBao.Add(new ThongBao
+                    {
+                        MaDocGia = docGia.MaDocGia,
+                        MaSuKien = maSuKien,
+                        TieuDe = $"Phản hồi PH-{phanHoi.MaPhanHoi:D4} đã được trả lời",
+                        NoiDung = tomTat,
+                        LienKet = $"/PhanHois/CuaToi#phan-hoi-{phanHoi.MaPhanHoi}",
+                        Loai = "success",
+                        NgayTao = DateTime.Now,
+                        DaDoc = false,
+                        DoiTuong = "DocGia",
+                        SoNguoiNhan = 1
+                    });
+                }
+                else
+                {
+                    thongBao.TieuDe = $"Phản hồi PH-{phanHoi.MaPhanHoi:D4} đã được cập nhật";
+                    thongBao.NoiDung = tomTat;
+                    thongBao.LienKet = $"/PhanHois/CuaToi#phan-hoi-{phanHoi.MaPhanHoi}";
+                    thongBao.Loai = "success";
+                    thongBao.NgayTao = DateTime.Now;
+                    thongBao.DaDoc = false;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return Json(new
@@ -147,7 +217,8 @@ namespace bài_tập_1.Controllers
                 answer = phanHoi.NoiDungTraLoi,
                 answeredAt = phanHoi.NgayTraLoi.Value.ToString("HH:mm · dd/MM/yyyy"),
                 answeredBy = phanHoi.NguoiTraLoi,
-                status = phanHoi.TrangThai
+                status = phanHoi.TrangThai,
+                recipientNotified = daGuiThongBao
             });
         }
     }

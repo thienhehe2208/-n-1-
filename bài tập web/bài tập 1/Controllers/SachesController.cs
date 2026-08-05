@@ -18,7 +18,7 @@ namespace bài_tập_1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? q, int? maTheLoai, int page = 1)
+        public async Task<IActionResult> Index(string? q, int? maTheLoai, int? maNXB, int page = 1)
         {
             var categories = await _context.TheLoai
                 .Include(t => t.DanhSachSach)
@@ -50,8 +50,12 @@ namespace bài_tập_1.Controllers
             if (maTheLoai.HasValue)
                 query = query.Where(s => s.MaTheLoai == maTheLoai.Value);
 
+            if (maNXB.HasValue)
+                query = query.Where(s => s.MaNXB == maNXB.Value);
+
             ViewData["Search"] = q;
             ViewData["MaTheLoai"] = maTheLoai;
+            ViewData["MaNXB"] = maNXB;
             ViewData["SelectedCategory"] = selectedCategory;
             ViewData["Categories"] = categories;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

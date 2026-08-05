@@ -1,42 +1,125 @@
-﻿@model bài_tập_1.Models.NhaXuatBan
+@model bài_tập_1.Models.NhaXuatBan
+@using bài_tập_1.Models
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết nhà xuất bản";
+    var canManage = User.IsInRole("Admin") || User.IsInRole("NhanVien");
+    var initial = string.IsNullOrWhiteSpace(Model.TenNXB) ? "NXB" : Model.TenNXB.Trim()[0].ToString().ToUpperInvariant();
+    var totalBooks = (int?)ViewData["TongDauSach"] ?? 0;
+    var totalCopies = (int?)ViewData["TongBanSao"] ?? 0;
+    var availableCopies = (int?)ViewData["BanSaoSanCo"] ?? 0;
+    var categories = (int?)ViewData["SoTheLoai"] ?? 0;
 }
 
-<h1>Details</h1>
+<section class="publisher-detail-page">
+    <nav class="publisher-detail-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-arrow-left"></i> Danh sách nhà xuất bản</a>
+        <i class="bi bi-chevron-right"></i><span>NXB-@Model.MaNXB.ToString("D4")</span>
+    </nav>
 
-<div>
-    <h4>NhaXuatBan</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenNXB)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenNXB)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiaChi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiaChi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
+    <partial name="_StatusMessages" />
+
+    <header class="publisher-detail-hero">
+        <div class="publisher-detail-identity">
+            <span class="publisher-detail-logo">@initial</span>
+            <div><small>HỒ SƠ ĐỐI TÁC · NXB-@Model.MaNXB.ToString("D4")</small><h1>@Model.TenNXB</h1><p><i class="bi bi-building-check"></i> Đối tác phát hành sách của thư viện</p></div>
+        </div>
+        <div class="publisher-detail-hero-actions">
+            <a asp-controller="Saches" asp-action="Index" asp-route-maNXB="@Model.MaNXB" class="secondary"><i class="bi bi-journals"></i> Xem sách</a>
+            @if (canManage)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.MaNXB"><i class="bi bi-pencil-square"></i> Chỉnh sửa</a>
+            }
+        </div>
+    </header>
+
+    <div class="publisher-detail-stats">
+        <article><span class="blue"><i class="bi bi-book"></i></span><div><small>ĐẦU SÁCH</small><strong>@totalBooks</strong></div></article>
+        <article><span class="teal"><i class="bi bi-copy"></i></span><div><small>TỔNG BẢN SAO</small><strong>@totalCopies</strong></div></article>
+        <article><span class="green"><i class="bi bi-check-circle"></i></span><div><small>BẢN SAO SẴN CÓ</small><strong>@availableCopies</strong></div></article>
+        <article><span class="amber"><i class="bi bi-tags"></i></span><div><small>THỂ LOẠI</small><strong>@categories</strong></div></article>
+    </div>
+
+    <div class="publisher-detail-layout">
+        <main>
+            <section class="publisher-detail-card publisher-books-card">
+                <header><div><h2><i class="bi bi-journal-richtext"></i> Đầu sách đã xuất bản</h2><p>Các đầu sách thuộc nhà xuất bản hiện có trong thư viện.</p></div><a asp-controller="Saches" asp-action="Index" asp-route-maNXB="@Model.MaNXB">Xem tất cả <i class="bi bi-arrow-right"></i></a></header>
+                @if (Model.DanhSachSach.Any())
+                {
+                    <div class="publisher-book-list">
+                        @foreach (var book in Model.DanhSachSach.OrderByDescending(s => s.MaSach).Take(6))
+                        {
+                            var available = book.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
+                            <article>
+                                <a asp-controller="Saches" asp-action="Details" asp-route-id="@book.MaSach" class="publisher-book-cover">
+                                    @if (!string.IsNullOrWhiteSpace(book.AnhBia))
+                                    {
+                                        <img src="@book.AnhBia" alt="Bìa sách @book.TenSach" />
+                                    }
+                                    else
+                                    {
+
+                                        <i class="bi bi-book"></i>
+                                    }
+                                </a>
+                                <div><span>@(book.TheLoai?.TenTheLoai ?? "Chưa phân loại")</span><h3><a asp-controller="Saches" asp-action="Details" asp-route-id="@book.MaSach">@book.TenSach</a></h3><p>ISBN: @(string.IsNullOrWhiteSpace(book.ISBN) ? "Chưa cập nhật" : book.ISBN)</p><footer><span><i class="bi bi-calendar3"></i> @(book.NamXuatBan?.ToString() ?? "—")</span><b class="@(available > 0 ? "available" : "unavailable")">@available/@book.BanSaos.Count sẵn có</b></footer></div>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="publisher-detail-empty"><span><i class="bi bi-journal-x"></i></span><h3>Chưa có đầu sách</h3><p>Nhà xuất bản này chưa có sách nào trong hệ thống.</p>@if (canManage) {
+                        <a asp-controller="Saches" asp-action="Create"><i class="bi bi-plus-lg"></i> Thêm sách mới</a>
+                    }
+                </div>
+            }
+        </section>
+    </main>
+
+    <aside>
+        <section class="publisher-detail-card publisher-contact-card-detail">
+            <header><span><i class="bi bi-person-lines-fill"></i></span><div><h2>Thông tin liên hệ</h2><p>Thông tin kết nối với nhà xuất bản.</p></div></header>
+            <dl>
+                <div><dt><i class="bi bi-geo-alt"></i> Địa chỉ</dt><dd>@(string.IsNullOrWhiteSpace(Model.DiaChi) ? "Chưa cập nhật" : Model.DiaChi)</dd></div>
+                <div><dt><i class="bi bi-telephone"></i> Điện thoại</dt><dd>@if (!string.IsNullOrWhiteSpace(Model.SoDienThoai)) {
+                    <a href="tel:@Model.SoDienThoai">@Model.SoDienThoai</a>
+                } else
+                {
+
+                    <span>Chưa cập nhật</span>
+                }
+            </dd></div>
+            <div><dt><i class="bi bi-envelope"></i> Email</dt><dd>@if (!string.IsNullOrWhiteSpace(Model.Email)) {
+                <a href="mailto:@Model.Email">@Model.Email</a>
+            } else
+            {
+
+                <span>Chưa cập nhật</span>
+            }
+        </dd></div>
     </dl>
+    <div class="publisher-contact-buttons">
+        @if (!string.IsNullOrWhiteSpace(Model.Email))
+        {
+            <a href="mailto:@Model.Email"><i class="bi bi-envelope"></i> Gửi email</a>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.SoDienThoai))
+        {
+            <a href="tel:@Model.SoDienThoai" class="outline"><i class="bi bi-telephone"></i> Gọi điện</a>
+        }
+    </div>
+</section>
+
+@if (canManage)
+{
+    <section class="publisher-detail-card publisher-management-card">
+        <h2><i class="bi bi-gear"></i> Quản lý nhà xuất bản</h2><p>Cập nhật thông tin hoặc quản lý dữ liệu liên quan.</p>
+        <a asp-action="Edit" asp-route-id="@Model.MaNXB"><i class="bi bi-pencil-square"></i><span><strong>Chỉnh sửa thông tin</strong><small>Cập nhật liên hệ và địa chỉ</small></span><i class="bi bi-chevron-right"></i></a>
+        <a asp-controller="Saches" asp-action="Create"><i class="bi bi-journal-plus"></i><span><strong>Thêm đầu sách</strong><small>Bổ sung sách vào thư viện</small></span><i class="bi bi-chevron-right"></i></a>
+        <a asp-action="Delete" asp-route-id="@Model.MaNXB" class="danger"><i class="bi bi-trash3"></i><span><strong>Xóa nhà xuất bản</strong><small>Kiểm tra dữ liệu trước khi xóa</small></span><i class="bi bi-chevron-right"></i></a>
+    </section>
+}
+</aside>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaNXB">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+</section>

@@ -579,6 +579,7 @@ namespace bài_tập_1.Controllers
                 "MaDocGia",
                 "HoTen",
                 selectedId);
+            ViewData["SoDocGiaHopLe"] = docGias.Count;
         }
 
         private void ValidateDocGia(DocGia? docGia)
