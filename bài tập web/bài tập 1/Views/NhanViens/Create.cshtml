@@ -6,7 +6,7 @@
 
 <section class="staff-create-page">
     <nav class="staff-create-breadcrumb"><a asp-action="Index"><i class="bi bi-arrow-left"></i> Danh sách nhân viên</a><i class="bi bi-chevron-right"></i><span>Thêm nhân viên</span></nav>
-    <header class="staff-create-hero"><span><i class="bi bi-person-plus"></i></span><div><small>QUẢN TRỊ NHÂN SỰ</small><h1>Thêm nhân viên mới</h1><p>Tạo đồng thời hồ sơ công tác và tài khoản đăng nhập có quyền Nhân viên.</p></div><strong><i class="bi bi-shield-check"></i> Quyền: Nhân viên</strong></header>
+    <header class="staff-create-hero"><span><i class="bi bi-person-plus"></i></span><div><small>QUẢN TRỊ NHÂN SỰ</small><h1>Thêm nhân viên mới</h1><p>Tạo đồng thời hồ sơ nhân viên và tài khoản đăng nhập có quyền Nhân viên.</p></div><strong><i class="bi bi-shield-check"></i> Quyền: Nhân viên</strong></header>
 
     <form asp-action="Create" method="post" class="staff-create-form">
         <div asp-validation-summary="ModelOnly" class="staff-create-validation"></div>
@@ -23,14 +23,11 @@
                     </div>
                 </section>
                 <section class="staff-create-card staff-create-section">
-                    <div class="staff-create-heading"><span><i class="bi bi-briefcase"></i></span><div><h2>Thông tin công tác</h2><p>Vị trí và thời điểm bắt đầu làm việc.</p></div></div>
-                    <div class="staff-create-grid"><div class="staff-create-field"><label asp-for="ChucVu"><i class="bi bi-person-workspace"></i> Chức vụ</label><input asp-for="ChucVu" placeholder="Ví dụ: Thủ thư, Nhân viên kho..." /><span asp-validation-for="ChucVu"></span></div><div class="staff-create-field"><label asp-for="NgayVaoLam"><i class="bi bi-calendar-check"></i> Ngày vào làm</label><input asp-for="NgayVaoLam" type="date" /><span asp-validation-for="NgayVaoLam"></span></div></div>
-                </section>
-                <section class="staff-create-card staff-create-section">
                     <div class="staff-create-heading"><span><i class="bi bi-shield-lock"></i></span><div><h2>Tài khoản đăng nhập</h2><p>Email sẽ được sử dụng làm tên đăng nhập của nhân viên.</p></div></div>
                     <div class="staff-create-notice"><i class="bi bi-info-circle"></i> Tài khoản được xác nhận email tự động và gán quyền <strong>Nhân viên</strong>.</div>
                     <div class="staff-create-grid">
-                        <div class="staff-create-field wide"><label asp-for="Email"><i class="bi bi-envelope"></i> Email đăng nhập <em>*</em></label><input asp-for="Email" type="email" autocomplete="email" placeholder="nhanvien@thuvien.vn" /><span asp-validation-for="Email"></span></div>
+                        <div class="staff-create-field"><label asp-for="Email"><i class="bi bi-envelope"></i> Email đăng nhập <em>*</em></label><input asp-for="Email" type="email" autocomplete="email" placeholder="nhanvien@thuvien.vn" /><span asp-validation-for="Email"></span></div>
+                        <div class="staff-create-field"><label asp-for="NgayVaoLam"><i class="bi bi-calendar-check"></i> Ngày vào làm</label><input asp-for="NgayVaoLam" type="date" /><span asp-validation-for="NgayVaoLam"></span></div>
                         <div class="staff-create-field"><label asp-for="Password"><i class="bi bi-key"></i> Mật khẩu <em>*</em></label><div class="staff-password-field"><input asp-for="Password" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" /><button type="button" class="staff-password-toggle" aria-label="Hiện mật khẩu" aria-pressed="false"><i class="bi bi-eye"></i></button></div><span asp-validation-for="Password"></span></div>
                         <div class="staff-create-field"><label asp-for="ConfirmPassword"><i class="bi bi-key-fill"></i> Xác nhận mật khẩu <em>*</em></label><div class="staff-password-field"><input asp-for="ConfirmPassword" autocomplete="new-password" placeholder="Nhập lại mật khẩu" /><button type="button" class="staff-password-toggle" aria-label="Hiện mật khẩu xác nhận" aria-pressed="false"><i class="bi bi-eye"></i></button></div><span asp-validation-for="ConfirmPassword"></span></div>
                     </div>
@@ -38,7 +35,7 @@
             </main>
             <aside class="staff-create-sidebar">
                 <section class="staff-create-card staff-create-role"><span><i class="bi bi-person-gear"></i></span><h2>Quyền Nhân viên</h2><p>Tài khoản mới có thể thực hiện các nghiệp vụ thư viện được phân quyền.</p><ul><li><i class="bi bi-check2"></i> Quản lý mượn và trả sách</li><li><i class="bi bi-check2"></i> Xử lý đặt trước</li><li><i class="bi bi-check2"></i> Quản lý phiếu phạt</li><li><i class="bi bi-x"></i> Không có quyền quản trị nhân sự</li></ul></section>
-                <section class="staff-create-card staff-create-check"><h2><i class="bi bi-clipboard-check"></i> Kiểm tra trước khi tạo</h2><ul><li>Email chưa được sử dụng</li><li>Mật khẩu có ít nhất 8 ký tự</li><li>Thông tin liên hệ chính xác</li><li>Chức vụ phù hợp công việc</li></ul></section>
+                <section class="staff-create-card staff-create-check"><h2><i class="bi bi-clipboard-check"></i> Kiểm tra trước khi tạo</h2><ul><li>Email chưa được sử dụng</li><li>Mật khẩu có ít nhất 8 ký tự</li><li>Thông tin liên hệ chính xác</li><li>Ngày vào làm chính xác</li></ul></section>
             </aside>
         </div>
         <footer class="staff-create-actions"><a asp-action="Index"><i class="bi bi-x-lg"></i> Hủy thao tác</a><span><i class="bi bi-shield-lock"></i> Hệ thống sẽ tạo hồ sơ và tài khoản cùng lúc</span><button type="submit"><i class="bi bi-person-check"></i> Tạo nhân viên</button></footer>

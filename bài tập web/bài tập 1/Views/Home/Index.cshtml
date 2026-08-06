@@ -8,17 +8,22 @@
 
 <div class="home-view">
     <div class="home-content">
-        <section class="hero-banner">
-            <div class="hero-content">
-                <span class="hero-small-title">Chào mừng bạn đến với</span>
-                <h1>THƯ VIỆN TRI THỨC</h1>
-                <p>Khám phá các đầu sách thuộc nhiều chủ đề và theo dõi hoạt động mượn trả của bạn.</p>
-                <a asp-controller="Saches" asp-action="Index" class="hero-button">
-                    <i class="bi bi-search"></i> Tìm sách ngay
-                </a>
+        <section class="hero-banner home-banner-carousel" id="homeBannerCarousel" aria-label="Banner giới thiệu thư viện">
+            <div class="home-banner-track">
+                <article class="home-banner-slide is-active" aria-hidden="false">
+                    <img src="~/images/books/banner.jpg" alt="TQQT - Quản lý thư viện, tri thức hôm nay thành công ngày mai" class="hero-banner-image" />
+                </article>
+                <article class="home-banner-slide" aria-hidden="true">
+                    <img src="~/images/books/banner-tqqt-kham-pha.png" alt="TQQT - Khám phá tri thức, mỗi trang sách một chân trời mới" class="hero-banner-image" loading="lazy" />
+                </article>
+                <article class="home-banner-slide" aria-hidden="true">
+                    <img src="~/images/books/banner-tqqt-dam-me.png" alt="TQQT - Kết nối đam mê đọc sách" class="hero-banner-image" loading="lazy" />
+                </article>
             </div>
-            <div class="hero-image">
-                <img src="~/images/books/banner.jpg" alt="Không gian thư viện" class="hero-banner-image" />
+            <div class="home-banner-nav" aria-label="Điều khiển banner">
+                <button type="button" class="home-banner-nav-button home-banner-prev" aria-label="Banner trước"><i class="bi bi-arrow-left"></i></button>
+                <span class="home-banner-counter"><strong class="home-banner-current">01</strong><i></i><span>03</span></span>
+                <button type="button" class="home-banner-nav-button home-banner-next" aria-label="Banner tiếp theo"><i class="bi bi-arrow-right"></i></button>
             </div>
         </section>
 
@@ -29,17 +34,23 @@
                     <div><span class="section-label">Khám phá</span><h2>Thể loại phổ biến</h2></div>
                     <a asp-controller="TheLoais" asp-action="Index">Xem danh mục <i class="bi bi-arrow-right"></i></a>
                 </div>
-                <div class="row g-3">
+                <div class="popular-category-grid">
                     @foreach (var category in Model.TheLoaiPhoBien)
                     {
-                        <div class="col-6 col-lg">
-                            <a asp-controller="Saches" asp-action="Index" asp-route-maTheLoai="@category.MaTheLoai"
-                               class="text-decoration-none d-block border rounded-3 p-3 h-100">
-                                <i class="bi @category.Icon fs-4"></i>
-                                <strong class="d-block mt-2">@category.TenTheLoai</strong>
-                                <small class="text-muted">@category.SoLuongSach đầu sách</small>
-                            </a>
-                        </div>
+                        <a asp-controller="Saches" asp-action="Index" asp-route-maTheLoai="@category.MaTheLoai"
+                           class="popular-category-card @category.LopMau"
+                           style="--category-image:url('@category.AnhDaiDien')">
+                            <span class="popular-category-image" aria-hidden="true"></span>
+                            <span class="popular-category-overlay" aria-hidden="true"></span>
+                            <span class="popular-category-content">
+                                <span class="popular-category-icon"><i class="bi @category.Icon"></i></span>
+                                <span class="popular-category-copy">
+                                    <strong>@category.TenTheLoai</strong>
+                                    <small><i class="bi bi-journals"></i> @category.SoLuongSach đầu sách</small>
+                                </span>
+                                <span class="popular-category-arrow"><i class="bi bi-arrow-up-right"></i></span>
+                            </span>
+                        </a>
                     }
                 </div>
             </section>
@@ -65,13 +76,14 @@
                                 var daYeuThich = favoriteIds.Contains(sach.MaSach);
                                 var soBanSanCo = sach.BanSaos.Count(b => b.TinhTrang == TinhTrangBanSao.SanCo);
                                 var anhBia = string.IsNullOrWhiteSpace(sach.AnhBia) ? anhMacDinh : sach.AnhBia;
+                                var moTaSach = string.IsNullOrWhiteSpace(sach.MoTa) ? "Chưa có mô tả cho cuốn sách này." : sach.MoTa;
                                 <article class="book-card">
                                     @if (User.Identity?.IsAuthenticated == true && User.IsInRole("DocGia"))
                                     {
                                         <form asp-controller="YeuThichs" asp-action="Toggle" method="post" class="home-favorite-form">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="maSach" value="@sach.MaSach" />
-                                            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + "#sach-moi")" />
+                                            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString + "#sach-moi")" />
                                             <button type="submit" class="catalog-heart-button @(daYeuThich ? "is-favorite" : "")"
                                                     aria-label="@(daYeuThich ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích")">
                                                 <i class="bi @(daYeuThich ? "bi-heart-fill" : "bi-heart")"></i>
@@ -85,7 +97,7 @@
                                     </a>
                                     <div class="book-content">
                                         <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach" class="book-title">@sach.TenSach</a>
-                                        <p class="book-description">@(string.IsNullOrWhiteSpace(sach.MoTa) ? "Chưa có mô tả cho cuốn sách này." : sach.MoTa)</p>
+                                        <p class="book-description" data-full-description="@moTaSach" tabindex="0">@moTaSach</p>
                                         <div class="book-availability-line @(soBanSanCo > 0 ? "is-available" : "is-unavailable")">
                                             <span><i class="bi @(soBanSanCo > 0 ? "bi-check-circle-fill" : "bi-clock-fill")"></i></span>
                                             <div>
@@ -107,6 +119,12 @@
                                     </div>
                                 </article>
                             }
+                        </div>
+                    }
+                    @if (ViewData["Pagination"] is PaginationViewModel homePagination)
+                    {
+                        <div class="home-pagination">
+                            <partial name="_Pagination" model="homePagination" />
                         </div>
                     }
                 </section>
@@ -205,3 +223,51 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const carousel = document.getElementById('homeBannerCarousel');
+            if (!carousel) return;
+            const slides = [...carousel.querySelectorAll('.home-banner-slide')];
+            const currentNumber = carousel.querySelector('.home-banner-current');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let current = 0;
+            let timer;
+            let transitionTimer;
+
+            const show = (index, direction = 1) => {
+                current = (index + slides.length) % slides.length;
+                carousel.classList.toggle('is-moving-back', direction < 0);
+                slides.forEach((slide, i) => {
+                    const active = i === current;
+                    slide.classList.toggle('is-active', active);
+                    slide.setAttribute('aria-hidden', String(!active));
+                });
+                currentNumber.textContent = String(current + 1).padStart(2, '0');
+                carousel.classList.remove('is-transitioning');
+                if (!reduceMotion) {
+                    void carousel.offsetWidth;
+                    carousel.classList.add('is-transitioning');
+                    clearTimeout(transitionTimer);
+                    transitionTimer = setTimeout(() => carousel.classList.remove('is-transitioning'), 950);
+                }
+            };
+            const stop = () => clearInterval(timer);
+            const start = () => {
+                stop();
+                if (!reduceMotion) timer = setInterval(() => show(current + 1, 1), 4000);
+            };
+
+            carousel.querySelector('.home-banner-prev').addEventListener('click', () => { show(current - 1, -1); start(); });
+            carousel.querySelector('.home-banner-next').addEventListener('click', () => { show(current + 1, 1); start(); });
+            carousel.addEventListener('mouseenter', stop);
+            carousel.addEventListener('mouseleave', start);
+            carousel.addEventListener('focusin', stop);
+            carousel.addEventListener('focusout', start);
+            document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+            show(0);
+            start();
+        })();
+    </script>
+}

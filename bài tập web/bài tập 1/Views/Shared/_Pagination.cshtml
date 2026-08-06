@@ -11,7 +11,9 @@
                 new KeyValuePair<string, string?>(item.Key, value)))
             .ToList();
         values.Add(new KeyValuePair<string, string?>("page", page.ToString()));
-        return request.Path + QueryString.Create(values);
+        var url = request.Path + QueryString.Create(values);
+        var fragment = ViewData["PaginationFragment"]?.ToString();
+        return string.IsNullOrWhiteSpace(fragment) ? url : $"{url}#{fragment}";
     }
 
     <nav aria-label="Phân trang" class="mt-4">

@@ -352,9 +352,7 @@
                     @RenderBody()
                 </main>
 
-                <footer class="admin-footer">
-                    © @DateTime.Now.Year Quản lý thư viện. All rights reserved.
-                </footer>
+                <partial name="_SiteFooter" />
 
             </div>
         </div>
@@ -436,6 +434,7 @@
             <main class="auth-layout-main">
                 @RenderBody()
             </main>
+            <partial name="_SiteFooter" />
         }
         else
         {
@@ -448,6 +447,7 @@
                     </div>
                 </div>
             </main>
+            <partial name="_SiteFooter" />
             <partial name="_ReaderSupportModals" />
         }
     }

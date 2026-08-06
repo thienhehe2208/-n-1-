@@ -37,6 +37,8 @@ namespace bài_tập_1.Models.ViewModels
         public string Icon { get; set; } = "bi-book";
 
         public string LopMau { get; set; } = "category-green";
+
+        public string AnhDaiDien { get; set; } = "/images/categories/van-hoc-nuoc-ngoai.webp";
     }
 
     public class ThongKeCaNhanItem

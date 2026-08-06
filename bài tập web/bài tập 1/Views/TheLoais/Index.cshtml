@@ -14,6 +14,19 @@
         "emerald", "amber", "indigo", "pink", "teal"
     };
     var index = 0;
+    var categoryImages = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Công nghệ thông tin"] = "~/images/categories/theloai-cong-nghe-thong-tin-v2.webp",
+        ["Giáo dục - Giáo trình"] = "~/images/categories/theloai-giao-duc-giao-trinh-v2.webp",
+        ["Khoa học tự nhiên"] = "~/images/categories/theloai-khoa-hoc-tu-nhien-v2.webp",
+        ["Kinh tế - Quản trị"] = "~/images/categories/theloai-kinh-te-quan-tri-v2.webp",
+        ["Lịch sử - Địa lý"] = "~/images/categories/theloai-lich-su-dia-ly-v2.webp",
+        ["Ngoại ngữ"] = "~/images/categories/theloai-ngoai-ngu-v2.webp",
+        ["Tâm lý - Kỹ năng"] = "~/images/categories/theloai-tam-ly-ky-nang-v2.webp",
+        ["Thiếu nhi"] = "~/images/categories/theloai-thieu-nhi-v2.webp",
+        ["Văn học nước ngoài"] = "~/images/categories/theloai-van-hoc-nuoc-ngoai-v2.webp",
+        ["Văn học Việt Nam"] = "~/images/categories/theloai-van-hoc-viet-nam-v2.webp"
+    };
 }
 
 <section class="category-page">
@@ -49,8 +62,11 @@
             {
                 var theme = themes[index % themes.Length];
                 var icon = icons[index % icons.Length];
+                var imagePath = categoryImages.TryGetValue(item.TenTheLoai, out var matchedImage)
+                    ? Url.Content(matchedImage)
+                    : Url.Content("~/images/categories/theloai-giao-duc-giao-trinh-v2.webp");
 
-                <article class="category-card category-theme-@theme">
+                <article class="category-card category-theme-@theme" style="--category-image:url('@imagePath')">
                     <div class="category-card-decoration" aria-hidden="true"></div>
                     <div class="category-card-top">
                         <span class="category-icon"><i class="bi @icon"></i></span>

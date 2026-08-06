@@ -1,38 +1,95 @@
-﻿@model bài_tập_1.Models.TheLoai
+@model bài_tập_1.Models.TheLoai
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm thể loại";
 }
 
-<h1>Create</h1>
+<main class="genre-edit-page genre-create-page">
+    <nav class="genre-edit-breadcrumb"><a asp-action="Index"><i class="bi bi-grid-1x2"></i> Danh mục sách</a><i class="bi bi-chevron-right"></i><span>Thêm thể loại</span></nav>
 
-<h4>TheLoai</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TenTheLoai" class="control-label"></label>
-                <input asp-for="TenTheLoai" class="form-control" />
-                <span asp-validation-for="TenTheLoai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MoTa" class="control-label"></label>
-                <input asp-for="MoTa" class="form-control" />
-                <span asp-validation-for="MoTa" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+    <header class="genre-edit-hero genre-create-hero">
+        <span><i class="bi bi-tags"></i></span>
+        <div><small>QUẢN LÝ DANH MỤC</small><h1>Tạo thể loại mới</h1><p>Xây dựng danh mục rõ ràng để độc giả nhanh chóng khám phá nhóm sách phù hợp.</p></div>
+        <span class="genre-create-hero-badge"><i class="bi bi-stars"></i> Danh mục mới</span>
+    </header>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <form asp-action="Create" method="post" id="genreCreateForm">
+        <div asp-validation-summary="ModelOnly" class="genre-edit-alert"></div>
+        <div class="genre-edit-layout">
+            <section class="genre-edit-card">
+                <header><span><i class="bi bi-pencil-square"></i></span><div><h2>Thông tin thể loại</h2><p>Tên dễ hiểu và mô tả súc tích sẽ giúp việc phân loại chính xác hơn.</p></div></header>
+                <div class="genre-edit-fields">
+                    <div class="genre-edit-field">
+                        <div class="genre-edit-label"><label asp-for="TenTheLoai">Tên thể loại <b>*</b></label><small><strong data-name-count>0</strong>/100</small></div>
+                        <div class="genre-edit-control"><i class="bi bi-tag"></i><input asp-for="TenTheLoai" maxlength="100" autocomplete="off" placeholder="Ví dụ: Khoa học tự nhiên" data-genre-name /></div>
+                        <span asp-validation-for="TenTheLoai"></span>
+                        <p><i class="bi bi-lightbulb"></i> Dùng tên quen thuộc, tránh viết tắt hoặc đặt tên quá dài.</p>
+                    </div>
+                    <div class="genre-edit-field">
+                        <div class="genre-edit-label"><label asp-for="MoTa">Mô tả danh mục</label><small><strong data-description-count>0</strong> ký tự</small></div>
+                        <div class="genre-edit-control textarea"><i class="bi bi-card-text"></i><textarea asp-for="MoTa" rows="6" placeholder="Mô tả nội dung, chủ đề và nhóm độc giả phù hợp..." data-genre-description></textarea></div>
+                        <span asp-validation-for="MoTa"></span>
+                    </div>
+                </div>
+                <div class="genre-edit-note"><i class="bi bi-info-circle-fill"></i><span>Sau khi tạo, thể loại sẽ sẵn sàng để gán cho các đầu sách trong thư viện.</span></div>
+            </section>
+
+            <aside class="genre-edit-sidebar">
+                <section class="genre-edit-preview" data-genre-preview>
+                    <span class="genre-preview-label"><i class="bi bi-eye"></i> Xem trước danh mục</span>
+                    <div class="genre-preview-icon"><i class="bi bi-book" data-preview-icon></i></div>
+                    <span class="genre-preview-code">THỂ LOẠI · MỚI</span>
+                    <h2 data-preview-name>Tên thể loại</h2>
+                    <p data-preview-description>Mô tả danh mục sẽ hiển thị tại đây.</p>
+                    <div><span><i class="bi bi-collection"></i> Danh mục thư viện</span><i class="bi bi-arrow-up-right"></i></div>
+                </section>
+                <section class="genre-edit-guide"><header><i class="bi bi-patch-check"></i><h2>Gợi ý biên tập</h2></header><ul><li>Tên thể loại nên ngắn gọn và dễ tìm.</li><li>Mô tả đúng phạm vi nội dung sách.</li><li>Không cần thêm từ “Sách” vào tên.</li></ul></section>
+            </aside>
+        </div>
+
+        <footer class="genre-edit-actions">
+            <a asp-action="Index"><i class="bi bi-arrow-left"></i> Quay lại danh mục</a>
+            <button type="reset" class="genre-edit-reset"><i class="bi bi-arrow-counterclockwise"></i> Nhập lại</button>
+            <span><i class="bi bi-shield-check"></i> Kiểm tra thông tin trước khi lưu</span>
+            <button type="submit" class="genre-edit-save"><i class="bi bi-plus-circle"></i> Tạo thể loại</button>
+        </footer>
+    </form>
+</main>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (() => {
+            const form = document.getElementById('genreCreateForm');
+            if (!form) return;
+            const name = form.querySelector('[data-genre-name]');
+            const description = form.querySelector('[data-genre-description]');
+            const preview = document.querySelector('[data-genre-preview]');
+            const previewIcon = document.querySelector('[data-preview-icon]');
+            const presentation = value => {
+                const text = value.toLocaleLowerCase('vi');
+                if (text.includes('công nghệ') || text.includes('tin học')) return ['tech', 'bi-cpu'];
+                if (text.includes('khoa học')) return ['science', 'bi-beaker'];
+                if (text.includes('kinh tế') || text.includes('quản trị')) return ['business', 'bi-graph-up-arrow'];
+                if (text.includes('lịch sử') || text.includes('địa lý')) return ['history', 'bi-globe-asia-australia'];
+                if (text.includes('ngoại ngữ') || text.includes('ngôn ngữ')) return ['language', 'bi-translate'];
+                if (text.includes('thiếu nhi')) return ['children', 'bi-balloon-heart'];
+                if (text.includes('tâm lý') || text.includes('kỹ năng')) return ['skills', 'bi-lightbulb'];
+                if (text.includes('văn học')) return ['literature', 'bi-book-half'];
+                return ['default', 'bi-book'];
+            };
+            const update = () => {
+                document.querySelector('[data-name-count]').textContent = name.value.length;
+                document.querySelector('[data-description-count]').textContent = description.value.length;
+                document.querySelector('[data-preview-name]').textContent = name.value.trim() || 'Tên thể loại';
+                document.querySelector('[data-preview-description]').textContent = description.value.trim() || 'Mô tả danh mục sẽ hiển thị tại đây.';
+                const [theme, icon] = presentation(name.value);
+                preview.dataset.theme = theme;
+                previewIcon.className = `bi ${icon}`;
+            };
+            [name, description].forEach(field => field.addEventListener('input', update));
+            form.addEventListener('reset', () => setTimeout(update));
+            update();
+        })();
+    </script>
 }

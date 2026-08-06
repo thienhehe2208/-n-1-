@@ -1,44 +1,108 @@
-﻿@model bài_tập_1.Models.BanSao
+@model bài_tập_1.Models.BanSao
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm bản sao";
 }
 
-<h1>Create</h1>
+<section class="copy-edit-page copy-create-page">
+    <nav class="copy-edit-breadcrumb" aria-label="Điều hướng">
+        <a asp-action="Index"><i class="bi bi-box-seam"></i> Quản lý kho sách</a>
+        <i class="bi bi-chevron-right"></i><span>Thêm bản sao</span>
+    </nav>
 
-<h4>BanSao</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaSach" class="control-label"></label>
-                <select asp-for="MaSach" class="form-control" asp-items="ViewBag.MaSach"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaVach" class="control-label"></label>
-                <input asp-for="MaVach" class="form-control" />
-                <span asp-validation-for="MaVach" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ViTriKe" class="control-label"></label>
-                <input asp-for="ViTriKe" class="form-control" />
-                <span asp-validation-for="ViTriKe" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+    <header class="copy-edit-hero copy-create-hero">
+        <span class="copy-edit-hero__icon"><i class="bi bi-upc-scan"></i></span>
+        <div>
+            <small>QUẢN LÝ KHO SÁCH</small>
+            <h1>Thêm bản sao mới</h1>
+            <p>Gắn mã vạch và vị trí lưu trữ để sẵn sàng đưa sách vào lưu thông.</p>
+        </div>
+        <div class="copy-edit-hero__code"><span>TRẠNG THÁI KHỞI TẠO</span><strong><i class="bi bi-check-circle-fill"></i> Sẵn sàng</strong></div>
+    </header>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <form asp-action="Create" method="post" class="copy-edit-form" id="copyCreateForm">
+        <div asp-validation-summary="ModelOnly" class="copy-edit-validation"></div>
+        <div class="copy-edit-layout">
+            <main class="copy-edit-main">
+                <section class="copy-edit-card copy-edit-section">
+                    <div class="copy-edit-heading">
+                        <span><i class="bi bi-book"></i></span>
+                        <div><h2>Chọn đầu sách</h2><p>Xác định cuốn sách mà bản sao vật lý này thuộc về.</p></div>
+                    </div>
+                    <div class="copy-edit-field">
+                        <label asp-for="MaSach"><i class="bi bi-journal-bookmark"></i> Đầu sách <em>*</em></label>
+                        <div class="copy-edit-select"><i class="bi bi-search"></i><select asp-for="MaSach" asp-items="ViewBag.MaSach" data-copy-book></select></div>
+                        <span asp-validation-for="MaSach"></span>
+                        <small><i class="bi bi-info-circle"></i> Mỗi bản sao chỉ liên kết với một đầu sách trong danh mục.</small>
+                    </div>
+                </section>
+
+                <section class="copy-edit-card copy-edit-section">
+                    <div class="copy-edit-heading">
+                        <span><i class="bi bi-qr-code-scan"></i></span>
+                        <div><h2>Nhận diện và lưu kho</h2><p>Nhập thông tin phục vụ quét mã và tìm kiếm trên kệ.</p></div>
+                    </div>
+                    <div class="copy-edit-grid">
+                        <div class="copy-edit-field">
+                            <label asp-for="MaVach"><i class="bi bi-upc-scan"></i> Mã vạch <em>*</em></label>
+                            <div class="copy-edit-input-icon"><i class="bi bi-qr-code"></i><input asp-for="MaVach" placeholder="Ví dụ: TV-2026-0001" autocomplete="off" data-copy-barcode /></div>
+                            <span asp-validation-for="MaVach"></span>
+                            <small>Mã vạch phải là duy nhất cho từng bản sao.</small>
+                        </div>
+                        <div class="copy-edit-field">
+                            <label asp-for="ViTriKe"><i class="bi bi-bookshelf"></i> Vị trí kệ <em>*</em></label>
+                            <div class="copy-edit-input-icon"><i class="bi bi-geo-alt"></i><input asp-for="ViTriKe" placeholder="Ví dụ: Kệ A2 - Tầng 3" autocomplete="off" data-copy-location /></div>
+                            <span asp-validation-for="ViTriKe"></span>
+                            <small>Ghi rõ khu vực, kệ và tầng để nhân viên dễ tìm.</small>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="copy-create-note">
+                    <i class="bi bi-shield-check"></i>
+                    <div><strong>Kiểm tra trước khi lưu</strong><p>Hãy đối chiếu mã vạch trên sách và vị trí kệ thực tế để tránh sai lệch dữ liệu.</p></div>
+                </section>
+            </main>
+
+            <aside class="copy-edit-sidebar">
+                <section class="copy-edit-card copy-edit-preview copy-create-preview">
+                    <span class="copy-edit-preview__icon"><i class="bi bi-book"></i></span>
+                    <small>BẢN SAO THƯ VIỆN</small>
+                    <h2 data-copy-preview-book>Chưa chọn đầu sách</h2>
+                    <code data-copy-preview-barcode>MÃ VẠCH</code>
+                    <span class="copy-edit-state available"><i></i> Sẵn có sau khi tạo</span>
+                    <dl><div><dt>Vị trí kệ</dt><dd data-copy-preview-location>Chưa cập nhật</dd></div><div><dt>Loại bản ghi</dt><dd>Bản sao vật lý</dd></div></dl>
+                </section>
+                <section class="copy-edit-card copy-edit-warning">
+                    <h2><i class="bi bi-lightbulb"></i> Gợi ý nhập liệu</h2>
+                    <ul><li>Dùng quy tắc mã vạch thống nhất.</li><li>Không tái sử dụng mã của bản sao khác.</li><li>Vị trí kệ nên ngắn gọn và dễ tra cứu.</li></ul>
+                </section>
+            </aside>
+        </div>
+        <footer class="copy-edit-actions">
+            <a asp-action="Index"><i class="bi bi-arrow-left"></i> Quay lại kho sách</a>
+            <span><i class="bi bi-shield-lock"></i> Dữ liệu được kiểm tra trước khi tạo</span>
+            <button type="submit"><i class="bi bi-plus-circle"></i> Tạo bản sao</button>
+        </footer>
+    </form>
+</section>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (() => {
+            const form = document.getElementById('copyCreateForm');
+            if (!form) return;
+            const book = form.querySelector('[data-copy-book]');
+            const barcode = form.querySelector('[data-copy-barcode]');
+            const location = form.querySelector('[data-copy-location]');
+            const update = () => {
+                document.querySelector('[data-copy-preview-book]').textContent = book.options[book.selectedIndex]?.text || 'Chưa chọn đầu sách';
+                document.querySelector('[data-copy-preview-barcode]').textContent = barcode.value.trim() || 'MÃ VẠCH';
+                document.querySelector('[data-copy-preview-location]').textContent = location.value.trim() || 'Chưa cập nhật';
+            };
+            [book, barcode, location].forEach(field => field.addEventListener('input', update));
+            update();
+        })();
+    </script>
 }

@@ -21,20 +21,30 @@ namespace bài_tập_1.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             // Admin/Nhân viên luôn sử dụng Dashboard làm trang chủ.
             // Guard này cũng xử lý trường hợp truy cập trực tiếp URL gốc "/".
             if (User.IsInRole("Admin") || User.IsInRole("NhanVien"))
                 return RedirectToAction("Index", "Dashboard");
 
+            const int homePageSize = 8;
+            var bookQuery = _context.Sach
+                .Include(s => s.BanSaos)
+                .AsNoTracking();
+            var pagination = Pagination.Create(
+                page,
+                await bookQuery.CountAsync(),
+                homePageSize);
+            ViewData["Pagination"] = pagination;
+            ViewData["PaginationFragment"] = "sach-moi";
+
             var model = new TrangChuViewModel
             {
-                SachMoi = await _context.Sach
-                    .Include(s => s.BanSaos)
-                    .AsNoTracking()
+                SachMoi = await bookQuery
                     .OrderByDescending(s => s.MaSach)
-                    .Take(12)
+                    .Skip((pagination.Page - 1) * pagination.PageSize)
+                    .Take(pagination.PageSize)
                     .ToListAsync(),
 
                 TheLoaiPhoBien = await _context.TheLoai
@@ -160,6 +170,16 @@ namespace bài_tập_1.Controllers
             {
                 categories[index].LopMau = colors[index % colors.Length];
                 categories[index].Icon = icons[index % icons.Length];
+                var tenTheLoai = categories[index].TenTheLoai.ToLowerInvariant();
+                categories[index].AnhDaiDien = tenTheLoai switch
+                {
+                    var name when name.Contains("nước ngoài") => "/images/categories/van-hoc-nuoc-ngoai.webp",
+                    var name when name.Contains("việt nam") => "/images/categories/van-hoc-viet-nam.webp",
+                    var name when name.Contains("công nghệ") || name.Contains("tin học") => "/images/categories/cong-nghe-thong-tin.webp",
+                    var name when name.Contains("khoa học") => "/images/categories/khoa-hoc-tu-nhien.webp",
+                    var name when name.Contains("kinh tế") || name.Contains("quản trị") => "/images/categories/kinh-te-quan-tri.webp",
+                    _ => "/images/categories/van-hoc-nuoc-ngoai.webp"
+                };
             }
         }
     }

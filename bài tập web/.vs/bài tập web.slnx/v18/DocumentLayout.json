@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|solutionrelative:b\u00E0i t\u1EADp 1\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\models\\viewmodels\\adminloannotificationviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|solutionrelative:b\u00E0i t\u1EADp 1\\models\\viewmodels\\adminloannotificationviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\models\\viewmodels\\docgiadetailsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|solutionrelative:b\u00E0i t\u1EADp 1\\models\\viewmodels\\docgiadetailsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|solutionrelative:b\u00E0i t\u1EADp 1\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -41,10 +53,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\views\\phanhois\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|solutionrelative:b\u00E0i t\u1EADp 1\\views\\phanhois\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\models\\viewmodels\\docgiadetailsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|solutionrelative:b\u00E0i t\u1EADp 1\\models\\viewmodels\\docgiadetailsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9D21C3A0-0E8D-6C72-6628-81D7B7694182}|b\u00E0i t\u1EADp 1\\b\u00E0i t\u1EADp 1.csproj|d:\\\u0111\u1ED3 \u00E1n 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\views\\docgias\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -226,7 +234,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -242,7 +250,33 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\AccountController.cs",
+              "ToolTip": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "b\u00E0i t\u1EADp 1\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T06:17:37.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AdminLoanNotificationViewModel.cs",
+              "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\ViewModels\\AdminLoanNotificationViewModel.cs",
+              "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Models\\ViewModels\\AdminLoanNotificationViewModel.cs",
+              "ToolTip": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\ViewModels\\AdminLoanNotificationViewModel.cs",
+              "RelativeToolTip": "b\u00E0i t\u1EADp 1\\Models\\ViewModels\\AdminLoanNotificationViewModel.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-06T06:05:48.586Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "typography.css",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\wwwroot\\css\\typography.css",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\wwwroot\\css\\typography.css",
@@ -254,7 +288,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\NhaXuatBans\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\NhaXuatBans\\Details.cshtml",
@@ -266,7 +300,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "CuaToi.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\PhanHois\\CuaToi.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\PhanHois\\CuaToi.cshtml",
@@ -278,19 +312,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 2,
               "Title": "DocGiaDetailsViewModel.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\ViewModels\\DocGiaDetailsViewModel.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Models\\ViewModels\\DocGiaDetailsViewModel.cs",
               "ToolTip": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\ViewModels\\DocGiaDetailsViewModel.cs",
               "RelativeToolTip": "b\u00E0i t\u1EADp 1\\Models\\ViewModels\\DocGiaDetailsViewModel.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAcwCEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-04T18:15:26.15Z"
+              "WhenOpened": "2026-08-04T18:15:26.15Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\DocGias\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\DocGias\\Details.cshtml",
@@ -302,7 +337,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "NhaXuatBansController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\NhaXuatBansController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\NhaXuatBansController.cs",
@@ -314,20 +349,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Shared\\_Layout.cshtml",
               "ToolTip": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Shared\\_Layout.cshtml",
               "RelativeToolTip": "b\u00E0i t\u1EADp 1\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAALcBAAAAAAAAAAAcwNEBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAALYBAAAAAAAAAAAcwNEBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-08-03T15:59:18.534Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "SachesController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\SachesController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\SachesController.cs",
@@ -339,7 +374,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "library.css",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\wwwroot\\css\\library.css",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\wwwroot\\css\\library.css",
@@ -351,7 +386,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\PhanHois\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\PhanHois\\Details.cshtml",
@@ -363,7 +398,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "PhanHoisController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\PhanHoisController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\PhanHoisController.cs",
@@ -375,7 +410,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "_ReaderSidebar.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Shared\\_ReaderSidebar.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Shared\\_ReaderSidebar.cshtml",
@@ -387,7 +422,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "DocGiasController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\DocGiasController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\DocGiasController.cs",
@@ -399,7 +434,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "ChiTietPhieuMuonsController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\ChiTietPhieuMuonsController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\ChiTietPhieuMuonsController.cs",
@@ -411,7 +446,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\appsettings.json",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\appsettings.json",
@@ -423,7 +458,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 31,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\NhanViens\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\NhanViens\\Index.cshtml",
@@ -435,7 +470,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "Create.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\ChiTietPhieuMuons\\Create.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\ChiTietPhieuMuons\\Create.cshtml",
@@ -447,7 +482,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 24,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\BanSaos\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\BanSaos\\Index.cshtml",
@@ -459,7 +494,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\NhaXuatBans\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\NhaXuatBans\\Index.cshtml",
@@ -471,7 +506,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "TacGiasController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\TacGiasController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\TacGiasController.cs",
@@ -483,7 +518,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "DesignTimeContextFactory.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Data\\DesignTimeContextFactory.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Data\\DesignTimeContextFactory.cs",
@@ -495,7 +530,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 29,
               "Title": "Create.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\NhanViens\\Create.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\NhanViens\\Create.cshtml",
@@ -507,7 +542,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 28,
               "Title": "Edit.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\BanSaos\\Edit.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\BanSaos\\Edit.cshtml",
@@ -519,7 +554,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "Edit.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\TacGias\\Edit.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\TacGias\\Edit.cshtml",
@@ -531,7 +566,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\TacGias\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\TacGias\\Index.cshtml",
@@ -543,7 +578,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 32,
               "Title": "Edit.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\DocGias\\Edit.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\DocGias\\Edit.cshtml",
@@ -555,7 +590,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 23,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Saches\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Saches\\Index.cshtml",
@@ -567,7 +602,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 38,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\PhieuMuons\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\PhieuMuons\\Details.cshtml",
@@ -579,7 +614,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 26,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\BanSaos\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\BanSaos\\Details.cshtml",
@@ -591,7 +626,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 25,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Saches\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Saches\\Details.cshtml",
@@ -603,7 +638,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 27,
               "Title": "BanSaosController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\BanSaosController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\BanSaosController.cs",
@@ -615,7 +650,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 30,
               "Title": "NhanViensController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\NhanViensController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\NhanViensController.cs",
@@ -627,7 +662,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 40,
               "Title": "DatTruocsController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\DatTruocsController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\DatTruocsController.cs",
@@ -639,7 +674,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 34,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\PhieuPhats\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\PhieuPhats\\Index.cshtml",
@@ -651,7 +686,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 41,
               "Title": "CuaToi.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\DatTruocs\\CuaToi.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\DatTruocs\\CuaToi.cshtml",
@@ -663,7 +698,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 42,
               "Title": "_ProfileEditForm.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Profile\\_ProfileEditForm.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Profile\\_ProfileEditForm.cshtml",
@@ -675,7 +710,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 33,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\PhieuPhats\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\PhieuPhats\\Details.cshtml",
@@ -687,7 +722,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 35,
               "Title": "Create.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\PhieuPhats\\Create.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\PhieuPhats\\Create.cshtml",
@@ -699,7 +734,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 36,
               "Title": "Details.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\ChiTietPhieuMuons\\Details.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\ChiTietPhieuMuons\\Details.cshtml",
@@ -711,7 +746,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 37,
               "Title": "TraSach.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\ChiTietPhieuMuons\\TraSach.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\ChiTietPhieuMuons\\TraSach.cshtml",
@@ -723,7 +758,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 43,
               "Title": "EditNhanVien.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Profile\\EditNhanVien.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Profile\\EditNhanVien.cshtml",
@@ -735,7 +770,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 44,
               "Title": "EditDocGia.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Profile\\EditDocGia.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Profile\\EditDocGia.cshtml",
@@ -747,7 +782,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 39,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\DatTruocs\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\DatTruocs\\Index.cshtml",
@@ -759,7 +794,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 45,
               "Title": "IndexNhanVien.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Profile\\IndexNhanVien.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Profile\\IndexNhanVien.cshtml",
@@ -771,7 +806,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 47,
               "Title": "ChangePassword.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Profile\\ChangePassword.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Profile\\ChangePassword.cshtml",
@@ -783,7 +818,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 46,
               "Title": "IndexDocGia.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\Profile\\IndexDocGia.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\Profile\\IndexDocGia.cshtml",
@@ -795,7 +830,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 48,
               "Title": "ChangePasswordViewModel.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\ViewModels\\ChangePasswordViewModel.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Models\\ViewModels\\ChangePasswordViewModel.cs",
@@ -807,7 +842,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 49,
               "Title": "ProfileController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\ProfileController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\ProfileController.cs",
@@ -819,7 +854,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 50,
               "Title": "ThongBao.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\ThongBao.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Models\\ThongBao.cs",
@@ -831,7 +866,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 51,
               "Title": "Create.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\ThongBaos\\Create.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\ThongBaos\\Create.cshtml",
@@ -843,7 +878,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 52,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Views\\ThongBaos\\Index.cshtml",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Views\\ThongBaos\\Index.cshtml",
@@ -855,7 +890,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 53,
               "Title": "ThongBaosController.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Controllers\\ThongBaosController.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Controllers\\ThongBaosController.cs",
@@ -867,7 +902,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 54,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Properties\\launchSettings.json",
@@ -879,7 +914,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 55,
               "Title": "YeuCauMuonOnline.cs",
               "DocumentMoniker": "D:\\\u0110\u1ED2 \u00C1N 0408\\-n-1-\\b\u00E0i t\u1EADp web\\b\u00E0i t\u1EADp 1\\Models\\YeuCauMuonOnline.cs",
               "RelativeDocumentMoniker": "b\u00E0i t\u1EADp 1\\Models\\YeuCauMuonOnline.cs",

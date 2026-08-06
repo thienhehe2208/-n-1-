@@ -1,12 +1,30 @@
 :root {
-    --font-size-caption: 12px;
-    --font-size-small: 13px;
-    --font-size-body: 14px;
-    --font-size-lead: 15px;
+    --font-size-caption: 12.5px;
+    --font-size-small: 14px;
+    --font-size-body: 15px;
+    --font-size-lead: 16px;
     --font-size-h3: 18px;
     --font-size-h2: 22px;
     --font-size-h1: clamp(26px, 2.4vw, 30px);
     --line-height-body: 1.6;
+}
+
+/* Compact controls inside home book cards keep the global type scale readable. */
+.reader-page-content .home-view .book-description {
+    font-size: 12px !important;
+    line-height: 20px !important;
+}
+
+.reader-page-content .home-view .book-availability-line strong,
+.reader-page-content .home-view .book-reserve-button,
+.reader-page-content .home-view .book-counter-button {
+    font-size: 10px !important;
+    line-height: 1 !important;
+}
+
+.reader-page-content .home-view .book-detail-button {
+    font-size: 9.5px !important;
+    line-height: 1 !important;
 }
 
 html {
@@ -95,8 +113,75 @@ body {
     font-size: 12px !important;
 }
 
+/*
+ * Project-wide readable type scale.
+ * The publisher directory is the visual reference: normal content is 15px,
+ * supporting labels are 12.5px, and controls remain compact but legible.
+ */
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where(a[class*="button"], a[class*="btn"], a[class*="link"],
+       [class*="actions"] a, [class*="actions"] button,
+       [class*="toolbar"] a, [class*="toolbar"] button,
+       [class*="filters"] a, [class*="filters"] button) {
+    font-size: var(--font-size-body) !important;
+    line-height: 1.4 !important;
+}
+
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where([class$="-label"], [class*="-label "],
+       [class$="-eyebrow"], [class*="-eyebrow "],
+       [class$="-kicker"], [class*="-kicker "],
+       [class$="-caption"], [class*="-caption "],
+       [class$="-code"], [class*="-code "],
+       [class$="-meta"], [class*="-meta "],
+       [class$="-status"], [class*="-status "],
+       [class$="-state"], [class*="-state "],
+       [class$="-badge"], [class*="-badge "],
+       [class$="-count"], [class*="-count "]) {
+    font-size: var(--font-size-caption) !important;
+    line-height: 1.45 !important;
+}
+
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where([class$="-description"], [class*="-description "],
+       [class$="-note"], [class*="-note "],
+       [class$="-address"], [class*="-address "],
+       [class$="-contact"], [class*="-contact "]) {
+    font-size: var(--font-size-small) !important;
+    line-height: 1.55 !important;
+}
+
+/* Text nested in cards and list rows should never fall back to legacy 6–10px. */
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where(article, .card, [class*="-card"], [class*="-item"], [class*="-row"])
+:where(p, li, dt, dd, label, input, select, textarea) {
+    font-size: var(--font-size-body) !important;
+}
+
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where(article, .card, [class*="-card"], [class*="-item"], [class*="-row"])
+:where(small, [class*="-label"], [class*="-meta"], [class*="-code"],
+       [class*="-status"], [class*="-state"], [class*="-badge"]) {
+    font-size: var(--font-size-caption) !important;
+}
+
+/* Preserve the hierarchy when a heading contains decorative spans. */
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where(h1, h2, h3, h4, h5, h6) :where(span, strong, a) {
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+
+/* Keep icon-only controls proportional after normalizing surrounding text. */
+:where(.admin-content, .reader-page-content, .auth-layout-main)
+:where(a, button) > i:only-child {
+    font-size: 1rem;
+}
+
 @media (max-width: 575px) {
     :root {
+        --font-size-caption: 12px;
+        --font-size-small: 13px;
         --font-size-body: 14px;
         --font-size-h3: 17px;
         --font-size-h2: 20px;
