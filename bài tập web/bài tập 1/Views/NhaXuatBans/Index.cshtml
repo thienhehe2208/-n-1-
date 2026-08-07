@@ -9,7 +9,7 @@
 </header>
 <div class="publisher-stats"><article><span class="blue"><i class="bi bi-building"></i></span><div><small>TỔNG NHÀ XUẤT BẢN</small><strong>@total</strong><p>Đối tác đang quản lý</p></div></article><article><span class="green"><i class="bi bi-journals"></i></span><div><small>TỔNG ĐẦU SÁCH</small><strong>@books</strong><p>Trong toàn bộ kho sách</p></div></article><article><span class="amber"><i class="bi bi-person-lines-fill"></i></span><div><small>CÓ THÔNG TIN LIÊN HỆ</small><strong>@contacts</strong><p>Email hoặc số điện thoại</p></div></article></div>
 <section class="publisher-panel">
-    <div class="publisher-toolbar"><div><h2>Danh sách nhà xuất bản</h2><p>@(string.IsNullOrWhiteSpace(keyword) ? $"Hiển thị thông tin {total} đối tác phát hành" : $"Kết quả tìm kiếm cho “{keyword}”")</p></div><form asp-action="Index" method="get" role="search"><i class="bi bi-search"></i><input type="search" name="q" value="@keyword" placeholder="Tên, email, số điện thoại..." />@if (!string.IsNullOrWhiteSpace(keyword)) {
+    <div class="publisher-toolbar"><div><h2>Danh sách nhà xuất bản</h2>@if (!string.IsNullOrWhiteSpace(keyword)) {<p>Kết quả tìm kiếm cho “@keyword”</p>}</div><form asp-action="Index" method="get" role="search"><i class="bi bi-search"></i><input type="search" name="q" value="@keyword" placeholder="Tên, email, số điện thoại..." />@if (!string.IsNullOrWhiteSpace(keyword)) {
         <a asp-action="Index" title="Xóa tìm kiếm"><i class="bi bi-x-lg"></i></a>
     }
     <button type="submit">Tìm kiếm</button></form></div>
@@ -44,7 +44,7 @@
                         <td><span class="publisher-address"><i class="bi bi-geo-alt"></i> @(string.IsNullOrWhiteSpace(item.DiaChi) ? "Chưa cập nhật" : item.DiaChi)</span></td>
                         <td><span class="publisher-book-count"><i class="bi bi-book"></i><strong>@item.DanhSachSach.Count</strong> đầu sách</span></td>
                         <td><div class="publisher-actions"><a asp-action="Details" asp-route-id="@item.MaNXB" title="Xem chi tiết"><i class="bi bi-eye"></i></a>@if (canManage) {
-                            <a asp-action="Edit" asp-route-id="@item.MaNXB" title="Chỉnh sửa"><i class="bi bi-pencil-square"></i></a><a asp-action="Delete" asp-route-id="@item.MaNXB" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.MaNXB" title="Chỉnh sửa"><i class="bi bi-pencil-square"></i></a>@if (User.IsInRole("Admin")) {<a asp-action="Delete" asp-route-id="@item.MaNXB" class="danger" title="Xóa"><i class="bi bi-trash3"></i></a>}
                         }
                     </div></td>
                 </tr>

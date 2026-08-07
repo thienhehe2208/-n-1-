@@ -20,13 +20,16 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly DatTruocService _datTruocService;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
         public BanSaosController(
             bài_tập_1Context context,
-            DatTruocService datTruocService)
+            DatTruocService datTruocService,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
             _datTruocService = datTruocService;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         // Danh sách bản sao
@@ -259,6 +262,13 @@ namespace bài_tập_1.Controllers
                     banSaoHienTai.TinhTrang = banSao.TinhTrang;
                     banSaoHienTai.ViTriKe =
                         banSao.ViTriKe?.Trim() ?? string.Empty;
+                    await _adminChangeNotification.ThemThongBaoAsync(
+                        User,
+                        "bản sao",
+                        $"BS-{banSaoHienTai.MaBanSao:D5}",
+                        Url.Action(nameof(Details), new { id = banSaoHienTai.MaBanSao })
+                            ?? $"/BanSaos/Details/{banSaoHienTai.MaBanSao}",
+                        $"Trạng thái mới: {TenTrangThai(banSaoHienTai.TinhTrang)}.");
                     await _context.SaveChangesAsync();
 
                     if (banSaoHienTai.TinhTrang ==
@@ -302,6 +312,7 @@ namespace bài_tập_1.Controllers
             };
 
         // Hiển thị xác nhận xóa bản sao
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.BanSao == null)
@@ -323,6 +334,7 @@ namespace bài_tập_1.Controllers
         // Xử lý xóa bản sao
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var banSao = await _context.BanSao.FindAsync(id);

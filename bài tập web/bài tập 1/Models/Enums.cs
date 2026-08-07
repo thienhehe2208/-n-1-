@@ -54,6 +54,19 @@
         DaHuy
     }
 
+    public enum TrangThaiThanhToan
+    {
+        ChuaThanhToan,
+        DaThanhToan
+    }
+
+    public enum PhuongThucThanhToan
+    {
+        KhongXacDinh = 0,
+        TienMat = 1,
+        ChuyenKhoan = 2
+    }
+
     public enum TrangThaiYeuCauMuonOnline
     {
         ChoNhan = 0,

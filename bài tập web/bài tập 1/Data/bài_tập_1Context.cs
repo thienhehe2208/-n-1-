@@ -100,6 +100,22 @@ namespace bài_tập_1.Data
                 .WithMany(n => n.PhieuMuons)
                 .HasForeignKey(p => p.MaNhanVien)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<GiaoDichThanhToan>()
+                .HasIndex(g => g.MaPhieuMuon)
+                .IsUnique();
+
+            modelBuilder.Entity<GiaoDichThanhToan>()
+                .HasOne(g => g.PhieuMuon)
+                .WithOne(p => p.GiaoDichThanhToan)
+                .HasForeignKey<GiaoDichThanhToan>(g => g.MaPhieuMuon)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<GiaoDichThanhToan>()
+                .HasOne(g => g.NhanVienXacNhan)
+                .WithMany(n => n.GiaoDichThanhToans)
+                .HasForeignKey(g => g.MaNhanVienXacNhan)
+                .OnDelete(DeleteBehavior.Restrict);
         }
         public DbSet<bài_tập_1.Models.Sach> Sach { get; set; } = default!;
 
@@ -132,5 +148,7 @@ namespace bài_tập_1.Data
         public DbSet<ThongBao> ThongBao { get; set; } = default!;
 
         public DbSet<YeuCauMuonOnline> YeuCauMuonOnline { get; set; } = default!;
+
+        public DbSet<GiaoDichThanhToan> GiaoDichThanhToan { get; set; } = default!;
     }
 }

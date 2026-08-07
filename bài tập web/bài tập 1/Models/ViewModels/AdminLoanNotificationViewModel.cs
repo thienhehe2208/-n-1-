@@ -1,3 +1,5 @@
+using bài_tập_1.Models;
+
 namespace bài_tập_1.Models.ViewModels
 {
     public class AdminLoanNotificationItemViewModel
@@ -14,5 +16,10 @@ namespace bài_tập_1.Models.ViewModels
         public int TongPhieuChoNhan { get; set; }
         public IReadOnlyList<AdminLoanNotificationItemViewModel> PhieuMoi { get; set; } =
             Array.Empty<AdminLoanNotificationItemViewModel>();
+
+        public int TongThayDoiChuaDoc { get; set; }
+
+        public IReadOnlyList<ThongBao> ThayDoiMoi { get; set; } =
+            Array.Empty<ThongBao>();
     }
 }

@@ -202,6 +202,13 @@
 
                     @if (User.IsInRole("Admin"))
                     {
+                        <a asp-controller="GiaoDichThanhToans"
+                           asp-action="Index"
+                           class="sidebar-item @(currentController == "GiaoDichThanhToans" ? "active" : "")">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span>Doanh thu &amp; thanh toán</span>
+                        </a>
+
                         <a asp-controller="NhanViens"
                            asp-action="Index"
                            class="sidebar-item @(currentController == "NhanViens" ? "active" : "")">

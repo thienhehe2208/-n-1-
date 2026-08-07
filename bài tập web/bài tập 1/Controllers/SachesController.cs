@@ -1,6 +1,7 @@
 ﻿using bài_tập_1.Data;
 using bài_tập_1.Models;
 using bài_tập_1.Models.ViewModels;
+using bài_tập_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,10 +13,14 @@ namespace bài_tập_1.Controllers
     public class SachesController : Controller
     {
         private readonly bài_tập_1Context _context;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
-        public SachesController(bài_tập_1Context context)
+        public SachesController(
+            bài_tập_1Context context,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         public async Task<IActionResult> Index(string? q, int? maTheLoai, int? maNXB, int page = 1)
@@ -284,6 +289,13 @@ namespace bài_tập_1.Controllers
 
             try
             {
+                await _adminChangeNotification.ThemThongBaoAsync(
+                    User,
+                    "sách",
+                    $"S-{sach.MaSach:D5}",
+                    Url.Action(nameof(Details), new { id = sach.MaSach })
+                        ?? $"/Saches/Details/{sach.MaSach}",
+                    $"Tên sách: “{sach.TenSach}”.");
                 await _context.SaveChangesAsync();
                 TempData["Success"] =
                     "Đã cập nhật sách và danh sách tác giả.";
@@ -297,7 +309,7 @@ namespace bài_tập_1.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,NhanVien")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -312,7 +324,7 @@ namespace bài_tập_1.Controllers
             return sach == null ? NotFound() : View(sach);
         }
 
-        [Authorize(Roles = "Admin,NhanVien")]
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

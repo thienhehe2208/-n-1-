@@ -2,11 +2,12 @@
 
 <div class="dropdown admin-loan-notification">
     <button class="header-notification" type="button" data-bs-toggle="dropdown"
-            data-bs-auto-close="outside" aria-expanded="false" title="Phiếu mượn online chờ xử lý">
+            data-bs-auto-close="outside" aria-expanded="false" title="Thông báo quản trị">
         <i class="bi bi-bell"></i>
-        @if (Model.TongPhieuChoNhan > 0)
+        @if (Model.TongPhieuChoNhan + Model.TongThayDoiChuaDoc > 0)
         {
-            <span class="admin-loan-notification-count">@(Model.TongPhieuChoNhan > 99 ? "99+" : Model.TongPhieuChoNhan)</span>
+            var tongThongBao = Model.TongPhieuChoNhan + Model.TongThayDoiChuaDoc;
+            <span class="admin-loan-notification-count">@(tongThongBao > 99 ? "99+" : tongThongBao)</span>
         }
     </button>
     <div class="dropdown-menu dropdown-menu-end admin-loan-notification-menu">
@@ -31,6 +32,28 @@
                 }
             </div>
         }
+        @if (Model.ThayDoiMoi.Count > 0)
+        {
+            <header>
+                <div><strong>Thay đổi của nhân viên</strong><small>@(Model.TongThayDoiChuaDoc == 0 ? "Đã xem tất cả thay đổi" : $"{Model.TongThayDoiChuaDoc} thay đổi chưa đọc")</small></div>
+                <span><i class="bi bi-shield-exclamation"></i></span>
+            </header>
+            <div class="admin-loan-notification-items">
+                @foreach (var item in Model.ThayDoiMoi)
+                {
+                    <form asp-controller="ThongBaos" asp-action="MoThongBaoAdmin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.MaThongBao" />
+                        <button type="submit" class="admin-change-notification-item">
+                            <span class="admin-loan-notification-icon"><i class="bi bi-pencil-square"></i></span>
+                            <span><strong>@item.TieuDe</strong><small>@item.NoiDung</small><time>@item.NgayTao.ToString("HH:mm dd/MM") @(!item.DaDoc ? "· Chưa đọc" : "")</time></span>
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </form>
+                }
+            </div>
+        }
+        <a asp-controller="ThongBaos" asp-action="Index" asp-route-hopThu="thay-doi" class="admin-loan-notification-all">Xem thông báo thay đổi <i class="bi bi-arrow-right"></i></a>
         <a asp-controller="DatTruocs" asp-action="Index" class="admin-loan-notification-all">Mở trung tâm yêu cầu <i class="bi bi-arrow-right"></i></a>
     </div>
 </div>

@@ -9,16 +9,21 @@ using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
 using bài_tập_1.Models;
 using bài_tập_1.Models.ViewModels;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
     public class NhaXuatBansController : Controller
     {
         private readonly bài_tập_1Context _context;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
-        public NhaXuatBansController(bài_tập_1Context context)
+        public NhaXuatBansController(
+            bài_tập_1Context context,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         // Danh sách NXB - ai cũng xem được
@@ -125,6 +130,13 @@ namespace bài_tập_1.Controllers
                 try
                 {
                     _context.Update(nhaXuatBan);
+                    await _adminChangeNotification.ThemThongBaoAsync(
+                        User,
+                        "nhà xuất bản",
+                        $"NXB-{nhaXuatBan.MaNXB:D5}",
+                        Url.Action(nameof(Details), new { id = nhaXuatBan.MaNXB })
+                            ?? $"/NhaXuatBans/Details/{nhaXuatBan.MaNXB}",
+                        $"Tên nhà xuất bản: {nhaXuatBan.TenNXB}.");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -144,7 +156,7 @@ namespace bài_tập_1.Controllers
         }
 
         // Hiển thị xác nhận xóa NXB - chỉ Admin/NhanVien
-        [Authorize(Roles = "Admin,NhanVien")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.NhaXuatBan == null)
@@ -163,7 +175,7 @@ namespace bài_tập_1.Controllers
         }
 
         // Xử lý xóa NXB - chỉ Admin/NhanVien
-        [Authorize(Roles = "Admin,NhanVien")]
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

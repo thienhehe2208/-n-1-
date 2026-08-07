@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bài_tập_1.Data;
 
@@ -11,9 +12,10 @@ using bài_tập_1.Data;
 namespace bài_tập_1.Migrations
 {
     [DbContext(typeof(bài_tập_1Context))]
-    partial class bài_tập_1ContextModelSnapshot : ModelSnapshot
+    [Migration("20260806121813_AddRentalPayment")]
+    partial class AddRentalPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,58 +199,6 @@ namespace bài_tập_1.Migrations
                         .IsUnique();
 
                     b.ToTable("DocGia");
-                });
-
-            modelBuilder.Entity("bài_tập_1.Models.GiaoDichThanhToan", b =>
-                {
-                    b.Property<int>("MaGiaoDich")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaGiaoDich"), 1L, 1);
-
-                    b.Property<bool>("DuLieuKhoiTao")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("GhiChu")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int>("MaNhanVienXacNhan")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaPhieuMuon")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MaThamChieu")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("NgayThanhToan")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("PhiThue")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("PhuongThuc")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TienPhat")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TongTien")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("MaGiaoDich");
-
-                    b.HasIndex("MaNhanVienXacNhan");
-
-                    b.HasIndex("MaPhieuMuon")
-                        .IsUnique();
-
-                    b.ToTable("GiaoDichThanhToan");
                 });
 
             modelBuilder.Entity("bài_tập_1.Models.NhanVien", b =>
@@ -1037,25 +987,6 @@ namespace bài_tập_1.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("bài_tập_1.Models.GiaoDichThanhToan", b =>
-                {
-                    b.HasOne("bài_tập_1.Models.NhanVien", "NhanVienXacNhan")
-                        .WithMany("GiaoDichThanhToans")
-                        .HasForeignKey("MaNhanVienXacNhan")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("bài_tập_1.Models.PhieuMuon", "PhieuMuon")
-                        .WithOne("GiaoDichThanhToan")
-                        .HasForeignKey("bài_tập_1.Models.GiaoDichThanhToan", "MaPhieuMuon")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("NhanVienXacNhan");
-
-                    b.Navigation("PhieuMuon");
-                });
-
             modelBuilder.Entity("bài_tập_1.Models.NhanVien", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -1279,8 +1210,6 @@ namespace bài_tập_1.Migrations
 
             modelBuilder.Entity("bài_tập_1.Models.NhanVien", b =>
                 {
-                    b.Navigation("GiaoDichThanhToans");
-
                     b.Navigation("PhieuMuons");
                 });
 
@@ -1292,8 +1221,6 @@ namespace bài_tập_1.Migrations
             modelBuilder.Entity("bài_tập_1.Models.PhieuMuon", b =>
                 {
                     b.Navigation("ChiTietPhieuMuons");
-
-                    b.Navigation("GiaoDichThanhToan");
                 });
 
             modelBuilder.Entity("bài_tập_1.Models.Sach", b =>

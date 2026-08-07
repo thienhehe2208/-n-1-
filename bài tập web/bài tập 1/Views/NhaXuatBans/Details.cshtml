@@ -117,7 +117,10 @@
         <h2><i class="bi bi-gear"></i> Quản lý nhà xuất bản</h2><p>Cập nhật thông tin hoặc quản lý dữ liệu liên quan.</p>
         <a asp-action="Edit" asp-route-id="@Model.MaNXB"><i class="bi bi-pencil-square"></i><span><strong>Chỉnh sửa thông tin</strong><small>Cập nhật liên hệ và địa chỉ</small></span><i class="bi bi-chevron-right"></i></a>
         <a asp-controller="Saches" asp-action="Create"><i class="bi bi-journal-plus"></i><span><strong>Thêm đầu sách</strong><small>Bổ sung sách vào thư viện</small></span><i class="bi bi-chevron-right"></i></a>
-        <a asp-action="Delete" asp-route-id="@Model.MaNXB" class="danger"><i class="bi bi-trash3"></i><span><strong>Xóa nhà xuất bản</strong><small>Kiểm tra dữ liệu trước khi xóa</small></span><i class="bi bi-chevron-right"></i></a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Delete" asp-route-id="@Model.MaNXB" class="danger"><i class="bi bi-trash3"></i><span><strong>Xóa nhà xuất bản</strong><small>Kiểm tra dữ liệu trước khi xóa</small></span><i class="bi bi-chevron-right"></i></a>
+        }
     </section>
 }
 </aside>

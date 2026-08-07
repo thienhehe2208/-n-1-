@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
@@ -13,13 +14,16 @@ namespace bài_tập_1.Controllers
     {
         private readonly bài_tập_1Context _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
         public DocGiasController(
             bài_tập_1Context context,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
             _userManager = userManager;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         public async Task<IActionResult> Index(string? q, string? trangThai, int page = 1)
@@ -158,6 +162,13 @@ namespace bài_tập_1.Controllers
             }
 
             docGia.TrangThai = lockAccount ? TrangThaiDocGia.Khoa : TrangThaiDocGia.HoatDong;
+            await _adminChangeNotification.ThemThongBaoAsync(
+                User,
+                "trạng thái độc giả",
+                $"DG-{docGia.MaDocGia:D5}",
+                Url.Action(nameof(Details), new { id = docGia.MaDocGia })
+                    ?? $"/DocGias/Details/{docGia.MaDocGia}",
+                lockAccount ? "Tài khoản đã bị khóa." : "Tài khoản đã được mở khóa.");
             await _context.SaveChangesAsync();
             TempData["Success"] = lockAccount ? "Đã khóa tài khoản độc giả." : "Đã mở khóa tài khoản độc giả.";
             return RedirectToAction(nameof(Details), new { id });
@@ -175,6 +186,13 @@ namespace bài_tập_1.Controllers
                 ? docGia.NgayHetHanThe.Date
                 : DateTime.Today;
             docGia.NgayHetHanThe = startDate.AddYears(1);
+            await _adminChangeNotification.ThemThongBaoAsync(
+                User,
+                "thẻ độc giả",
+                $"DG-{docGia.MaDocGia:D5}",
+                Url.Action(nameof(Details), new { id = docGia.MaDocGia })
+                    ?? $"/DocGias/Details/{docGia.MaDocGia}",
+                $"Ngày hết hạn mới: {docGia.NgayHetHanThe:dd/MM/yyyy}.");
             await _context.SaveChangesAsync();
             TempData["Success"] = $"Đã gia hạn thẻ đến {docGia.NgayHetHanThe:dd/MM/yyyy}.";
             return RedirectToAction(nameof(Details), new { id });
@@ -367,6 +385,13 @@ namespace bài_tập_1.Controllers
 
             try
             {
+                await _adminChangeNotification.ThemThongBaoAsync(
+                    User,
+                    "hồ sơ độc giả",
+                    $"DG-{docGia.MaDocGia:D5}",
+                    Url.Action(nameof(Details), new { id = docGia.MaDocGia })
+                        ?? $"/DocGias/Details/{docGia.MaDocGia}",
+                    $"Họ tên: {docGia.HoTen}.");
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 TempData["Success"] =
@@ -386,6 +411,7 @@ namespace bài_tập_1.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -401,6 +427,7 @@ namespace bài_tập_1.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var docGia = await _context.DocGia

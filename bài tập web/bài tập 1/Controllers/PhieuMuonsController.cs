@@ -19,19 +19,22 @@ namespace bài_tập_1.Controllers
         private readonly PhieuMuonService _phieuMuonService;
         private readonly DocGiaEligibilityService _eligibilityService;
         private readonly DatTruocService _datTruocService;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
         public PhieuMuonsController(
             bài_tập_1Context context,
             UserManager<IdentityUser> userManager,
             PhieuMuonService phieuMuonService,
             DocGiaEligibilityService eligibilityService,
-            DatTruocService datTruocService)
+            DatTruocService datTruocService,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
             _userManager = userManager;
             _phieuMuonService = phieuMuonService;
             _eligibilityService = eligibilityService;
             _datTruocService = datTruocService;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         public async Task<IActionResult> Index(
@@ -111,6 +114,8 @@ namespace bài_tập_1.Controllers
                         .ThenInclude(b => b.Sach)
                 .Include(p => p.ChiTietPhieuMuons)
                     .ThenInclude(ct => ct.PhieuPhat)
+                .Include(p => p.GiaoDichThanhToan)
+                    .ThenInclude(g => g!.NhanVienXacNhan)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.MaPhieuMuon == id);
 
@@ -122,6 +127,7 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadDocGiasAsync();
+            await LoadBanSaosChoMuonAsync();
             return View(new LapPhieuMuonViewModel());
         }
 
@@ -130,6 +136,15 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> Create(
             LapPhieuMuonViewModel model)
         {
+            model.MaBanSaos = (model.MaBanSaos ?? new List<int>())
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable);
+
             var docGia = await _context.DocGia
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.MaDocGia == model.MaDocGia);
@@ -139,9 +154,99 @@ namespace bài_tập_1.Controllers
             if (docGia != null)
             {
                 var errors = await _eligibilityService.KiemTraAsync(
-                    docGia.MaDocGia);
+                    docGia.MaDocGia,
+                    new KiemTraDocGiaOptions
+                    {
+                        KiemTraGioiHanSach = false
+                    });
                 foreach (var error in errors)
                     ModelState.AddModelError(nameof(model.MaDocGia), error);
+            }
+
+            if (model.MaBanSaos.Count == 0)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaBanSaos),
+                    "Vui lòng chọn ít nhất một cuốn sách.");
+            }
+
+            if (model.MaBanSaos.Count > LibraryRules.SoSachMuonToiDa)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaBanSaos),
+                    $"Không được chọn quá {LibraryRules.SoSachMuonToiDa} cuốn sách.");
+            }
+
+            var banSaos = await _context.BanSao
+                .Include(b => b.Sach)
+                .Where(b => model.MaBanSaos.Contains(b.MaBanSao))
+                .ToListAsync();
+
+            if (banSaos.Count != model.MaBanSaos.Count)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaBanSaos),
+                    "Danh sách có bản sao không tồn tại. Vui lòng tải lại trang.");
+            }
+
+            if (banSaos.Any(b => b.TinhTrang != TinhTrangBanSao.SanCo))
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaBanSaos),
+                    "Một hoặc nhiều bản sao vừa được giữ hoặc cho mượn. Vui lòng chọn lại.");
+            }
+
+            var dauSachTrung = banSaos
+                .GroupBy(b => b.MaSach)
+                .FirstOrDefault(g => g.Count() > 1);
+            if (dauSachTrung != null)
+            {
+                ModelState.AddModelError(
+                    nameof(model.MaBanSaos),
+                    $"Không thể mượn hai bản sao của cùng đầu sách “{dauSachTrung.First().Sach.TenSach}”.");
+            }
+
+            if (docGia != null && banSaos.Count > 0)
+            {
+                var maSaches = banSaos.Select(b => b.MaSach).Distinct().ToList();
+                var coDauSachDangXuLy =
+                    await _context.ChiTietPhieuMuon.AnyAsync(c =>
+                        c.PhieuMuon.MaDocGia == docGia.MaDocGia &&
+                        maSaches.Contains(c.BanSao.MaSach) &&
+                        c.NgayTra == null) ||
+                    await _context.DatTruoc.AnyAsync(d =>
+                        d.MaDocGia == docGia.MaDocGia &&
+                        maSaches.Contains(d.MaSach) &&
+                        (d.TrangThai == TrangThaiDatTruoc.DangCho ||
+                         d.TrangThai == TrangThaiDatTruoc.DaCoSach)) ||
+                    await _context.YeuCauMuonOnline.AnyAsync(y =>
+                        y.MaDocGia == docGia.MaDocGia &&
+                        maSaches.Contains(y.MaSach) &&
+                        (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                         y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet));
+
+                if (coDauSachDangXuLy)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.MaBanSaos),
+                        "Độc giả đang mượn, đặt trước hoặc chờ nhận một đầu sách đã chọn.");
+                }
+
+                var soSachDangMuon = await _context.ChiTietPhieuMuon.CountAsync(c =>
+                    c.PhieuMuon.MaDocGia == docGia.MaDocGia &&
+                    c.NgayTra == null);
+                var soSachDangGiuOnline = await _context.YeuCauMuonOnline.CountAsync(y =>
+                    y.MaDocGia == docGia.MaDocGia &&
+                    (y.TrangThai == TrangThaiYeuCauMuonOnline.ChoNhan ||
+                     y.TrangThai == TrangThaiYeuCauMuonOnline.DaDuyet));
+
+                if (soSachDangMuon + soSachDangGiuOnline + banSaos.Count >
+                    LibraryRules.SoSachMuonToiDa)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.MaBanSaos),
+                        $"Sau khi thêm, độc giả sẽ vượt giới hạn {LibraryRules.SoSachMuonToiDa} cuốn đang mượn hoặc chờ nhận.");
+                }
             }
 
             if (model.NgayHenTra.Date <= DateTime.Today)
@@ -173,7 +278,9 @@ namespace bài_tập_1.Controllers
 
             if (!ModelState.IsValid)
             {
+                await transaction.RollbackAsync();
                 await LoadDocGiasAsync(model.MaDocGia);
+                await LoadBanSaosChoMuonAsync();
                 return View(model);
             }
 
@@ -183,19 +290,60 @@ namespace bài_tập_1.Controllers
                 MaNhanVien = nhanVien!.MaNhanVien,
                 NgayMuon = DateTime.Now,
                 NgayHenTra = model.NgayHenTra.Date,
-                TrangThai = TrangThaiPhieuMuon.Nhap
+                TrangThai = TrangThaiPhieuMuon.DangMuon
             };
 
+            foreach (var banSao in banSaos)
+            {
+                phieuMuon.ChiTietPhieuMuons.Add(new ChiTietPhieuMuon
+                {
+                    MaBanSao = banSao.MaBanSao,
+                    PhiThue = LibraryRules.PhiThueMoiCuon,
+                    NgayTra = null,
+                    TinhTrangKhiTra = null,
+                    GhiChu = string.Empty
+                });
+                banSao.TinhTrang = TinhTrangBanSao.DangMuon;
+            }
+
             _context.PhieuMuon.Add(phieuMuon);
-            await _context.SaveChangesAsync();
+            _context.ThongBao.Add(new ThongBao
+            {
+                MaDocGia = docGia.MaDocGia,
+                MaSuKien = $"lap-phieu-truc-tiep-{Guid.NewGuid():N}",
+                TieuDe = "Đã lập phiếu mượn",
+                NoiDung =
+                    $"Thư viện đã lập phiếu mượn gồm {banSaos.Count} cuốn, " +
+                    $"phí thuê {banSaos.Count * LibraryRules.PhiThueMoiCuon:N0} đồng. " +
+                    $"Hạn trả {model.NgayHenTra:dd/MM/yyyy}.",
+                LienKet = string.Empty,
+                Loai = "success",
+                NgayTao = DateTime.Now
+            });
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(
+                    nameof(model.MaBanSaos),
+                    "Không thể lập phiếu vì một bản sao vừa được người khác xử lý.");
+                await LoadDocGiasAsync(model.MaDocGia);
+                await LoadBanSaosChoMuonAsync();
+                return View(model);
+            }
 
             TempData["Success"] =
-                "Đã lập phiếu. Hãy thêm các bản sao cần cho mượn.";
+                $"Đã lập phiếu gồm {banSaos.Count} cuốn, phí thuê " +
+                $"{banSaos.Count * LibraryRules.PhiThueMoiCuon:N0} đồng.";
 
             return RedirectToAction(
-                "Create",
-                "ChiTietPhieuMuons",
-                new { maPhieuMuon = phieuMuon.MaPhieuMuon });
+                nameof(Details),
+                new { id = phieuMuon.MaPhieuMuon });
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -283,6 +431,13 @@ namespace bài_tập_1.Controllers
                     ? TrangThaiPhieuMuon.QuaHan
                     : TrangThaiPhieuMuon.DangMuon;
 
+            await _adminChangeNotification.ThemThongBaoAsync(
+                User,
+                "phiếu mượn",
+                $"PM-{phieuMuon.MaPhieuMuon:D5}",
+                Url.Action(nameof(Details), new { id = phieuMuon.MaPhieuMuon })
+                    ?? $"/PhieuMuons/Details/{phieuMuon.MaPhieuMuon}",
+                $"Hạn trả mới: {phieuMuon.NgayHenTra:dd/MM/yyyy}.");
             await _context.SaveChangesAsync();
             TempData["Success"] = "Đã cập nhật hạn trả.";
 
@@ -454,6 +609,173 @@ namespace bài_tập_1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ThanhToan(
+            int id,
+            XacNhanThanhToanViewModel model)
+        {
+            if (id != model.MaPhieuMuon)
+                return BadRequest();
+
+            if (!model.PhuongThuc.HasValue ||
+                model.PhuongThuc == PhuongThucThanhToan.KhongXacDinh)
+            {
+                TempData["Error"] = "Vui lòng chọn phương thức thanh toán.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            model.MaThamChieu = model.MaThamChieu?.Trim() ?? string.Empty;
+            model.GhiChu = model.GhiChu?.Trim() ?? string.Empty;
+            if (model.PhuongThuc == PhuongThucThanhToan.ChuyenKhoan &&
+                string.IsNullOrWhiteSpace(model.MaThamChieu))
+            {
+                TempData["Error"] =
+                    "Thanh toán chuyển khoản phải nhập mã giao dịch ngân hàng.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Thông tin thanh toán không hợp lệ.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable);
+
+            var phieuMuon = await _context.PhieuMuon
+                .Include(p => p.ChiTietPhieuMuons)
+                    .ThenInclude(c => c.PhieuPhat)
+                .Include(p => p.GiaoDichThanhToan)
+                .FirstOrDefaultAsync(p => p.MaPhieuMuon == id);
+
+            if (phieuMuon == null)
+                return NotFound();
+
+            if (phieuMuon.TrangThaiThanhToan ==
+                    TrangThaiThanhToan.DaThanhToan ||
+                phieuMuon.GiaoDichThanhToan != null)
+            {
+                TempData["Error"] = "Phiếu mượn này đã được thanh toán.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phieuMuon.TrangThai != TrangThaiPhieuMuon.DaTra ||
+                phieuMuon.ChiTietPhieuMuons.Count == 0 ||
+                phieuMuon.ChiTietPhieuMuons.Any(c => !c.NgayTra.HasValue))
+            {
+                TempData["Error"] =
+                    "Chỉ có thể thanh toán sau khi đã trả toàn bộ sách trong phiếu.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var chuaLapDuPhieuPhat = phieuMuon.ChiTietPhieuMuons.Any(c =>
+                (c.NgayTra!.Value.Date > phieuMuon.NgayHenTra.Date ||
+                 c.TinhTrangKhiTra is TinhTrangKhiTra.HuHong or
+                     TinhTrangKhiTra.Mat) &&
+                c.PhieuPhat == null);
+
+            if (chuaLapDuPhieuPhat)
+            {
+                TempData["Error"] =
+                    "Phiếu có sách trả trễ, hư hỏng hoặc mất nhưng chưa lập đủ phiếu phạt.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var tongPhiThue = phieuMuon.ChiTietPhieuMuons.Sum(c => c.PhiThue);
+            var tongTienPhat = phieuMuon.ChiTietPhieuMuons.Sum(c =>
+                c.PhieuPhat?.TrangThai == TrangThaiPhieuPhat.ChuaDong
+                    ? c.PhieuPhat.SoTien
+                    : 0);
+            var tongThanhToan = tongPhiThue + tongTienPhat;
+            var userId = _userManager.GetUserId(User);
+            var nhanVienXacNhan = await _context.NhanVien
+                .FirstOrDefaultAsync(n => n.UserId == userId);
+            if (nhanVienXacNhan == null)
+            {
+                TempData["Error"] =
+                    "Tài khoản chưa có hồ sơ nhân viên để ghi nhận giao dịch.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var ngayThanhToan = DateTime.Now;
+
+            phieuMuon.TrangThaiThanhToan =
+                TrangThaiThanhToan.DaThanhToan;
+            phieuMuon.NgayThanhToan = ngayThanhToan;
+            phieuMuon.SoTienDaThanhToan = tongThanhToan;
+
+            _context.GiaoDichThanhToan.Add(new GiaoDichThanhToan
+            {
+                MaPhieuMuon = phieuMuon.MaPhieuMuon,
+                MaNhanVienXacNhan = nhanVienXacNhan.MaNhanVien,
+                PhiThue = tongPhiThue,
+                TienPhat = tongTienPhat,
+                TongTien = tongThanhToan,
+                PhuongThuc = model.PhuongThuc.Value,
+                MaThamChieu = model.MaThamChieu,
+                GhiChu = model.GhiChu,
+                NgayThanhToan = ngayThanhToan
+            });
+
+            foreach (var phieuPhat in phieuMuon.ChiTietPhieuMuons
+                         .Where(c => c.PhieuPhat?.TrangThai ==
+                             TrangThaiPhieuPhat.ChuaDong)
+                         .Select(c => c.PhieuPhat!))
+            {
+                phieuPhat.TrangThai = TrangThaiPhieuPhat.DaDong;
+            }
+
+            _context.ThongBao.Add(new ThongBao
+            {
+                MaDocGia = phieuMuon.MaDocGia,
+                MaSuKien = $"phieu-muon-{phieuMuon.MaPhieuMuon}-thanh-toan",
+                TieuDe = "Đã thanh toán phiếu mượn",
+                NoiDung =
+                    $"Phiếu #PM-{phieuMuon.MaPhieuMuon:D5} đã thanh toán " +
+                    $"{tongThanhToan:N0} đồng, gồm phí thuê {tongPhiThue:N0} đồng " +
+                    $"và tiền phạt {tongTienPhat:N0} đồng.",
+                LienKet = string.Empty,
+                Loai = "success",
+                NgayTao = DateTime.Now
+            });
+
+            if (User.IsInRole("NhanVien") && !User.IsInRole("Admin"))
+            {
+                var tenPhuongThuc = model.PhuongThuc ==
+                    PhuongThucThanhToan.ChuyenKhoan
+                        ? "chuyển khoản"
+                        : "tiền mặt";
+                _context.ThongBao.Add(new ThongBao
+                {
+                    MaSuKien = $"staff-payment-{Guid.NewGuid():N}",
+                    TieuDe = "Nhân viên đã xác nhận thanh toán",
+                    NoiDung =
+                        $"Nhân viên {nhanVienXacNhan.HoTen} đã xác nhận phiếu " +
+                        $"PM-{phieuMuon.MaPhieuMuon:D5} thanh toán " +
+                        $"{tongThanhToan:N0} đồng bằng {tenPhuongThuc} lúc " +
+                        $"{ngayThanhToan:HH:mm dd/MM/yyyy}.",
+                    LienKet = Url.Action(nameof(Details), new
+                    {
+                        id = phieuMuon.MaPhieuMuon
+                    }) ?? $"/PhieuMuons/Details/{phieuMuon.MaPhieuMuon}",
+                    Loai = "warning",
+                    NgayTao = ngayThanhToan,
+                    DoiTuong = "Admin",
+                    SoNguoiNhan = 1
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["Success"] =
+                $"Đã xác nhận thanh toán {tongThanhToan:N0} đồng.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> GiaHan(int id)
         {
             await using var transaction =
@@ -521,6 +843,7 @@ namespace bài_tập_1.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -540,6 +863,7 @@ namespace bài_tập_1.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var phieuMuon = await _context.PhieuMuon
@@ -580,6 +904,31 @@ namespace bài_tập_1.Controllers
                 "HoTen",
                 selectedId);
             ViewData["SoDocGiaHopLe"] = docGias.Count;
+        }
+
+        private async Task LoadBanSaosChoMuonAsync()
+        {
+            var banSaos = await _context.BanSao
+                .Include(b => b.Sach)
+                    .ThenInclude(s => s.TheLoai)
+                .Where(b => b.TinhTrang == TinhTrangBanSao.SanCo)
+                .OrderBy(b => b.Sach.TenSach)
+                .ThenBy(b => b.MaVach)
+                .AsNoTracking()
+                .Select(b => new BanSaoMuonOptionViewModel
+                {
+                    MaBanSao = b.MaBanSao,
+                    MaSach = b.MaSach,
+                    TenSach = b.Sach.TenSach,
+                    MaVach = b.MaVach,
+                    TheLoai = b.Sach.TheLoai.TenTheLoai,
+                    ViTriKe = b.ViTriKe ?? string.Empty,
+                    AnhBia = b.Sach.AnhBia ?? string.Empty
+                })
+                .ToListAsync();
+
+            ViewData["BanSaosChoMuon"] = banSaos;
+            ViewData["SoBanSaoSanCo"] = banSaos.Count;
         }
 
         private void ValidateDocGia(DocGia? docGia)

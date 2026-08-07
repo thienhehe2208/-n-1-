@@ -301,6 +301,7 @@ namespace bài_tập_1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,DocGia")]
         public async Task<IActionResult> Huy(int id)
         {
             await using var transaction =
@@ -418,6 +419,7 @@ namespace bài_tập_1.Controllers
                 new ChiTietPhieuMuon
                 {
                     MaBanSao = datTruoc.BanSaoDuocGiu.MaBanSao,
+                    PhiThue = LibraryRules.PhiThueMoiCuon,
                     GhiChu = "Nhận từ yêu cầu đặt trước #" +
                              datTruoc.MaDatTruoc
                 });

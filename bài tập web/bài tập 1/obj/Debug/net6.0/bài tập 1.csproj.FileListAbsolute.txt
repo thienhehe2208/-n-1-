@@ -2,7 +2,6 @@ E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\appsettings.Developm
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\appsettings.json
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\dotnet-tools.json
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
-E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\bài tập 1.deps.json
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\bài tập 1.runtimeconfig.json
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\bài tập 1.dll
@@ -268,7 +267,6 @@ E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\runtimes\win\lib\net
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
 E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.csproj.AssemblyReference.cache
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rpswa.dswa.cache.json
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.GeneratedMSBuildEditorConfig.editorconfig
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.AssemblyInfoInputs.cache
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.AssemblyInfo.cs
@@ -276,24 +274,14 @@ E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.csproj.
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.MvcApplicationPartsAssemblyInfo.cache
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.RazorAssemblyInfo.cache
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.RazorAssemblyInfo.cs
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.sourcelink.json
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rjimswa.dswa.cache.json
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rjsmrazor.dswa.cache.json
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rjsmcshtml.dswa.cache.json
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\scopedcss\bundle\bài tập 1.styles.css
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\scopedcss\projectbundle\bài tập 1.bundle.scp.css
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.build.json
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.build.json.cache
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.development.json
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.build.endpoints.json
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\swae.build.ex.cache
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.csproj.Up2Date
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.dll
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\refint\bài tập 1.dll
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.pdb
 E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.genruntimeconfig.cache
-E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\ref\bài tập 1.dll
 D:\ĐỒ ÁN 27.07\-n-1-\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.dll
 D:\ĐỒ ÁN 27.07\-n-1-\bài tập web\bài tập 1\obj\Debug\net6.0\refint\bài tập 1.dll
 D:\ĐỒ ÁN 27.07\-n-1-\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.pdb
@@ -5153,3 +5141,76 @@ D:\ĐỒ ÁN 0408\-n-1-\bài tập web\bài tập 1\.codex-staff-create-build\ru
 D:\ĐỒ ÁN 0408\-n-1-\bài tập web\bài tập 1\.codex-staff-create-build\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
 D:\ĐỒ ÁN 0408\-n-1-\bài tập web\bài tập 1\.codex-staff-create-build\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 D:\ĐỒ ÁN 0408\-n-1-\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.upToDateCheck.txt
+E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\global.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\global.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\rbac-build-check\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\global.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-build\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\NuGet.temp.config
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Debug\net6.0\global.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Migration\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\bài tập 1.staticwebassets.endpoints.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bin\Release\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\global.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\ef-output\Debug\net6.0\bài tập 1.pdb
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\appsettings.Development.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\appsettings.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\dotnet-tools.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\global.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\bài tập 1.staticwebassets.runtime.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\bài tập 1.deps.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\bài tập 1.runtimeconfig.json
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\bài tập 1.dll
+C:\Users\Luong\.codex\visualizations\2026\08\05\019fd1d1-81ff-7051-a7e1-ad9fbc7a61f9\payment-audit-final\bài tập 1.pdb
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\refint\bài tập 1.dll
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\ref\bài tập 1.dll
+E:\đồ án 1\bài tập web\bài tập 1\bin\Debug\net6.0\bài tập 1.staticwebassets.endpoints.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rpswa.dswa.cache.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.sourcelink.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rjimswa.dswa.cache.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rjsmrazor.dswa.cache.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\rjsmcshtml.dswa.cache.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.build.json.cache
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.build.endpoints.json
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\swae.build.ex.cache
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\staticwebassets.upToDateCheck.txt
+E:\đồ án 1\bài tập web\bài tập 1\obj\Debug\net6.0\bài tập 1.csproj.Up2Date

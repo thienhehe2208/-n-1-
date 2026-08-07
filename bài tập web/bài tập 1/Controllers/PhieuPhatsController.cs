@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
@@ -13,10 +14,14 @@ namespace bài_tập_1.Controllers
     public class PhieuPhatsController : Controller
     {
         private readonly bài_tập_1Context _context;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
-        public PhieuPhatsController(bài_tập_1Context context)
+        public PhieuPhatsController(
+            bài_tập_1Context context,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         public async Task<IActionResult> Index(
@@ -149,17 +154,29 @@ namespace bài_tập_1.Controllers
                 return View(model);
             }
 
-            _context.PhieuPhat.Add(new PhieuPhat
+            var phieuPhat = new PhieuPhat
             {
                 MaChiTiet = chiTiet!.MaChiTiet,
                 SoTien = model.SoTien,
                 LyDo = model.LyDo!.Value,
                 NgayLap = DateTime.Now,
                 TrangThai = TrangThaiPhieuPhat.ChuaDong
-            });
+            };
+            _context.PhieuPhat.Add(phieuPhat);
 
             try
             {
+                await _context.SaveChangesAsync();
+                await _adminChangeNotification.ThemThongBaoAsync(
+                    User,
+                    "phiếu phạt",
+                    $"PP-{phieuPhat.MaPhieuPhat:D5}",
+                    Url.Action(
+                        nameof(Details),
+                        "PhieuPhats",
+                        new { id = phieuPhat.MaPhieuPhat }) ??
+                    $"/PhieuPhats/Details/{phieuPhat.MaPhieuPhat}",
+                    $"Đã lập phiếu với số tiền {phieuPhat.SoTien:N0} đồng.");
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
@@ -263,8 +280,36 @@ namespace bài_tập_1.Controllers
                 return View(model);
             }
 
+            var thayDoi = new List<string>();
+            if (phieuPhat.SoTien != model.SoTien)
+            {
+                thayDoi.Add(
+                    $"Số tiền: {phieuPhat.SoTien:N0} → {model.SoTien:N0} đồng.");
+            }
+
+            if (phieuPhat.LyDo != model.LyDo!.Value)
+            {
+                thayDoi.Add(
+                    $"Lý do: {GetReasonText(phieuPhat.LyDo)} → " +
+                    $"{GetReasonText(model.LyDo.Value)}.");
+            }
+
             phieuPhat.SoTien = model.SoTien;
-            phieuPhat.LyDo = model.LyDo!.Value;
+            phieuPhat.LyDo = model.LyDo.Value;
+
+            if (thayDoi.Count > 0)
+            {
+                await _adminChangeNotification.ThemThongBaoAsync(
+                    User,
+                    "phiếu phạt",
+                    $"PP-{phieuPhat.MaPhieuPhat:D5}",
+                    Url.Action(
+                        nameof(Details),
+                        "PhieuPhats",
+                        new { id = phieuPhat.MaPhieuPhat }) ??
+                    $"/PhieuPhats/Details/{phieuPhat.MaPhieuPhat}",
+                    string.Join(" ", thayDoi));
+            }
 
             await _context.SaveChangesAsync();
             TempData["Success"] = "Đã cập nhật phiếu phạt.";
@@ -276,50 +321,7 @@ namespace bài_tập_1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ThanhToan(int id)
-        {
-            var phieuPhat = await _context.PhieuPhat
-                .Include(p => p.ChiTietPhieuMuon)
-                    .ThenInclude(c => c.PhieuMuon)
-                .FirstOrDefaultAsync(p => p.MaPhieuPhat == id);
-
-            if (phieuPhat == null)
-                return NotFound();
-
-            if (phieuPhat.TrangThai !=
-                TrangThaiPhieuPhat.ChuaDong)
-            {
-                TempData["Error"] =
-                    "Phiếu phạt không ở trạng thái chưa đóng.";
-                return RedirectToAction(
-                    nameof(Details),
-                    new { id });
-            }
-
-            // Phiếu phạt là dữ liệu lịch sử: thanh toán chỉ đổi trạng thái,
-            // tuyệt đối không xóa bản ghi đã tạo khỏi database.
-            phieuPhat.TrangThai = TrangThaiPhieuPhat.DaDong;
-            _context.ThongBao.Add(new ThongBao
-            {
-                MaDocGia = phieuPhat.ChiTietPhieuMuon.PhieuMuon.MaDocGia,
-                MaSuKien = $"phieu-phat-{phieuPhat.MaPhieuPhat}-thanh-toan",
-                TieuDe = "Đã xác nhận thanh toán phiếu phạt",
-                NoiDung = $"Phiếu phạt #PP-{phieuPhat.MaPhieuPhat:D5} trị giá {phieuPhat.SoTien:N0} đồng đã được xác nhận thanh toán. Khoản này không còn nằm trong công nợ của bạn.",
-                LienKet = string.Empty,
-                Loai = "success",
-                NgayTao = DateTime.Now
-            });
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] =
-                "Đã xác nhận thanh toán. Trạng thái và lịch sử phiếu phạt đã được lưu.";
-            return RedirectToAction(
-                nameof(Details),
-                new { id });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Huy(int id)
         {
             var phieuPhat = await _context.PhieuPhat
@@ -340,8 +342,6 @@ namespace bài_tập_1.Controllers
                     new { id });
             }
 
-            // Phiếu phạt là dữ liệu lịch sử: hủy chỉ đổi trạng thái,
-            // tuyệt đối không xóa bản ghi đã tạo khỏi database.
             phieuPhat.TrangThai = TrangThaiPhieuPhat.DaHuy;
             _context.ThongBao.Add(new ThongBao
             {

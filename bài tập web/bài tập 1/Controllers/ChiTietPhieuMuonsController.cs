@@ -222,6 +222,7 @@ namespace bài_tập_1.Controllers
                 {
                     MaPhieuMuon = phieuMuon!.MaPhieuMuon,
                     MaBanSao = banSao!.MaBanSao,
+                    PhiThue = LibraryRules.PhiThueMoiCuon,
                     NgayTra = null,
                     TinhTrangKhiTra = null,
                     GhiChu = model.GhiChu
@@ -451,6 +452,7 @@ namespace bài_tập_1.Controllers
                 new { id = chiTiet.MaPhieuMuon });
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -462,6 +464,7 @@ namespace bài_tập_1.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await using var transaction =

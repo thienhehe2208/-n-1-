@@ -103,6 +103,8 @@
                 var statusClass = isReturned ? "returned" : isOverdue ? "overdue" : "borrowing";
                 var statusText = isReturned ? "Đã trả" : isOverdue ? "Quá hạn" : "Đang mượn";
                 var statusIcon = isReturned ? "bi-check-circle" : isOverdue ? "bi-exclamation-triangle" : "bi-clock";
+                var paymentDone = loan.TrangThaiThanhToan == TrangThaiThanhToan.DaThanhToan;
+                var amount = loan.TongThanhToan;
 
                 <article class="reader-loan-card @statusClass">
                     <header class="reader-loan-card-header">
@@ -137,6 +139,12 @@
                                 <span><i class="bi bi-hourglass-split"></i> Còn @daysRemaining ngày</span>
                             }
                         </div>
+                    </div>
+
+                    <div class="reader-loan-payment @(paymentDone ? "paid" : "unpaid")">
+                        <span><i class="bi bi-wallet2"></i> @(paymentDone ? "Đã thanh toán" : "Chi phí dự kiến")</span>
+                        <strong>@amount.ToString("N0") ₫</strong>
+                        <small>Phí thuê @loan.TongPhiThue.ToString("N0") ₫ · Tiền phạt @loan.TongTienPhat.ToString("N0") ₫</small>
                     </div>
 
                     <div class="reader-loan-books">

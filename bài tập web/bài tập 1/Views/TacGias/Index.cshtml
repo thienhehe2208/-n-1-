@@ -38,7 +38,10 @@
                 @if (canManage)
                 {
                     <a class="author-view author-edit-main" asp-action="Edit" asp-route-id="@item.MaTacGia"><i class="bi bi-pencil-square"></i> Xem &amp; chỉnh sửa</a>
-                    <div><a asp-action="Delete" asp-route-id="@item.MaTacGia" class="danger" title="Xóa tác giả"><i class="bi bi-trash3"></i></a></div>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div><a asp-action="Delete" asp-route-id="@item.MaTacGia" class="danger" title="Xóa tác giả"><i class="bi bi-trash3"></i></a></div>
+                    }
                 }
                 else
                 {

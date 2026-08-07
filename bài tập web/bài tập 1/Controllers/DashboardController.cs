@@ -48,6 +48,50 @@ namespace bài_tập_1.Controllers
                     .ToListAsync()
             };
 
+            if (User.IsInRole("Admin"))
+            {
+                var dauNgay = DateTime.Today;
+                var dauNgaySau = dauNgay.AddDays(1);
+                var dauThang = new DateTime(homNay.Year, homNay.Month, 1);
+                var dauThangSau = dauThang.AddMonths(1);
+                var dauNam = new DateTime(homNay.Year, 1, 1);
+                var dauNamSau = dauNam.AddYears(1);
+                var giaoDich = _context.GiaoDichThanhToan.AsNoTracking();
+
+                model.HienBaoCaoDoanhThu = true;
+                model.DoanhThuHomNay = await giaoDich
+                    .Where(g => g.NgayThanhToan >= dauNgay &&
+                                g.NgayThanhToan < dauNgaySau)
+                    .SumAsync(g => (decimal?)g.TongTien) ?? 0;
+                model.DoanhThuThangNay = await giaoDich
+                    .Where(g => g.NgayThanhToan >= dauThang &&
+                                g.NgayThanhToan < dauThangSau)
+                    .SumAsync(g => (decimal?)g.TongTien) ?? 0;
+                model.DoanhThuNamNay = await giaoDich
+                    .Where(g => g.NgayThanhToan >= dauNam &&
+                                g.NgayThanhToan < dauNamSau)
+                    .SumAsync(g => (decimal?)g.TongTien) ?? 0;
+                model.SachMuonNhieuNhat = await _context.ChiTietPhieuMuon
+                    .AsNoTracking()
+                    .Where(c => c.PhieuMuon.TrangThai !=
+                                TrangThaiPhieuMuon.Nhap)
+                    .GroupBy(c => new
+                    {
+                        c.BanSao.MaSach,
+                        c.BanSao.Sach.TenSach
+                    })
+                    .Select(g => new SachMuonNhieuViewModel
+                    {
+                        MaSach = g.Key.MaSach,
+                        TenSach = g.Key.TenSach,
+                        SoLuotMuon = g.Count()
+                    })
+                    .OrderByDescending(s => s.SoLuotMuon)
+                    .ThenBy(s => s.TenSach)
+                    .Take(5)
+                    .ToListAsync();
+            }
+
             return View(model);
         }
     }

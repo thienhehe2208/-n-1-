@@ -52,13 +52,6 @@
                 <a asp-action="Index" asp-route-q="@keyword" asp-route-trangThai="incident" class="@(status == "incident" ? "active" : "")">Có sự cố</a>
             </nav>
         </div>
-        <div class="circulation-guide">
-            <i class="bi bi-info-circle"></i>
-            <div>
-                <strong>Cách đọc danh sách</strong>
-                <span>Mỗi dòng là một cuốn sách. Các dòng có cùng mã <b>PM</b> thuộc cùng một phiếu và chỉ được tiếp nhận trả đồng thời ở trang phiếu mượn.</span>
-            </div>
-        </div>
         <div class="circulation-heading"><h3>Danh sách từng cuốn theo phiếu mượn</h3><p>Hiển thị <strong>@Model.Count()</strong> lượt sách</p></div>
 
         @if (Model.Any())
@@ -97,7 +90,10 @@
                             <td><span class="circulation-condition @(!isReturned ? "pending" : conditionClass)"><i></i>@conditionText</span></td>
                             <td><span class="circulation-note" title="@item.GhiChu">@(string.IsNullOrWhiteSpace(item.GhiChu) ? "—" : item.GhiChu)</span></td>
                             <td><div class="circulation-actions"><a asp-action="Details" asp-route-id="@item.MaChiTiet" title="Chi tiết"><i class="bi bi-eye"></i></a>
-                            <a asp-action="Delete" asp-route-id="@item.MaChiTiet" class="danger" title="Hủy lượt mượn"><i class="bi bi-trash3"></i></a></div></td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Delete" asp-route-id="@item.MaChiTiet" class="danger" title="Hủy lượt mượn"><i class="bi bi-trash3"></i></a>
+                            }</div></td>
                         </tr>
                         previousLoanId = item.MaPhieuMuon;
                     }

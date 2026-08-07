@@ -9,16 +9,21 @@ using Microsoft.EntityFrameworkCore;
 using bài_tập_1.Data;
 using bài_tập_1.Models;
 using bài_tập_1.Models.ViewModels;
+using bài_tập_1.Services;
 
 namespace bài_tập_1.Controllers
 {
     public class TacGiasController : Controller
     {
         private readonly bài_tập_1Context _context;
+        private readonly AdminChangeNotificationService _adminChangeNotification;
 
-        public TacGiasController(bài_tập_1Context context)
+        public TacGiasController(
+            bài_tập_1Context context,
+            AdminChangeNotificationService adminChangeNotification)
         {
             _context = context;
+            _adminChangeNotification = adminChangeNotification;
         }
 
         // Danh sách tác giả - ai cũng xem được
@@ -133,6 +138,13 @@ namespace bài_tập_1.Controllers
                 try
                 {
                     _context.Update(tacGia);
+                    await _adminChangeNotification.ThemThongBaoAsync(
+                        User,
+                        "tác giả",
+                        $"TG-{tacGia.MaTacGia:D5}",
+                        Url.Action(nameof(Details), new { id = tacGia.MaTacGia })
+                            ?? $"/TacGias/Details/{tacGia.MaTacGia}",
+                        $"Tên tác giả: {tacGia.HoTen}.");
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -159,7 +171,7 @@ namespace bài_tập_1.Controllers
         }
 
         // Hiển thị xác nhận xóa tác giả - chỉ Admin/NhanVien
-        [Authorize(Roles = "Admin,NhanVien")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.TacGia == null)
@@ -178,7 +190,7 @@ namespace bài_tập_1.Controllers
         }
 
         // Xử lý xóa tác giả - chỉ Admin/NhanVien
-        [Authorize(Roles = "Admin,NhanVien")]
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

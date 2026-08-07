@@ -50,7 +50,7 @@
                             <td><code>@item.MaVach</code></td>
                             <td><span class="inventory-shelf"><i class="bi bi-geo-alt"></i> @(string.IsNullOrWhiteSpace(item.ViTriKe) ? "Chưa xếp kệ" : item.ViTriKe)</span></td>
                             <td><span class="inventory-status @statusClass"><i></i>@statusText</span></td>
-                            <td><div class="inventory-actions"><a asp-action="Details" asp-route-id="@item.MaBanSao" title="Xem chi tiết"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@item.MaBanSao" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a><a class="delete" asp-action="Delete" asp-route-id="@item.MaBanSao" title="Xóa"><i class="bi bi-trash3"></i></a></div></td>
+                            <td><div class="inventory-actions"><a asp-action="Details" asp-route-id="@item.MaBanSao" title="Xem chi tiết"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@item.MaBanSao" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>@if (User.IsInRole("Admin")) {<a class="delete" asp-action="Delete" asp-route-id="@item.MaBanSao" title="Xóa"><i class="bi bi-trash3"></i></a>}</div></td>
                         </tr>
                     }
                 </tbody>

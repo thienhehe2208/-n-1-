@@ -12,6 +12,28 @@ namespace bài_tập_1.Models.ViewModels
         [DataType(DataType.Date)]
         [Display(Name = "Ngày hẹn trả")]
         public DateTime NgayHenTra { get; set; } = DateTime.Today.AddDays(14);
+
+        [MinLength(1, ErrorMessage = "Vui lòng chọn ít nhất một cuốn sách.")]
+        [MaxLength(5, ErrorMessage = "Mỗi độc giả chỉ được giữ tối đa 5 cuốn sách.")]
+        [Display(Name = "Sách mượn")]
+        public List<int> MaBanSaos { get; set; } = new();
+    }
+
+    public class BanSaoMuonOptionViewModel
+    {
+        public int MaBanSao { get; set; }
+
+        public int MaSach { get; set; }
+
+        public string TenSach { get; set; } = string.Empty;
+
+        public string MaVach { get; set; } = string.Empty;
+
+        public string TheLoai { get; set; } = string.Empty;
+
+        public string ViTriKe { get; set; } = string.Empty;
+
+        public string AnhBia { get; set; } = string.Empty;
     }
 
     public class CapNhatHanTraViewModel
@@ -67,6 +89,23 @@ namespace bài_tập_1.Models.ViewModels
         [Required(ErrorMessage = "Vui lòng chọn tình trạng khi trả.")]
         [Display(Name = "Tình trạng khi trả")]
         public TinhTrangKhiTra? TinhTrangKhiTra { get; set; }
+
+        [StringLength(250, ErrorMessage = "Ghi chú không được vượt quá 250 ký tự.")]
+        [Display(Name = "Ghi chú")]
+        public string GhiChu { get; set; } = string.Empty;
+    }
+
+    public class XacNhanThanhToanViewModel
+    {
+        public int MaPhieuMuon { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn phương thức thanh toán.")]
+        [Display(Name = "Phương thức thanh toán")]
+        public PhuongThucThanhToan? PhuongThuc { get; set; }
+
+        [StringLength(100, ErrorMessage = "Mã giao dịch không được vượt quá 100 ký tự.")]
+        [Display(Name = "Mã giao dịch ngân hàng")]
+        public string MaThamChieu { get; set; } = string.Empty;
 
         [StringLength(250, ErrorMessage = "Ghi chú không được vượt quá 250 ký tự.")]
         [Display(Name = "Ghi chú")]

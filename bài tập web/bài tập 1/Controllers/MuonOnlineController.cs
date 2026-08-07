@@ -498,6 +498,7 @@ namespace bài_tập_1.Controllers
                 loan.ChiTietPhieuMuons.Add(new ChiTietPhieuMuon
                 {
                     MaBanSao = row.MaBanSao,
+                    PhiThue = LibraryRules.PhiThueMoiCuon,
                     GhiChu = "Tạo từ phiếu mượn online " + row.MaXacNhan
                 });
                 row.BanSao.TinhTrang = TinhTrangBanSao.DangMuon;

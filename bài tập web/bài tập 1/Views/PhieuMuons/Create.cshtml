@@ -1,4 +1,5 @@
 @model bài_tập_1.Models.ViewModels.LapPhieuMuonViewModel
+@using bài_tập_1.Models.ViewModels
 @using bài_tập_1.Services
 
 @{
@@ -6,6 +7,9 @@
     var homNay = DateTime.Today;
     var hanToiDa = homNay.AddDays(LibraryRules.SoNgayMuonToiDa);
     var soDocGiaHopLe = ViewData["SoDocGiaHopLe"] as int? ?? 0;
+    var banSaos = ViewData["BanSaosChoMuon"] as IReadOnlyList<BanSaoMuonOptionViewModel>
+        ?? new List<BanSaoMuonOptionViewModel>();
+    var daChon = Model.MaBanSaos.ToHashSet();
 }
 
 <main class="loan-create-page">
@@ -17,54 +21,120 @@
     <section class="loan-create-hero">
         <div class="loan-create-hero__content">
             <span class="loan-create-hero__icon"><i class="bi bi-journal-plus"></i></span>
-            <div><span class="loan-create-eyebrow">Quản lý lưu thông</span><h1>Lập phiếu mượn mới</h1><p>Chọn độc giả và thời hạn trả. Sau đó bạn sẽ tiếp tục quét hoặc chọn sách cho phiếu mượn.</p></div>
+            <div>
+                <span class="loan-create-eyebrow">Quản lý lưu thông</span>
+                <h1>Lập phiếu mượn mới</h1>
+                <p>Chọn độc giả, thời hạn và nhiều cuốn sách để lập phiếu trong một lần.</p>
+            </div>
         </div>
         <div class="loan-create-steps" aria-label="Tiến trình lập phiếu">
-            <div class="loan-create-step is-active"><span>1</span><div><strong>Thông tin phiếu</strong><small>Độc giả &amp; thời hạn</small></div></div>
-            <div class="loan-create-step"><span>2</span><div><strong>Thêm sách</strong><small>Chọn bản sao</small></div></div>
+            <div class="loan-create-step is-active"><span>1</span><div><strong>Thông tin</strong><small>Độc giả &amp; thời hạn</small></div></div>
+            <div class="loan-create-step is-active"><span>2</span><div><strong>Chọn sách</strong><small>Tối đa @LibraryRules.SoSachMuonToiDa cuốn</small></div></div>
         </div>
     </section>
 
     <form asp-action="Create" method="post" id="loanCreateForm">
         <div asp-validation-summary="ModelOnly" class="loan-create-alert" role="alert"></div>
         <div class="loan-create-layout">
-            <section class="loan-create-card">
-                <header class="loan-create-card__header">
-                    <div><span class="loan-create-section-icon"><i class="bi bi-person-check"></i></span><div><h2>Thông tin mượn</h2><p>Các trường có dấu <b>*</b> là bắt buộc.</p></div></div>
-                    <span class="loan-create-available"><i class="bi bi-check-circle"></i> @soDocGiaHopLe độc giả hợp lệ</span>
-                </header>
-                <div class="loan-create-card__body">
-                    <div class="loan-create-field">
-                        <label asp-for="MaDocGia" class="form-label">Độc giả <span>*</span></label>
-                        <div class="loan-create-control"><i class="bi bi-person-vcard"></i><select asp-for="MaDocGia" asp-items="ViewBag.MaDocGia" class="form-select"><option value="">Chọn độc giả đang hoạt động</option></select></div>
-                        <div class="loan-create-hint"><i class="bi bi-info-circle"></i> Chỉ hiển thị độc giả có thẻ còn hạn và đang hoạt động.</div>
-                        <span asp-validation-for="MaDocGia" class="text-danger"></span>
+            <div class="loan-create-main-column">
+                <section class="loan-create-card">
+                    <header class="loan-create-card__header">
+                        <div><span class="loan-create-section-icon"><i class="bi bi-person-check"></i></span><div><h2>Thông tin mượn</h2><p>Các trường có dấu <b>*</b> là bắt buộc.</p></div></div>
+                        <span class="loan-create-available"><i class="bi bi-check-circle"></i> @soDocGiaHopLe độc giả hợp lệ</span>
+                    </header>
+                    <div class="loan-create-card__body">
+                        <div class="loan-create-field">
+                            <label asp-for="MaDocGia" class="form-label">Độc giả <span>*</span></label>
+                            <div class="loan-create-control"><i class="bi bi-person-vcard"></i><select asp-for="MaDocGia" asp-items="ViewBag.MaDocGia" class="form-select"><option value="">Chọn độc giả đang hoạt động</option></select></div>
+                            <div class="loan-create-hint"><i class="bi bi-info-circle"></i> Chỉ hiển thị độc giả có thẻ còn hạn và đang hoạt động.</div>
+                            <span asp-validation-for="MaDocGia" class="text-danger"></span>
+                        </div>
+                        <div class="loan-create-field">
+                            <label asp-for="NgayHenTra" class="form-label">Ngày hẹn trả <span>*</span></label>
+                            <div class="loan-create-control"><i class="bi bi-calendar-event"></i><input asp-for="NgayHenTra" class="form-control" min="@homNay.AddDays(1).ToString("yyyy-MM-dd")" max="@hanToiDa.ToString("yyyy-MM-dd")" /></div>
+                            <div class="loan-create-date-options"><span>Chọn nhanh:</span><button type="button" data-loan-days="7">7 ngày</button><button type="button" data-loan-days="14">14 ngày</button><button type="button" data-loan-days="@LibraryRules.SoNgayMuonToiDa">@LibraryRules.SoNgayMuonToiDa ngày</button></div>
+                            <span asp-validation-for="NgayHenTra" class="text-danger"></span>
+                        </div>
                     </div>
-                    <div class="loan-create-field">
-                        <label asp-for="NgayHenTra" class="form-label">Ngày hẹn trả <span>*</span></label>
-                        <div class="loan-create-control"><i class="bi bi-calendar-event"></i><input asp-for="NgayHenTra" class="form-control" min="@homNay.AddDays(1).ToString("yyyy-MM-dd")" max="@hanToiDa.ToString("yyyy-MM-dd")" /></div>
-                        <div class="loan-create-date-options"><span>Chọn nhanh:</span><button type="button" data-loan-days="7">7 ngày</button><button type="button" data-loan-days="14">14 ngày</button><button type="button" data-loan-days="@LibraryRules.SoNgayMuonToiDa">@LibraryRules.SoNgayMuonToiDa ngày</button></div>
-                        <span asp-validation-for="NgayHenTra" class="text-danger"></span>
+                </section>
+
+                <section class="loan-create-card loan-create-book-card">
+                    <header class="loan-create-card__header">
+                        <div><span class="loan-create-section-icon"><i class="bi bi-bookshelf"></i></span><div><h2>Chọn sách mượn</h2><p>Mỗi đầu sách chỉ được chọn một bản sao.</p></div></div>
+                        <span class="loan-create-available"><i class="bi bi-book"></i> @banSaos.Count bản sao sẵn có</span>
+                    </header>
+                    <div class="loan-create-book-body">
+                        <div class="loan-create-book-toolbar">
+                            <div class="loan-create-book-search"><i class="bi bi-search"></i><input type="search" id="bookSearch" class="form-control" placeholder="Tìm theo tên sách, mã vạch, thể loại hoặc vị trí kệ" /></div>
+                            <span id="bookSelectionLimit">Đã chọn <strong>0</strong>/@LibraryRules.SoSachMuonToiDa cuốn</span>
+                        </div>
+                        <div id="bookSelectionMessage" class="loan-create-selection-message" role="status"></div>
+                        <span asp-validation-for="MaBanSaos" class="text-danger loan-create-book-validation"></span>
+
+                        @if (banSaos.Count == 0)
+                        {
+                            <div class="loan-create-book-empty"><i class="bi bi-inboxes"></i><strong>Chưa có bản sao sẵn sàng cho mượn</strong><span>Hãy kiểm tra lại kho sách hoặc trạng thái các bản sao.</span></div>
+                        }
+                        else
+                        {
+                            <div class="loan-create-book-grid" id="bookGrid">
+                                @foreach (var book in banSaos)
+                                {
+                                    var searchText = $"{book.TenSach} {book.MaVach} {book.TheLoai} {book.ViTriKe}".ToLowerInvariant();
+                                    <label class="loan-create-book-option @(daChon.Contains(book.MaBanSao) ? "is-selected" : "")" data-book-option data-search="@searchText">
+                                        @if (daChon.Contains(book.MaBanSao))
+                                        {
+                                            <input type="checkbox" name="MaBanSaos" value="@book.MaBanSao" data-title-id="@book.MaSach" data-title="@book.TenSach" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" name="MaBanSaos" value="@book.MaBanSao" data-title-id="@book.MaSach" data-title="@book.TenSach" />
+                                        }
+                                        <span class="loan-create-book-check"><i class="bi bi-check-lg"></i></span>
+                                        <span class="loan-create-book-cover">
+                                            @if (!string.IsNullOrWhiteSpace(book.AnhBia))
+                                            {
+                                                <img src="@book.AnhBia" alt="Bìa sách @book.TenSach" loading="lazy" />
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-book"></i>
+                                            }
+                                        </span>
+                                        <span class="loan-create-book-info">
+                                            <strong title="@book.TenSach">@book.TenSach</strong>
+                                            <small><i class="bi bi-upc-scan"></i> @book.MaVach</small>
+                                            <small><i class="bi bi-tag"></i> @book.TheLoai</small>
+                                            <span><i class="bi bi-geo-alt"></i> @(string.IsNullOrWhiteSpace(book.ViTriKe) ? "Chưa xếp kệ" : book.ViTriKe)<b>@LibraryRules.PhiThueMoiCuon.ToString("N0")đ</b></span>
+                                        </span>
+                                    </label>
+                                }
+                            </div>
+                            <div id="bookSearchEmpty" class="loan-create-book-empty is-compact" hidden><i class="bi bi-search"></i><strong>Không tìm thấy sách phù hợp</strong></div>
+                        }
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
             <aside class="loan-create-summary">
-                <div class="loan-create-summary__title"><span><i class="bi bi-clipboard-check"></i></span><div><h2>Tóm tắt phiếu</h2><p>Kiểm tra trước khi tiếp tục</p></div></div>
+                <div class="loan-create-summary__title"><span><i class="bi bi-clipboard-check"></i></span><div><h2>Tóm tắt phiếu</h2><p>Kiểm tra trước khi lập phiếu</p></div></div>
                 <dl>
                     <div><dt>Ngày lập phiếu</dt><dd>@homNay.ToString("dd/MM/yyyy")</dd></div>
                     <div><dt>Độc giả</dt><dd id="selectedReader">Chưa chọn</dd></div>
                     <div><dt>Ngày hẹn trả</dt><dd id="selectedDueDate">Chưa chọn</dd></div>
-                    <div><dt>Trạng thái</dt><dd><span class="loan-create-status">Bản nháp</span></dd></div>
+                    <div><dt>Số sách</dt><dd id="selectedBookCount">0 cuốn</dd></div>
+                    <div><dt>Phí thuê</dt><dd id="selectedRentalFee">0đ</dd></div>
+                    <div><dt>Trạng thái</dt><dd><span class="loan-create-status is-ready">Đang mượn</span></dd></div>
                 </dl>
-                <div class="loan-create-note"><i class="bi bi-lightbulb"></i><p><strong>Lưu ý</strong> Thời hạn mượn tối đa @LibraryRules.SoNgayMuonToiDa ngày. Phiếu chỉ hoàn tất sau khi thêm ít nhất một cuốn sách.</p></div>
+                <div class="loan-create-selected-preview" id="selectedBooksPreview"><span>Chưa chọn sách nào</span></div>
+                <div class="loan-create-note"><i class="bi bi-lightbulb"></i><p><strong>Lưu ý</strong> Phí thuê là @LibraryRules.PhiThueMoiCuon.ToString("N0")đ/cuốn. Tiền phạt trả muộn hoặc hư hỏng sẽ được cộng khi trả sách.</p></div>
             </aside>
         </div>
 
         <footer class="loan-create-actions">
             <a asp-action="Index" class="btn loan-create-btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
             <button type="reset" class="btn loan-create-btn-reset"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</button>
-            <button type="submit" class="btn loan-create-btn-primary">Tiếp tục thêm sách <i class="bi bi-arrow-right"></i></button>
+            <button type="submit" class="btn loan-create-btn-primary" id="loanSubmitButton">Lập phiếu với 0 cuốn <i class="bi bi-check-circle"></i></button>
         </footer>
     </form>
 </main>
@@ -76,19 +146,97 @@
             const form = document.getElementById('loanCreateForm');
             const reader = document.getElementById('MaDocGia');
             const dueDate = document.getElementById('NgayHenTra');
+            const search = document.getElementById('bookSearch');
+            const options = [...document.querySelectorAll('[data-book-option]')];
+            const checkboxes = options.map(option => option.querySelector('input[type="checkbox"]'));
             const readerSummary = document.getElementById('selectedReader');
             const dateSummary = document.getElementById('selectedDueDate');
-            const formatDate = value => { if (!value) return 'Chưa chọn'; const [year, month, day] = value.split('-'); return `${day}/${month}/${year}`; };
-            const refreshSummary = () => { readerSummary.textContent = reader.selectedIndex > 0 ? reader.options[reader.selectedIndex].text : 'Chưa chọn'; dateSummary.textContent = formatDate(dueDate.value); };
+            const bookCount = document.getElementById('selectedBookCount');
+            const rentalFee = document.getElementById('selectedRentalFee');
+            const selectionLimit = document.getElementById('bookSelectionLimit');
+            const selectionMessage = document.getElementById('bookSelectionMessage');
+            const selectedPreview = document.getElementById('selectedBooksPreview');
+            const searchEmpty = document.getElementById('bookSearchEmpty');
+            const submitButton = document.getElementById('loanSubmitButton');
+            const maxBooks = @LibraryRules.SoSachMuonToiDa;
+            const feePerBook = @LibraryRules.PhiThueMoiCuon;
+
+            const formatDate = value => {
+                if (!value) return 'Chưa chọn';
+                const [year, month, day] = value.split('-');
+                return `${day}/${month}/${year}`;
+            };
+
+            const selected = () => checkboxes.filter(checkbox => checkbox.checked);
+
+            const showMessage = message => {
+                selectionMessage.textContent = message;
+                selectionMessage.classList.toggle('is-visible', Boolean(message));
+            };
+
+            const refreshSummary = () => {
+                const selectedBooks = selected();
+                readerSummary.textContent = reader.selectedIndex > 0 ? reader.options[reader.selectedIndex].text : 'Chưa chọn';
+                dateSummary.textContent = formatDate(dueDate.value);
+                bookCount.textContent = `${selectedBooks.length} cuốn`;
+                rentalFee.textContent = `${(selectedBooks.length * feePerBook).toLocaleString('vi-VN')}đ`;
+                selectionLimit.querySelector('strong').textContent = selectedBooks.length;
+                submitButton.innerHTML = `Lập phiếu với ${selectedBooks.length} cuốn <i class="bi bi-check-circle"></i>`;
+                submitButton.disabled = selectedBooks.length === 0;
+
+                options.forEach(option => option.classList.toggle('is-selected', option.querySelector('input').checked));
+                selectedPreview.replaceChildren();
+                if (selectedBooks.length) {
+                    selectedBooks.forEach(book => {
+                        const item = document.createElement('span');
+                        const icon = document.createElement('i');
+                        icon.className = 'bi bi-check2';
+                        item.append(icon, document.createTextNode(book.dataset.title));
+                        selectedPreview.append(item);
+                    });
+                } else {
+                    const empty = document.createElement('span');
+                    empty.textContent = 'Chưa chọn sách nào';
+                    selectedPreview.append(empty);
+                }
+            };
+
+            checkboxes.forEach(checkbox => checkbox.addEventListener('change', () => {
+                showMessage('');
+                if (checkbox.checked) {
+                    const sameTitle = selected().find(book => book !== checkbox && book.dataset.titleId === checkbox.dataset.titleId);
+                    if (sameTitle) {
+                        checkbox.checked = false;
+                        showMessage(`Bạn đã chọn một bản sao của “${checkbox.dataset.title}”.`);
+                    } else if (selected().length > maxBooks) {
+                        checkbox.checked = false;
+                        showMessage(`Mỗi độc giả chỉ được giữ tối đa ${maxBooks} cuốn.`);
+                    }
+                }
+                refreshSummary();
+            }));
+
+            search?.addEventListener('input', () => {
+                const keyword = search.value.trim().toLocaleLowerCase('vi-VN');
+                let visible = 0;
+                options.forEach(option => {
+                    const matches = option.dataset.search.includes(keyword);
+                    option.hidden = !matches;
+                    if (matches) visible++;
+                });
+                if (searchEmpty) searchEmpty.hidden = visible > 0;
+            });
+
             document.querySelectorAll('[data-loan-days]').forEach(button => button.addEventListener('click', () => {
                 const date = new Date();
                 date.setDate(date.getDate() + Number(button.dataset.loanDays));
                 dueDate.value = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
                 dueDate.dispatchEvent(new Event('change', { bubbles: true }));
             }));
+
             reader.addEventListener('change', refreshSummary);
             dueDate.addEventListener('change', refreshSummary);
-            form.addEventListener('reset', () => setTimeout(refreshSummary));
+            form.addEventListener('reset', () => setTimeout(() => { showMessage(''); refreshSummary(); }));
             refreshSummary();
         })();
     </script>

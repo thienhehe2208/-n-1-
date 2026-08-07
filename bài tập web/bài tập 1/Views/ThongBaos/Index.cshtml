@@ -2,8 +2,9 @@
 @using bài_tập_1.Models.ViewModels
 @{
     var isAdminOutbox = ViewData["IsAdminOutbox"] as bool? == true;
+    var isAdminInbox = ViewData["IsAdminInbox"] as bool? == true;
     var unread = Model.Count(t => !t.DaDoc);
-    ViewData["Title"] = isAdminOutbox ? "Quản lý thông báo" : "Thông báo của tôi";
+    ViewData["Title"] = isAdminOutbox ? "Quản lý thông báo" : isAdminInbox ? "Thay đổi của nhân viên" : "Thông báo của tôi";
     string Icon(string type) => type switch { "success" => "bi-check-circle", "warning" => "bi-exclamation-triangle", "danger" => "bi-exclamation-octagon", _ => "bi-info-circle" };
     string Audience(string value) => value switch { "DocGia" => "Độc giả", "NhanVien" => "Nhân viên", _ => "Tất cả tài khoản" };
 }
@@ -12,8 +13,8 @@
     <header class="notification-hero">
         <div>
             <span class="notification-eyebrow"><i class="bi bi-bell"></i> TRUNG TÂM THÔNG BÁO</span>
-            <h1>@(isAdminOutbox ? "Kết nối mọi thành viên" : "Luôn cập nhật, không bỏ lỡ")</h1>
-            <p>@(isAdminOutbox ? "Soạn và gửi thông tin quan trọng đến đúng nhóm người dùng trong thư viện." : "Theo dõi thông báo từ thư viện, hạn trả sách và trạng thái đặt trước của bạn.")</p>
+            <h1>@(isAdminOutbox ? "Kết nối mọi thành viên" : isAdminInbox ? "Theo dõi thay đổi hệ thống" : "Luôn cập nhật, không bỏ lỡ")</h1>
+            <p>@(isAdminOutbox ? "Soạn và gửi thông tin quan trọng đến đúng nhóm người dùng trong thư viện." : isAdminInbox ? "Kiểm tra những dữ liệu đã được nhân viên chỉnh sửa trong hệ thống." : "Theo dõi thông báo từ thư viện, hạn trả sách và trạng thái đặt trước của bạn.")</p>
         </div>
         <div class="notification-hero-art"><i class="bi bi-send"></i><span></span><span></span></div>
     </header>
@@ -63,6 +64,10 @@
                                 @if (item.LaThongBaoAdmin)
                                 {
                                     <span class="admin-badge"><i class="bi bi-patch-check-fill"></i> Từ quản trị viên</span>
+                                }
+                                @if (isAdminInbox)
+                                {
+                                    <span class="admin-badge"><i class="bi bi-shield-check"></i> Giám sát nhân viên</span>
                                 }
                                 @if (isAdminOutbox)
                                 {

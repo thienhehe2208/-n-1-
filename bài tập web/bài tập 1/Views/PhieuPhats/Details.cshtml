@@ -120,53 +120,39 @@
         @if (Model.TrangThai == TrangThaiPhieuPhat.ChuaDong)
         {
             <a asp-action="Edit" asp-route-id="@Model.MaPhieuPhat" class="fine-detail-btn fine-detail-btn--edit"><i class="bi bi-pencil"></i> Chỉnh sửa</a>
-            <button type="button" class="fine-detail-btn fine-detail-btn--cancel" data-bs-toggle="modal" data-bs-target="#cancelFineModal"><i class="bi bi-x-circle"></i> Hủy phiếu</button>
-            <button type="button" class="fine-detail-btn fine-detail-btn--pay" data-bs-toggle="modal" data-bs-target="#payFineModal"><i class="bi bi-check2-circle"></i> Xác nhận đã thanh toán</button>
+            @if (User.IsInRole("Admin"))
+            {
+                <button type="button" class="fine-detail-btn fine-detail-btn--cancel" data-bs-toggle="modal" data-bs-target="#cancelFineModal"><i class="bi bi-x-circle"></i> Hủy phiếu</button>
+            }
+            <a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@detail.MaPhieuMuon" class="fine-detail-btn fine-detail-btn--pay"><i class="bi bi-wallet2"></i> Thanh toán phiếu mượn</a>
         }
     </footer>
 </section>
 
 @if (Model.TrangThai == TrangThaiPhieuPhat.ChuaDong)
 {
-    <div class="modal fade fine-action-modal" id="cancelFineModal" tabindex="-1" aria-labelledby="cancelFineTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="fine-action-modal__title cancel"><i class="bi bi-x-octagon"></i><div><small>XÁC NHẬN NGHIỆP VỤ</small><h2 id="cancelFineTitle">Xác nhận hủy phiếu phạt?</h2></div></div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Khoản phạt <strong>@Model.SoTien.ToString("N0") ₫</strong> sẽ được hủy và không còn tính vào công nợ của độc giả.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Không hủy</button>
-                    <form asp-action="Huy" asp-route-id="@Model.MaPhieuPhat" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Xác nhận hủy phiếu</button>
-                    </form>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="modal fade fine-action-modal" id="cancelFineModal" tabindex="-1" aria-labelledby="cancelFineTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="fine-action-modal__title cancel"><i class="bi bi-x-octagon"></i><div><small>XÁC NHẬN NGHIỆP VỤ</small><h2 id="cancelFineTitle">Xác nhận hủy phiếu phạt?</h2></div></div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Khoản phạt <strong>@Model.SoTien.ToString("N0") ₫</strong> sẽ được hủy và không còn tính vào công nợ của độc giả.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Không hủy</button>
+                        <form asp-action="Huy" asp-route-id="@Model.MaPhieuPhat" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Xác nhận hủy phiếu</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
 
-    <div class="modal fade fine-action-modal" id="payFineModal" tabindex="-1" aria-labelledby="payFineTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="fine-action-modal__title pay"><i class="bi bi-wallet2"></i><div><small>XÁC NHẬN THANH TOÁN</small><h2 id="payFineTitle">Độc giả đã thanh toán?</h2></div></div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Xác nhận đã thu đủ khoản phạt <strong>@Model.SoTien.ToString("N0") ₫</strong> từ độc giả.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kiểm tra lại</button>
-                    <form asp-action="ThanhToan" asp-route-id="@Model.MaPhieuPhat" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Xác nhận đã thu tiền</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 }

@@ -35,6 +35,11 @@ namespace bài_tập_1.Services
                     _context.PhieuPhat.Any(p =>
                         p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
                         p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == d.MaDocGia) ||
+                    _context.PhieuMuon.Any(p =>
+                        p.MaDocGia == d.MaDocGia &&
+                        p.TrangThai == TrangThaiPhieuMuon.DaTra &&
+                        p.TrangThaiThanhToan == TrangThaiThanhToan.ChuaThanhToan &&
+                        p.ChiTietPhieuMuons.Any(c => c.PhiThue > 0)) ||
                     _context.ChiTietPhieuMuon.Any(c =>
                         c.PhieuMuon.MaDocGia == d.MaDocGia &&
                         c.NgayTra == null &&
@@ -128,6 +133,11 @@ namespace bài_tập_1.Services
                     !_context.PhieuPhat.Any(p =>
                         p.TrangThai == TrangThaiPhieuPhat.ChuaDong &&
                         p.ChiTietPhieuMuon.PhieuMuon.MaDocGia == d.MaDocGia) &&
+                    !_context.PhieuMuon.Any(p =>
+                        p.MaDocGia == d.MaDocGia &&
+                        p.TrangThai == TrangThaiPhieuMuon.DaTra &&
+                        p.TrangThaiThanhToan == TrangThaiThanhToan.ChuaThanhToan &&
+                        p.ChiTietPhieuMuons.Any(c => c.PhiThue > 0)) &&
                     !_context.ChiTietPhieuMuon.Any(c =>
                         c.PhieuMuon.MaDocGia == d.MaDocGia &&
                         c.NgayTra == null &&

@@ -1,0 +1,74 @@
+@model IEnumerable<bài_tập_1.Models.GiaoDichThanhToan>
+@using bài_tập_1.Models
+@using bài_tập_1.Models.ViewModels
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Lịch sử thanh toán";
+    var pagination = ViewData["Pagination"] as PaginationViewModel ?? new PaginationViewModel();
+    var nhanViens = ViewData["NhanViens"] as SelectList;
+    var tongDoanhThu = (decimal?)ViewData["TongDoanhThu"] ?? 0;
+    var tongPhiThue = (decimal?)ViewData["TongPhiThue"] ?? 0;
+    var tongTienPhat = (decimal?)ViewData["TongTienPhat"] ?? 0;
+    var selectedMethod = ViewData["PhuongThuc"] as PhuongThucThanhToan?;
+}
+
+<section class="payment-audit-page">
+    <header class="payment-audit-hero">
+        <div><span><i class="bi bi-shield-check"></i></span><div><small>ĐỐI SOÁT QUẢN TRỊ</small><h1>Lịch sử thanh toán</h1></div></div>
+        <a asp-controller="Dashboard" asp-action="Index"><i class="bi bi-grid"></i> Xem tổng quan</a>
+    </header>
+
+    <form method="get" class="payment-audit-filter">
+        <div><label for="fromDate">Từ ngày</label><input id="fromDate" type="date" name="tuNgay" value="@ViewData["TuNgay"]" /></div>
+        <div><label for="toDate">Đến ngày</label><input id="toDate" type="date" name="denNgay" value="@ViewData["DenNgay"]" /></div>
+        <div><label for="staffFilter">Nhân viên</label><select id="staffFilter" name="maNhanVien" asp-items="nhanViens"><option value="">Tất cả nhân viên</option></select></div>
+        <div><label for="methodFilter">Phương thức</label><select id="methodFilter" name="phuongThuc"><option value="">Tất cả phương thức</option><option value="@((int)PhuongThucThanhToan.TienMat)" selected="@(selectedMethod == PhuongThucThanhToan.TienMat)">Tiền mặt</option><option value="@((int)PhuongThucThanhToan.ChuyenKhoan)" selected="@(selectedMethod == PhuongThucThanhToan.ChuyenKhoan)">Chuyển khoản</option><option value="@((int)PhuongThucThanhToan.KhongXacDinh)" selected="@(selectedMethod == PhuongThucThanhToan.KhongXacDinh)">Dữ liệu cũ</option></select></div>
+        <button type="submit"><i class="bi bi-funnel"></i> Lọc dữ liệu</button>
+        <a asp-action="Index"><i class="bi bi-arrow-counterclockwise"></i> Đặt lại</a>
+    </form>
+
+    <div class="payment-audit-summary">
+        <article><small>TỔNG DOANH THU</small><strong>@tongDoanhThu.ToString("N0") ₫</strong></article>
+        <article><small>PHÍ THUÊ SÁCH</small><strong>@tongPhiThue.ToString("N0") ₫</strong></article>
+        <article><small>TIỀN PHẠT</small><strong>@tongTienPhat.ToString("N0") ₫</strong></article>
+        <article><small>SỐ GIAO DỊCH</small><strong>@pagination.TotalItems.ToString("N0")</strong></article>
+    </div>
+
+    <div class="payment-audit-table-wrap">
+        <table class="payment-audit-table">
+            <thead><tr><th>Giao dịch</th><th>Phiếu mượn</th><th>Nhân viên xác nhận</th><th>Phương thức</th><th>Phí thuê</th><th>Tiền phạt</th><th>Tổng tiền</th><th>Thời gian</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                var methodText = item.PhuongThuc switch { PhuongThucThanhToan.TienMat => "Tiền mặt", PhuongThucThanhToan.ChuyenKhoan => "Chuyển khoản", _ => "Dữ liệu cũ" };
+                <tr>
+                    <td><strong>GD-@item.MaGiaoDich.ToString("D6")</strong>@if (!string.IsNullOrWhiteSpace(item.MaThamChieu)){<small>@item.MaThamChieu</small>}</td>
+                    <td><strong>PM-@item.MaPhieuMuon.ToString("D5")</strong><small>@item.PhieuMuon.DocGia.HoTen</small></td>
+                    <td><strong>@item.NhanVienXacNhan.HoTen</strong><small>NV-@item.MaNhanVienXacNhan.ToString("D5")</small></td>
+                    <td><span class="payment-method method-@((int)item.PhuongThuc)">@methodText</span></td>
+                    <td>@item.PhiThue.ToString("N0") ₫</td>
+                    <td>@item.TienPhat.ToString("N0") ₫</td>
+                    <td><strong class="payment-audit-money">@item.TongTien.ToString("N0") ₫</strong></td>
+                    <td>@item.NgayThanhToan.ToString("HH:mm")<small>@item.NgayThanhToan.ToString("dd/MM/yyyy")</small></td>
+                    <td><a asp-controller="PhieuMuons" asp-action="Details" asp-route-id="@item.MaPhieuMuon" title="Xem phiếu mượn"><i class="bi bi-arrow-up-right"></i></a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        @if (!Model.Any())
+        {
+            <div class="payment-audit-empty"><i class="bi bi-receipt"></i><strong>Không có giao dịch phù hợp</strong><span>Hãy thay đổi điều kiện lọc hoặc kiểm tra lại dữ liệu.</span></div>
+        }
+    </div>
+
+    @if (pagination.TotalPages > 1)
+    {
+        <nav class="payment-audit-pagination">
+            @for (var pageNumber = 1; pageNumber <= pagination.TotalPages; pageNumber++)
+            {
+                <a class="@(pageNumber == pagination.Page ? "active" : "")" asp-action="Index" asp-route-page="@pageNumber" asp-route-tuNgay="@ViewData["TuNgay"]" asp-route-denNgay="@ViewData["DenNgay"]" asp-route-maNhanVien="@ViewData["MaNhanVien"]" asp-route-phuongThuc="@ViewData["PhuongThuc"]">@pageNumber</a>
+            }
+        </nav>
+    }
+</section>

@@ -43,5 +43,8 @@ namespace bài_tập_1.Models
 
         // Navigation
         public ICollection<PhieuMuon> PhieuMuons { get; set; } = new List<PhieuMuon>();
+
+        public ICollection<GiaoDichThanhToan> GiaoDichThanhToans { get; set; } =
+            new List<GiaoDichThanhToan>();
     }
 }

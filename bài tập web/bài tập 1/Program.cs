@@ -61,6 +61,7 @@ namespace bài_tập_1
             builder.Services.AddScoped<ThongBaoService>();
             builder.Services.AddScoped<DocGiaEligibilityService>();
             builder.Services.AddScoped<MuonOnlineService>();
+            builder.Services.AddScoped<AdminChangeNotificationService>();
             builder.Services.AddHostedService<LibraryMaintenanceService>();
 
             var app = builder.Build();

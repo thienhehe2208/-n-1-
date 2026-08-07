@@ -23,16 +23,25 @@ namespace bài_tập_1.Controllers
             _service = service;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string? hopThu = null)
         {
             IQueryable<ThongBao> query;
             if (User.IsInRole("Admin"))
             {
-                query = _context.ThongBao.Where(t => t.LaThongBaoAdmin)
-                    .Where(t => t.MaThongBao == _context.ThongBao
-                        .Where(x => x.MaBanTin == t.MaBanTin)
-                        .Min(x => x.MaThongBao));
-                ViewData["IsAdminOutbox"] = true;
+                if (string.Equals(hopThu, "thay-doi", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = _context.ThongBao.Where(t =>
+                        t.DoiTuong == "Admin" && !t.LaThongBaoAdmin);
+                    ViewData["IsAdminInbox"] = true;
+                }
+                else
+                {
+                    query = _context.ThongBao.Where(t => t.LaThongBaoAdmin)
+                        .Where(t => t.MaThongBao == _context.ThongBao
+                            .Where(x => x.MaBanTin == t.MaBanTin)
+                            .Min(x => x.MaThongBao));
+                    ViewData["IsAdminOutbox"] = true;
+                }
             }
             else if (User.IsInRole("DocGia"))
             {
@@ -97,6 +106,8 @@ namespace bài_tập_1.Controllers
                 return LocalRedirect(item.LienKet);
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return LocalRedirect(returnUrl);
+            if (User.IsInRole("Admin"))
+                return RedirectToAction(nameof(Index), new { hopThu = "thay-doi" });
             return RedirectToAction(nameof(Index));
         }
 
@@ -104,13 +115,36 @@ namespace bài_tập_1.Controllers
         public async Task<IActionResult> DanhDauTatCaDaDoc(string? returnUrl = null)
         {
             IQueryable<ThongBao> query = _context.ThongBao.Where(t => !t.DaDoc);
-            if (User.IsInRole("DocGia")) { var d = await GetDocGiaAsync(); if (d == null) return NotFound(); query = query.Where(t => t.MaDocGia == d.MaDocGia); }
+            if (User.IsInRole("Admin")) query = query.Where(t => t.DoiTuong == "Admin" && !t.LaThongBaoAdmin);
+            else if (User.IsInRole("DocGia")) { var d = await GetDocGiaAsync(); if (d == null) return NotFound(); query = query.Where(t => t.MaDocGia == d.MaDocGia); }
             else { var n = await GetNhanVienAsync(); if (n == null) return NotFound(); query = query.Where(t => t.MaNhanVien == n.MaNhanVien); }
             foreach (var item in await query.ToListAsync()) item.DaDoc = true;
             await _context.SaveChangesAsync();
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return LocalRedirect(returnUrl);
+            if (User.IsInRole("Admin"))
+                return RedirectToAction(nameof(Index), new { hopThu = "thay-doi" });
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> MoThongBaoAdmin(int id)
+        {
+            var item = await _context.ThongBao.FirstOrDefaultAsync(t =>
+                t.MaThongBao == id &&
+                t.DoiTuong == "Admin" &&
+                !t.LaThongBaoAdmin);
+            if (item == null)
+                return NotFound();
+
+            item.DaDoc = true;
+            await _context.SaveChangesAsync();
+
+            return !string.IsNullOrWhiteSpace(item.LienKet) &&
+                   Url.IsLocalUrl(item.LienKet)
+                ? LocalRedirect(item.LienKet)
+                : RedirectToAction(nameof(Index), new { hopThu = "thay-doi" });
         }
 
         private ThongBao TaoBanSao(TaoThongBaoViewModel m, int batchId, DateTime now, int? maDocGia = null, int? maNhanVien = null) => new()
@@ -130,7 +164,7 @@ namespace bài_tập_1.Controllers
 
         private async Task<ThongBao?> TimThongBaoCuaNguoiDungAsync(int id)
         {
-            if (User.IsInRole("Admin")) return null;
+            if (User.IsInRole("Admin")) return await _context.ThongBao.FirstOrDefaultAsync(t => t.MaThongBao == id && t.DoiTuong == "Admin" && !t.LaThongBaoAdmin);
             if (User.IsInRole("DocGia")) { var d = await GetDocGiaAsync(); return d == null ? null : await _context.ThongBao.FirstOrDefaultAsync(t => t.MaThongBao == id && t.MaDocGia == d.MaDocGia); }
             var n = await GetNhanVienAsync(); return n == null ? null : await _context.ThongBao.FirstOrDefaultAsync(t => t.MaThongBao == id && t.MaNhanVien == n.MaNhanVien);
         }

@@ -44,10 +44,24 @@ namespace bài_tập_1.ViewComponents
                 .OrderByDescending(item => item.NgayTao)
                 .ToList();
 
+            var thayDoiQuery = _context.ThongBao
+                .Where(t =>
+                    t.DoiTuong == "Admin" &&
+                    !t.LaThongBaoAdmin)
+                .AsNoTracking();
+
+            var thayDoiMoi = await thayDoiQuery
+                .OrderBy(t => t.DaDoc)
+                .ThenByDescending(t => t.NgayTao)
+                .Take(5)
+                .ToListAsync();
+
             return View(new AdminLoanNotificationViewModel
             {
                 TongPhieuChoNhan = groups.Count,
-                PhieuMoi = groups.Take(5).ToList()
+                PhieuMoi = groups.Take(5).ToList(),
+                TongThayDoiChuaDoc = await thayDoiQuery.CountAsync(t => !t.DaDoc),
+                ThayDoiMoi = thayDoiMoi
             });
         }
     }

@@ -342,6 +342,17 @@ namespace bài_tập_1.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            var daPhatSinhNghiepVu =
+                await _context.PhieuMuon.AnyAsync(p => p.MaNhanVien == id) ||
+                await _context.GiaoDichThanhToan.AnyAsync(g =>
+                    g.MaNhanVienXacNhan == id);
+            if (daPhatSinhNghiepVu)
+            {
+                TempData["Error"] =
+                    "Không thể xóa nhân viên đã phát sinh phiếu mượn hoặc giao dịch thanh toán.";
+                return RedirectToAction(nameof(Index));
+            }
+
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
@@ -373,7 +384,7 @@ namespace bài_tập_1.Controllers
             {
                 await transaction.RollbackAsync();
                 TempData["Error"] =
-                    "Không thể xóa nhân viên đã phát sinh phiếu mượn.";
+                    "Không thể xóa nhân viên đã phát sinh dữ liệu nghiệp vụ.";
             }
 
             return RedirectToAction(nameof(Index));

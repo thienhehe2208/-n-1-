@@ -1,6 +1,8 @@
 @model bài_tập_1.Models.PhieuMuon
 @using bài_tập_1.Models
 @using bài_tập_1.Services
+@using System.Globalization
+@inject IConfiguration Configuration
 @{
     ViewData["Title"] = "Chi tiết phiếu mượn";
     var laPhieuNhap = Model.TrangThai == TrangThaiPhieuMuon.Nhap;
@@ -10,6 +12,27 @@
     var sachChuaTra = Model.ChiTietPhieuMuons.Count(c => !c.NgayTra.HasValue);
     var sachDaTra = Model.ChiTietPhieuMuons.Count(c => c.NgayTra.HasValue);
     var soPhieuPhat = Model.ChiTietPhieuMuons.Count(c => c.PhieuPhat != null);
+    var tongPhiThue = Model.TongPhiThue;
+    var tongTienPhat = Model.TongTienPhat;
+    var tongThanhToan = Model.TongThanhToan;
+    var tongCanThanhToan = Model.TongCanThanhToan;
+    var daThanhToan = Model.TrangThaiThanhToan == TrangThaiThanhToan.DaThanhToan;
+    var chuaLapDuPhieuPhat = Model.ChiTietPhieuMuons.Any(c =>
+        c.NgayTra.HasValue &&
+        (c.NgayTra.Value.Date > Model.NgayHenTra.Date ||
+         c.TinhTrangKhiTra is TinhTrangKhiTra.HuHong or TinhTrangKhiTra.Mat) &&
+        c.PhieuPhat == null);
+    var bankId = Configuration["Payment:BankId"] ?? "970422";
+    var bankName = Configuration["Payment:BankName"] ?? "MB Bank";
+    var accountNumber = Configuration["Payment:AccountNumber"] ?? "6040122082003";
+    var accountName = Configuration["Payment:AccountName"] ?? "LUONG THE THIEN";
+    var transferContent = $"THANH TOAN PM{Model.MaPhieuMuon:D5}";
+    var qrAmount = decimal.Truncate(tongCanThanhToan)
+        .ToString(CultureInfo.InvariantCulture);
+    var qrUrl = $"https://img.vietqr.io/image/{Uri.EscapeDataString(bankId)}-" +
+        $"{Uri.EscapeDataString(accountNumber)}-compact2.png?amount={qrAmount}" +
+        $"&addInfo={Uri.EscapeDataString(transferContent)}" +
+        $"&accountName={Uri.EscapeDataString(accountName)}";
     var soNgay = (Model.NgayHenTra.Date - DateTime.Today).Days;
     var statusText = laPhieuNhap ? "Phiếu nháp" : daTra ? "Đã hoàn trả" : quaHan ? "Đang quá hạn" : "Đang mượn";
     var statusClass = laPhieuNhap ? "draft" : daTra ? "returned" : quaHan ? "overdue" : "borrowing";
@@ -72,6 +95,7 @@
                         <section class="loan-detail-book-row @(returned ? "returned" : "active")">
                             <span class="loan-detail-book-cover"><i class="bi bi-book"></i></span>
                             <div class="loan-detail-book-name"><small>BẢN GHI SÁCH CT-@(item.MaChiTiet.ToString("D5"))</small><h3>@item.BanSao.Sach.TenSach</h3><span><i class="bi bi-upc-scan"></i> @item.BanSao.MaVach</span></div>
+                            <div class="loan-detail-book-fee"><small>PHÍ THUÊ</small><strong>@item.PhiThue.ToString("N0") ₫</strong></div>
                             <div class="loan-detail-book-state"><small>TRẠNG THÁI</small><span class="@(returned ? "returned" : "borrowing")"><i></i>@(returned ? "Đã hoàn trả" : "Đang mượn")</span></div>
                             <div class="loan-detail-book-return"><small>NGÀY TRẢ THỰC TẾ</small><strong>@(item.NgayTra?.ToString("HH:mm · dd/MM/yyyy") ?? "Chưa trả sách")</strong><span class="condition @conditionClass">@conditionText</span></div>
                             <div class="loan-detail-book-actions">
@@ -104,7 +128,119 @@
                 <div class="loan-detail-extension"><span><i class="bi bi-arrow-repeat"></i></span><div><small>SỐ LẦN GIA HẠN</small><strong>@Model.SoLanGiaHan / @LibraryRules.SoLanGiaHanToiDa lần</strong></div></div>
             </article>
 
+            <article class="loan-detail-panel loan-payment-card @(daThanhToan ? "paid" : "unpaid")">
+                <div class="loan-detail-side-title">
+                    <span><i class="bi bi-wallet2"></i></span>
+                    <div><small>THANH TOÁN</small><h2>Chi phí phiếu mượn</h2></div>
+                </div>
+                <div class="loan-payment-lines">
+                    <div><span>Phí thuê (@Model.TongSoSach cuốn × @LibraryRules.PhiThueMoiCuon.ToString("N0") ₫)</span><strong>@tongPhiThue.ToString("N0") ₫</strong></div>
+                    <div><span>Tiền phạt</span><strong>@tongTienPhat.ToString("N0") ₫</strong></div>
+                    <div class="total"><span>Tổng chi phí</span><strong>@tongThanhToan.ToString("N0") ₫</strong></div>
+                </div>
+                <span class="loan-payment-status @(daThanhToan ? "paid" : "unpaid")">
+                    <i class="bi @(daThanhToan ? "bi-check-circle-fill" : "bi-hourglass-split")"></i>
+                    @(daThanhToan ? $"Đã thanh toán {Model.NgayThanhToan:dd/MM/yyyy HH:mm}" : "Chưa thanh toán")
+                </span>
+                @if (daThanhToan && Model.GiaoDichThanhToan != null)
+                {
+                    var giaoDich = Model.GiaoDichThanhToan;
+                    var tenPhuongThuc = giaoDich.PhuongThuc switch
+                    {
+                        PhuongThucThanhToan.TienMat => "Tiền mặt",
+                        PhuongThucThanhToan.ChuyenKhoan => "Chuyển khoản",
+                        _ => "Chưa xác định"
+                    };
+                    <div class="loan-payment-audit">
+                        <div><span>Người xác nhận</span><strong>@giaoDich.NhanVienXacNhan.HoTen</strong></div>
+                        <div><span>Phương thức</span><strong>@tenPhuongThuc</strong></div>
+                        @if (!string.IsNullOrWhiteSpace(giaoDich.MaThamChieu))
+                        {
+                            <div><span>Mã giao dịch</span><strong>@giaoDich.MaThamChieu</strong></div>
+                        }
+                        @if (giaoDich.DuLieuKhoiTao)
+                        {
+                            <small><i class="bi bi-info-circle"></i> Giao dịch được chuyển đổi từ dữ liệu thanh toán cũ.</small>
+                        }
+                    </div>
+                }
+                @if (!daThanhToan && chuaLapDuPhieuPhat)
+                {
+                    <p class="loan-payment-warning"><i class="bi bi-exclamation-triangle"></i> Hãy lập đủ phiếu phạt trước khi thu tiền.</p>
+                }
+                else if (!daThanhToan && daTra)
+                {
+                    <button type="button" class="loan-payment-button" data-bs-toggle="modal" data-bs-target="#payLoanModal">
+                        <i class="bi bi-cash-coin"></i> Xác nhận thanh toán
+                    </button>
+                }
+                else if (!daThanhToan)
+                {
+                    <p class="loan-payment-note">Thanh toán được mở sau khi độc giả trả toàn bộ sách.</p>
+                }
+            </article>
+
             <a asp-action="Index" class="loan-detail-back"><i class="bi bi-list-ul"></i><span><strong>Quay lại danh sách</strong><small>Tiếp tục quản lý phiếu mượn</small></span><i class="bi bi-chevron-right"></i></a>
         </aside>
     </div>
 </section>
+
+@if (!daThanhToan && daTra && !chuaLapDuPhieuPhat)
+{
+    <div class="modal fade" id="payLoanModal" tabindex="-1" aria-labelledby="payLoanTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="payLoanTitle">Xác nhận đã thu tiền</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="loan-payment-qr-layout">
+                        <div class="loan-payment-qr">
+                            <img src="@qrUrl" alt="Mã VietQR thanh toán phiếu PM-@Model.MaPhieuMuon.ToString("D5")" />
+                            <small>Quét bằng ứng dụng ngân hàng</small>
+                        </div>
+                        <div class="loan-payment-transfer">
+                            <p>Độc giả cần thanh toán trong lần này <strong>@tongCanThanhToan.ToString("N0") ₫</strong>.</p>
+                            <dl>
+                                <div><dt>Ngân hàng</dt><dd>@bankName</dd></div>
+                                <div><dt>Số tài khoản</dt><dd>@accountNumber</dd></div>
+                                <div><dt>Chủ tài khoản</dt><dd>@accountName</dd></div>
+                                <div><dt>Nội dung</dt><dd>@transferContent</dd></div>
+                            </dl>
+                            <ul class="mb-0">
+                                <li>Phí thuê sách: @tongPhiThue.ToString("N0") ₫</li>
+                                <li>Phiếu phạt chưa đóng: @Model.TongTienPhatChuaDong.ToString("N0") ₫</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="loan-payment-manual-note"><i class="bi bi-info-circle"></i> QR hỗ trợ chuyển khoản, không tự kiểm tra giao dịch. Nhân viên cần đối chiếu tiền vào tài khoản trước khi xác nhận.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kiểm tra lại</button>
+                    <form asp-action="ThanhToan" asp-route-id="@Model.MaPhieuMuon" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="MaPhieuMuon" value="@Model.MaPhieuMuon" />
+                        <div class="mb-3 text-start">
+                            <label class="form-label" for="paymentMethod">Phương thức thanh toán</label>
+                            <select class="form-select" id="paymentMethod" name="PhuongThuc" required>
+                                <option value="">-- Chọn phương thức --</option>
+                                <option value="@((int)PhuongThucThanhToan.TienMat)">Tiền mặt</option>
+                                <option value="@((int)PhuongThucThanhToan.ChuyenKhoan)">Chuyển khoản</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 text-start">
+                            <label class="form-label" for="paymentReference">Mã giao dịch ngân hàng</label>
+                            <input class="form-control" id="paymentReference" name="MaThamChieu" maxlength="100" placeholder="Bắt buộc nếu chọn chuyển khoản" />
+                        </div>
+                        <div class="mb-3 text-start">
+                            <label class="form-label" for="paymentNote">Ghi chú</label>
+                            <textarea class="form-control" id="paymentNote" name="GhiChu" maxlength="250" rows="2" placeholder="Thông tin đối soát nếu có"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Đã kiểm tra và thu đủ tiền</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

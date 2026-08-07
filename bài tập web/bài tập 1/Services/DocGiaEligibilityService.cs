@@ -49,6 +49,14 @@ namespace bài_tập_1.Services
             if (conNoPhat)
                 errors.Add("Độc giả còn phiếu phạt chưa thanh toán.");
 
+            var conNoPhiThue = await _context.PhieuMuon.AnyAsync(p =>
+                p.MaDocGia == maDocGia &&
+                p.TrangThai == TrangThaiPhieuMuon.DaTra &&
+                p.TrangThaiThanhToan == TrangThaiThanhToan.ChuaThanhToan &&
+                p.ChiTietPhieuMuons.Any(c => c.PhiThue > 0));
+            if (conNoPhiThue)
+                errors.Add("Độc giả còn phiếu mượn đã trả chưa thanh toán phí thuê.");
+
             var coSachQuaHan = await _context.ChiTietPhieuMuon.AnyAsync(c =>
                 c.PhieuMuon.MaDocGia == maDocGia &&
                 c.NgayTra == null &&

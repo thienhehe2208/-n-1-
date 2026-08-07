@@ -91,6 +91,55 @@
         </a>
     </div>
 
+    @if (Model.HienBaoCaoDoanhThu)
+    {
+        <section class="dashboard-revenue-section">
+            <div class="dashboard-panel-header">
+                <div>
+                    <span class="dashboard-panel-eyebrow">BÁO CÁO QUẢN TRỊ</span>
+                    <h3>Doanh thu và lượt mượn</h3>
+                </div>
+                <a asp-controller="GiaoDichThanhToans" asp-action="Index" class="dashboard-view-all">
+                    Xem lịch sử thanh toán <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="dashboard-revenue-grid">
+                <article class="dashboard-revenue-card today">
+                    <span><i class="bi bi-calendar-day"></i></span>
+                    <div><small>DOANH THU HÔM NAY</small><strong>@Model.DoanhThuHomNay.ToString("N0") ₫</strong></div>
+                </article>
+                <article class="dashboard-revenue-card month">
+                    <span><i class="bi bi-calendar3"></i></span>
+                    <div><small>DOANH THU THÁNG @DateTime.Today.Month</small><strong>@Model.DoanhThuThangNay.ToString("N0") ₫</strong></div>
+                </article>
+                <article class="dashboard-revenue-card year">
+                    <span><i class="bi bi-graph-up-arrow"></i></span>
+                    <div><small>DOANH THU NĂM @DateTime.Today.Year</small><strong>@Model.DoanhThuNamNay.ToString("N0") ₫</strong></div>
+                </article>
+            </div>
+            <div class="dashboard-top-books">
+                <div class="dashboard-top-books-heading"><span><i class="bi bi-trophy"></i></span><div><small>TOP 5</small><h4>Sách có lượt mượn nhiều nhất</h4></div></div>
+                @if (!Model.SachMuonNhieuNhat.Any())
+                {
+                    <p class="dashboard-top-books-empty">Chưa có dữ liệu mượn sách.</p>
+                }
+                else
+                {
+                    <ol>
+                        @foreach (var sach in Model.SachMuonNhieuNhat)
+                        {
+                            <li>
+                                <span>@(Model.SachMuonNhieuNhat.IndexOf(sach) + 1)</span>
+                                <a asp-controller="Saches" asp-action="Details" asp-route-id="@sach.MaSach">@sach.TenSach</a>
+                                <strong>@sach.SoLuotMuon lượt</strong>
+                            </li>
+                        }
+                    </ol>
+                }
+            </div>
+        </section>
+    }
+
     <div class="dashboard-main-grid">
         <section class="dashboard-panel dashboard-overdue-panel">
             <div class="dashboard-panel-header">

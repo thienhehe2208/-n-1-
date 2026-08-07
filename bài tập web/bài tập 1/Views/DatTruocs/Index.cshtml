@@ -69,7 +69,7 @@
 
     <div class="request-section request-online-section">
         <div class="request-section-heading">
-            <div><span>ƯU TIÊN XỬ LÝ</span><h2><i class="bi bi-journal-check"></i> Phiếu mượn do độc giả tạo</h2><p>Duyệt yêu cầu mới trước; chỉ tạo phiếu mượn sau khi độc giả đến quầy và cung cấp mã.</p></div>
+            <div><span>ƯU TIÊN XỬ LÝ</span><h2><i class="bi bi-journal-check"></i> Phiếu mượn do độc giả tạo</h2></div>
             <span class="request-heading-count">@onlineRequests.Count() phiếu hiển thị</span>
         </div>
         @if (!onlineRequests.Any())
@@ -110,7 +110,7 @@
 </div>
 
 <div class="request-section reservation-admin-section">
-    <div class="request-section-heading"><div><span>HÀNG ĐỢI ĐẶT TRƯỚC</span><h2><i class="bi bi-bookmarks"></i> Yêu cầu đặt trước</h2><p>Ưu tiên các yêu cầu đã có sách và đang chờ độc giả đến nhận.</p></div><span class="request-heading-count">@ViewData["HoanThanh"] đã hoàn thành</span></div>
+    <div class="request-section-heading"><div><span>HÀNG ĐỢI ĐẶT TRƯỚC</span><h2><i class="bi bi-bookmarks"></i> Yêu cầu đặt trước</h2></div><span class="request-heading-count">@ViewData["HoanThanh"] đã hoàn thành</span></div>
     @if (!Model.Any())
     {
         <div class="request-center-empty"><span><i class="bi bi-bookmark"></i></span><div><h3>Không tìm thấy yêu cầu đặt trước</h3><p>Thử thay đổi bộ lọc hoặc tạo yêu cầu mới.</p></div></div>
@@ -146,7 +146,8 @@
                         <td><div class="reservation-admin-actions"><a asp-action="Details" asp-route-id="@item.MaDatTruoc" title="Chi tiết"><i class="bi bi-eye"></i></a>@if(item.TrangThai==TrangThaiDatTruoc.DaCoSach){
                             <form asp-action="XacNhanNhanSach" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Xác nhận độc giả đã nhận bản sao này và tạo phiếu mượn?');">@Html.AntiForgeryToken()<button class="confirm confirm-wide" title="Xác nhận nhận sách và tạo phiếu mượn"><i class="bi bi-person-check"></i><span>Nhận &amp; tạo phiếu</span></button></form>
                         }
-                        @if (item.TrangThai is TrangThaiDatTruoc.DangCho or TrangThaiDatTruoc.DaCoSach)
+                        @if (User.IsInRole("Admin") &&
+                             item.TrangThai is TrangThaiDatTruoc.DangCho or TrangThaiDatTruoc.DaCoSach)
                         {
                             <form asp-action="Huy" asp-route-id="@item.MaDatTruoc" method="post" onsubmit="return confirm('Hủy yêu cầu và chuyển bản sao cho người tiếp theo?');">@Html.AntiForgeryToken()<button class="cancel" title="Hủy"><i class="bi bi-x-lg"></i></button></form>
                         }
